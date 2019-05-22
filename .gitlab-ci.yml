@@ -3,7 +3,7 @@ stages:
    - test
 
 variables:
-   CODECOV_TOKEN: "06e2028a-c621-4860-8a18-574e6beeb35d"
+   CODECOV_TOKEN: "c963ecec-e627-4bc4-8ac0-fa6569cb312f"
 
 before_script:
    - apk add --no-cache --virtual .build-deps git
