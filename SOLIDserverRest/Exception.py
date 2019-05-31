@@ -31,7 +31,8 @@ class SSDServiceError(SSDError):
 class SSDRequestError(SSDError):
     """ raised when urllib request is failing """
 
-    def __init__(self, method, url, headers):
+    def __init__(self, method, url, headers, message=""):
         self.method = method
         self.url = url
         self.headers = headers
+        self.message = message

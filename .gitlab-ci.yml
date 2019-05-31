@@ -1,11 +1,21 @@
 stages:
    - build
-   - test
+   - test27
+   - test36
+   - test37
+   - coverage
 
 variables:
    CODECOV_TOKEN: "c963ecec-e627-4bc4-8ac0-fa6569cb312f"
 
+cache:
+   paths:
+      - .coverage-py36
+      - .coverage-py37
+      - .coverage-py27
+
 before_script:
+   - ls -la
    - apk add --no-cache --virtual .build-deps git
    - pip install -r requirements.txt
 
@@ -15,6 +25,7 @@ build-37:
   script:
      - python setup.py sdist
      - pip install ./dist/*
+     - rm -rf .coverage-py*
 
 build-36:
   stage: build
@@ -30,33 +41,8 @@ build-27:
      - python setup.py sdist
      - pip install ./dist/*
 
-test-37:
-  stage: test
-  image: python:3.7-alpine
-  dependencies:
-    - build-37
-  script:
-     - pip install -r requirements-tests.txt
-     - pycodestyle ./SOLIDserverRest/*.py
-     - coverage run ./SOLIDserverRest/*.py
-     - pytest --cov=./SOLIDserverRest tests/*
-     - coverage report -m
-     - codecov
-
-test-36:
-  stage: test
-  image: python:3.6-alpine
-  dependencies:
-    - build-36
-  script:
-     - pip install -r requirements-tests.txt
-     - pycodestyle ./SOLIDserverRest/*.py
-     - coverage run ./SOLIDserverRest/*.py
-     - pytest --cov=./SOLIDserverRest tests/*
-     - coverage report -m
-
 test-27:
-  stage: test
+  stage: test27
   image: python:2.7-alpine
   dependencies:
     - build-27
@@ -65,4 +51,43 @@ test-27:
      - pycodestyle ./SOLIDserverRest/*.py
      - coverage run ./SOLIDserverRest/*.py
      - pytest --cov=./SOLIDserverRest tests/*
+     - cp .coverage .coverage-py27
+
+test-36:
+  stage: test36
+  image: python:3.6-alpine
+  dependencies:
+    - build-36
+    - test-27
+  script:
+     - pip install -r requirements-tests.txt
+     - pycodestyle ./SOLIDserverRest/*.py
+     - coverage run ./SOLIDserverRest/*.py
+     - pytest --cov=./SOLIDserverRest tests/*
+     - cp .coverage .coverage-py36
+
+test-37:
+  stage: test37
+  image: python:3.7-alpine
+  dependencies:
+    - build-37
+    - test-36
+  script:
+     - pip install -r requirements-tests.txt
+     - pycodestyle ./SOLIDserverRest/*.py
+     - coverage run ./SOLIDserverRest/*.py
+     - pytest --cov=./SOLIDserverRest tests/*
+     - cp .coverage .coverage-py37
+
+coverage:
+  stage: coverage
+  image: python:3.7-alpine
+  dependencies:
+    - test-27
+    - test-37
+    - test-36
+  script:
+     - pip install -r requirements-tests.txt
+     - coverage combine .coverage-py27 .coverage-py36 .coverage-py37
      - coverage report -m
+     - codecov

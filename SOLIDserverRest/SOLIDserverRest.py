@@ -173,8 +173,8 @@ class SOLIDserverRest:
                 verify=ssl_verify,
                 timeout=timeout,
                 auth=self.auth)
-        except BaseException:
-            raise SSDRequestError(method, url, self.headers)
+        except BaseException as e:
+            raise SSDRequestError(method, url, self.headers, message=e)
 
     def get_headers(self):
         """ returns the headers attached to this connection """

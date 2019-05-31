@@ -74,3 +74,35 @@ Each available method rely on the following naming convention for intuitive usag
 * **[ip_alias6_add](ip_alias6_add.md)** => This service allows to associate an Alias of type A or CNAME to an IPv4 Address.
 * **[ip_alias6_list](ip_alias6_add.md)** => This service returns the list of an IPv6 Address associated Aliases.
 * **[ip_alias6_delete](ip_alias6_delete.md)** => This service allows to remove an Alias associated to an IPv6 Address.
+
+## Applications
+### Application
+
+* **app_application_list** => lists all the applications in the IPAM
+* **app_application_add** => add an application definition
+* **app_application_delete** => delete the specified application
+* **app_application_count** => count the applications in the IPAM
+* **app_application_info** => provide information on an application
+* **app_application_delete** => delete an application and all pools and nodes attached
+
+### Pool of nodes
+* **app_pool_add** => add a pool of nodes to the application
+* **app_pool_update** => update a pool of nodes from an application
+* **app_pool_list** => list all the pools
+* **app_pool_count** => count the pools
+* **app_pool_info** => get information about a pool
+* **app_pool_delete** => delete a pool and all the nodes attached
+
+### Nodes
+* **app_node_add': 'app_node_add'** => add a node to a pool
+* **app_node_update': 'app_node_add'** => update a node in a pool
+* **app_node_info': 'app_node_info'** => get information from a node in a pool
+* **app_node_count': 'app_node_count'** => count the nodes
+* **app_node_list': 'app_node_list'** => list the nodes
+* **app_node_delete': 'app_node_delete'** => delete a node in a pool
+
+### Healthchecks
+
+* **app_healthcheck_count': 'app_healthcheck_count'** => add a health check to a node
+* **app_healthcheck_info': 'app_healthcheck_info'** => get information about a node health check
+* **app_healthcheck_list': 'app_healthcheck_list'** => list the health checks attached to a node

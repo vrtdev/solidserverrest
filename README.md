@@ -1,9 +1,9 @@
-[![Build status](https://travis-ci.com/gregocgt/SOLIDserverRest.svg?branch=master)](https://https://travis-ci.com/gregocgt/SOLIDserverRest)
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-blue.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![Updates](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/shield.svg)](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/)
+
 [![Python 3](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/python-3-shield.svg)](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/)
-[![Codecov branch](https://codecov.io/gh/gregocgt/SOLIDserverRest/branch/next-version/graph/badge.svg)](https://codecov.io/gh/gregocgt/SOLIDserverRest)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/SOLIDserverRest.svg)
+[![Updates](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/shield.svg)](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/)
+[![pipeline status](https://gitlab.com/efficientip/solidserverrest/badges/master/pipeline.svg)](https://gitlab.com/efficientip/solidserverrest/commits/master)
+[![coverage report](https://gitlab.com/efficientip/solidserverrest/badges/master/coverage.svg)](https://codecov.io/gl/efficientip/solidserverrest)
 [![Documentation Status](https://readthedocs.org/projects/solidserverrest/badge/?version=latest)](https://solidserverrest.readthedocs.io/en/latest/?badge=latest)
 
 # SOLIDserverRest
@@ -25,7 +25,7 @@ Install 'SOLIDserverRest' using pip in your virtualenv:
 # Usage
 ## Using the SOLIDserverRest object
 
-1. **Declare endpoint API point**
+### 1. Declare endpoint API point
 Set the API endpoint you want to talk with through API. Could use an IP address
 (v4 or v6) or a host name
 * host = IP address of the SOLIDserver server
@@ -33,9 +33,9 @@ Set the API endpoint you want to talk with through API. Could use an IP address
 con = SOLIDserverRest("fqdn_host.org")
 ```
 
-2. **Specify connection method**
-Only native connection is supported for this version, using SSD default method
-and providing authentication through headers in the requests with information
+### 2. Specify connection method
+You can use native connection mode using SOLIDserver default method which provide 
+authentication through headers in the requests with information
 encoded in base64
 
 * user = user who want to use
@@ -45,7 +45,16 @@ encoded in base64
 	con.use_native_ssd(user="apiuser", password="apipwd")
 ```
 
-3. **Request to SOLIDserver API**
+You can also use the basic authentication method for connecting the SOLIDserver.
+
+* user = user who want to use
+* password = password of the user
+
+```python
+	con.use_basicauth_ssd(user="apiuser", password="apipwd")
+```
+
+### 3. Request to SOLIDserver API
 
 You need parameters:
 * method = choose your method in the list below
@@ -56,7 +65,7 @@ To check the certificate, you must set ssl_verify=True
 	rest_answer = con.query("method", "parameters", ssl_verify=True)
 ```
 
-4. **Analyze answer**
+### 4. Analyze answer
 
 * rest_answer => object name
 * rest_answer.status_code => current http answer code set in the object
@@ -79,5 +88,6 @@ Methods are organized to match the ontology used in SOLIDServer, you will find:
 
 More information about supported methods in the [specific document](docs/METHODS.md)
 
-## Supported SSD modules in methods are:
--ip (IPAM - IP Address Management)
+## Supported SOLIDserver modules in methods are:
+* ip (IPAM - IP Address Management)
+* app (Application and GSLB management) - starting with release 7.1 of SOLIDserver
