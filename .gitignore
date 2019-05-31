@@ -17,3 +17,4 @@ env37/**
 /tests/data.py
 coverage.xml
 **/*~
+report.txt

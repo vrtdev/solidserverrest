@@ -7,6 +7,7 @@ import json
 import re
 import logging
 
+
 _logFormat = '%(asctime)-15s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s'
 logging.basicConfig(format=_logFormat, level=logging.INFO)
 
@@ -15,6 +16,10 @@ sys.path.append(os.getcwd())
 from SOLIDserverRest import *
 from SOLIDserverRest.Exception import *
 
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 if sys.version_info[0] == 2:
     try:
         from data import *
@@ -22,10 +27,7 @@ if sys.version_info[0] == 2:
         from data_sample import *
 else:
     try:
-        from .data import *
-        import requests
-        from requests.packages.urllib3.exceptions import InsecureRequestWarning
-        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        from tests.data_sample import *
     except:
         from .data_sample import *
 
@@ -75,10 +77,6 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
     logging.info('User: {}'.format(USER))
     logging.info('Password: {}'.format(PWD))
 
-    logging.info("IP of th server: <your server IP's>")
-    logging.info("User: <your user name's>")
-    logging.info("Password: <your password>")
-    display_test = 'TEST: *'
     total_services = 0
     check_services = 0
     total_methods = len(set(METHOD_MAPPER.values()))
@@ -101,22 +99,20 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
         logging.info('Sub Test: {}'.format(serviceR))
         logging.info('Parameters: {}'.format(parameters))
         logging.info('method: {}'.format(method))
-        logging.info(format(display_test))
             
         try:
-            answerR = testR.query(serviceR, parameters, option=options)
+            answerR = testR.query(serviceR, parameters, option=options, timeout=1)
             logging.info('Answer: {}'.format(answerR))
             logging.info('Answer: {}'.format(answerR.status_code))
             logging.info('Answer:')
             logging.info(answerR.content)
-        except SSDError:
-            logging.info("error on SDS query in test_no_params")
+        except SSDError as e:
+            logging.info("error on SDS query",e)
             None
 
         if method not in method_tested:
             method_tested.append(method)
 
-        display_test = display_test + '*'
         logging.info('--------------------------------')
         check_services += 1
 
@@ -129,7 +125,7 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
     logging.info('END of TEST AUTO')
 
 
-def _test_ukn_svc(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
+def test_ukn_svc(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
     logging.info('================================')
     logging.info('TEST UKN service')
     logging.info('================================')
@@ -141,7 +137,7 @@ def _test_ukn_svc(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
         testR.use_basicauth_ssd(USER, PWD)
 
     try:
-        answerR = testR.query('ukn_service_list', PARAMETERS)
+        answerR = testR.query('ukn_service_list', PARAMETERS, timeout=1)
         logging.info('Answer: {}'.format(answerR))
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
@@ -181,7 +177,7 @@ def test_method_none():
     testR.use_basicauth_ssd(USER, PWD)
 
     try:
-        answerR = testR.query('ukn_service_none')
+        answerR = testR.query('ukn_service_none', timeout=1)
         logging.info('Answer: {}'.format(answerR))
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
@@ -221,6 +217,7 @@ def test_options():
     fct_auto_dico(SOLIDserverRest.CNX_BASIC, SERVER, options=True)
 
 if __name__ == '__main__':
-    test_get_string()
+    # test_get_string()
+    test_auto_dico_native_srv()
 
 logging.info('END => test.py')
