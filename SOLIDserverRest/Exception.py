@@ -13,7 +13,11 @@ __all__ = ["SSDError",
 
 class SSDError(Exception):
     """ generic class for any exception in SOLIDServer communication """
-    pass
+    def __init__(self, message=""):
+        self.message = message
+
+    def __str__(self):
+        return "{}".format(self.message)
 
 
 class SSDInitError(SSDError):
@@ -24,15 +28,21 @@ class SSDInitError(SSDError):
 class SSDServiceError(SSDError):
     """ raised on unknown service """
 
-    def __init__(self, service_name):
+    def __init__(self, service_name, message=""):
         self.service = service_name
+        self.message = message
 
+    def __str__(self):
+        return "{} on service {}".format(self.message, self.service)
 
 class SSDRequestError(SSDError):
     """ raised when urllib request is failing """
 
     def __init__(self, method, url, headers, message=""):
+        self.message = message
         self.method = method
         self.url = url
         self.headers = headers
-        self.message = message
+
+    def __str__(self):
+        return "{} with {} {}".format(self.message, self.method, self.url)

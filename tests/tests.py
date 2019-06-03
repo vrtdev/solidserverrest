@@ -40,8 +40,8 @@ def test_no_server():
         testR.use_native_ssd('soliduser', 'solidpass')
         logging.info('Test = NO-OK')
 
-    except SSDError:
-        logging.info('Test = OK')
+    except SSDError as e:
+        logging.info('Test = OK {}'.format(str(e)))
         None
 
 def test_auto_dico_native_srv():
@@ -101,13 +101,13 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
         logging.info('method: {}'.format(method))
             
         try:
-            answerR = testR.query(serviceR, parameters, option=options, timeout=1)
+            answerR = testR.query(serviceR, parameters, option=options, timeout=0.2)
             logging.info('Answer: {}'.format(answerR))
             logging.info('Answer: {}'.format(answerR.status_code))
             logging.info('Answer:')
             logging.info(answerR.content)
         except SSDError as e:
-            logging.info("error on SDS query",e)
+            logging.info("error on SDS query - {}".format(str()))
             None
 
         if method not in method_tested:
@@ -142,7 +142,8 @@ def test_ukn_svc(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
         logging.info(answerR.content)
-    except SSDServiceError:
+    except SSDServiceError as e:
+        logging.info("unknown service - {}".format(str(e)))        
         return
 
     assert None, "ukn service should have raised an error"
@@ -212,9 +213,39 @@ def test_get_string():
     testR.use_basicauth_ssd(USER, PWD)
     print(testR)
 
-
 def test_options():
     fct_auto_dico(SOLIDserverRest.CNX_BASIC, SERVER, options=True)
+
+
+def test_get_memberme():
+    logging.info('================================')
+    logging.info('TEST get memberme')
+    logging.info('================================')
+    testR = SOLIDserverRest(SERVER)
+    testR.use_basicauth_ssd(USER, PWD)
+    parameters = {
+        'WHERE': 'member_is_me=1',
+    }
+
+    j = None
+    try:
+        answerR = testR.query("member_list", params=parameters, option=False, timeout=1)
+        logging.info('Answer: {}'.format(answerR))
+        logging.info('Answer: {}'.format(answerR.status_code))
+        #logging.info('Answer:')
+        #logging.info(answerR.content)
+        j = json.loads(answerR.content)
+    except SSDError as e:
+        logging.info("error on SDS query - {}".format(str(e)))
+        return
+
+    if j is None:
+        assert None, "no json result from member_list request"
+        return
+
+    if j[0]['member_is_me'] != '1':
+        assert None, "member list should have a me item"
+        return
 
 if __name__ == '__main__':
     # test_get_string()

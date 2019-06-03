@@ -50,7 +50,7 @@ test-27:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py
      - coverage run ./SOLIDserverRest/*.py
-     - pytest --cov=./SOLIDserverRest tests/*
+     - pytest -x --cov=./SOLIDserverRest tests/*
      - cp .coverage .coverage-py27
 
 test-36:
@@ -63,7 +63,7 @@ test-36:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py
      - coverage run ./SOLIDserverRest/*.py
-     - pytest --cov=./SOLIDserverRest tests/*
+     - pytest -x --cov=./SOLIDserverRest tests/*
      - cp .coverage .coverage-py36
 
 test-37:
@@ -76,7 +76,7 @@ test-37:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py
      - coverage run ./SOLIDserverRest/*.py
-     - pytest --cov=./SOLIDserverRest tests/*
+     - pytest -x --cov=./SOLIDserverRest tests/*
      - cp .coverage .coverage-py37
 
 coverage:

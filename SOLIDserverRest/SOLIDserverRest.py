@@ -36,14 +36,6 @@ class SOLIDserverRest:
     CNX_APIKEY = 2
     CNX_BASIC = 3
 
-    headers = None
-    debug = None
-    prefix_url = None
-    cnx_type = None
-    user = None
-    password = None
-    auth = None
-
     def __init__(self, host, debug=False):
         """ initialize connection with SSD host,
             this function is not active,
@@ -138,6 +130,8 @@ class SOLIDserverRest:
 
         if method is None:
             logging.error("no method available for request %s", service)
+            raise SSDServiceError(service,
+                                  message="no method available for request {}".format(service))
 
         logging.debug("method %s selected for service %s", method, service)
 
@@ -190,16 +184,18 @@ class SOLIDserverRest:
 
     def clean(self):
         """ clean all status of the SSD connection """
-        self.headers = None
-        self.debug = None
-        self.prefix_url = None
+        self.auth = None
         self.cnx_type = None
-        self.user = None
-        self.password = None
-        self.last_url = ''
-        self.resp = None
-        self.python_version = None
+        self.debug = None
+        self.headers = None
         self.host = None
+        self.last_url = ''
+        self.password = None
+        self.prefix_url = None
+        self.python_version = None
+        self.resp = None
+        self.user = None
+
 
     def __str__(self):
         _s = "SOLIDserverRest: API={}, user={}"

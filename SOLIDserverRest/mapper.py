@@ -102,6 +102,7 @@ SERVICE_MAPPER = {
     'app_healthcheck_info': 'app_healthcheck_info',
     'app_healthcheck_list': 'app_healthcheck_list',
 
+    'member_list': 'member_list',
 }
 
 METHOD_MAPPER = {
