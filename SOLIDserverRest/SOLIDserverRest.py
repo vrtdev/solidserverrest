@@ -15,15 +15,21 @@ import re
 import logging
 import urllib
 import requests
+# pylint: disable=F0401, E1101
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+# pylint: enable=F0401, E1101
 
 if sys.version_info[0] == 2:
-    from mapper import *
-    from Exception import *
+    # pylint: disable=F0401
+    from mapper import SERVICE_MAPPER, METHOD_MAPPER
+    from Exception import SSDInitError
+    from Exception import SSDServiceError, SSDRequestError
+    # pylint: enable=F0401
 else:
-    from .mapper import *
-    from .Exception import *
+    from .mapper import SERVICE_MAPPER, METHOD_MAPPER
+    from .Exception import SSDInitError
+    from .Exception import SSDServiceError, SSDRequestError
 
 __all__ = ["SOLIDserverRest"]
 
@@ -42,9 +48,16 @@ class SOLIDserverRest:
             just set host and parameters
         """
         self.clean()
-
+        self.auth = None
+        self.cnx_type = None
         self.debug = debug
+        self.headers = None
         self.host = host
+        self.last_url = ''
+        self.password = None
+        self.resp = None
+        self.user = None
+        self.session = None
         self.prefix_url = 'https://{}/rest/'.format(host)
         self.python_version = 0
         self.fct_url_encode = None
@@ -52,9 +65,11 @@ class SOLIDserverRest:
 
         # set specific features for python v2 (<=2020, not supported after)
         if sys.version_info[0] == 2:
+            # pylint: disable=E1101
             self.python_version = 2
             self.fct_url_encode = urllib.urlencode
             self.fct_b64_encode = base64.standard_b64encode
+            # pylint: enable=E1101
         else:
             self.python_version = 3
             self.fct_url_encode = urllib.parse.urlencode
@@ -62,6 +77,9 @@ class SOLIDserverRest:
 
         self.last_url = ''
         self.resp = None
+
+        self.session = requests.Session()
+        self.session.verify = "cert.pem"
 
     def use_native_ssd(self, user, password):
         """ propose to use a native EfficientIP SSD connection with Username
@@ -97,16 +115,20 @@ class SOLIDserverRest:
         self.password = password
 
         self.cnx_type = self.CNX_BASIC
-        self.auth = requests.auth.HTTPBasicAuth(user, password)
+        self.session.auth = requests.auth.HTTPBasicAuth(user, password)
 
         self.headers = {
             'content-type': 'application/json'
         }
 
+    def set_certificate_file(self, file_path):
+        """set the certificate that will be used to authenticate the server"""
+        self.session.verify = file_path
+
     def query(
             self, service,
             params=None,
-            ssl_verify=False,
+            ssl_verify=True,
             timeout=2,
             option=False):
         """ send request to the API endpoint, returns request result """
@@ -129,9 +151,10 @@ class SOLIDserverRest:
                     break
 
         if method is None:
+            msg = "no method available for request {}".format(service)
             logging.error("no method available for request %s", service)
             raise SSDServiceError(service,
-                                  message="no method available for request {}".format(service))
+                                  message=msg)
 
         logging.debug("method %s selected for service %s", method, service)
 
@@ -150,25 +173,28 @@ class SOLIDserverRest:
         self.last_url = "{}{}".format(svc_mapped, params).strip()
         url = "{}{}".format(self.prefix_url, self.last_url)
 
-        '''to https communication whithout certificate
-        #requests.urllib.disable_warnings()'''
-
         try:
-            logging.debug("m={} u={} h={} v={} a={}".format(method,
-                                                            url,
-                                                            self.headers,
-                                                            ssl_verify,
-                                                            self.auth))
+            logging.debug("m=%s u=%s h=%s v=%s a=%s",
+                          method,
+                          url,
+                          self.headers,
+                          ssl_verify,
+                          self.auth)
 
-            return requests.request(
+            return self.session.request(
                 method,
                 url,
                 headers=self.headers,
                 verify=ssl_verify,
                 timeout=timeout,
                 auth=self.auth)
-        except BaseException as e:
-            raise SSDRequestError(method, url, self.headers, message=e)
+        except requests.exceptions.SSLError:
+            raise SSDRequestError(method,
+                                  url,
+                                  self.headers,
+                                  message="SSL certificate error")
+        except BaseException as error:
+            raise SSDRequestError(method, url, self.headers, message=error)
 
     def get_headers(self):
         """ returns the headers attached to this connection """
@@ -195,7 +221,7 @@ class SOLIDserverRest:
         self.python_version = None
         self.resp = None
         self.user = None
-
+        self.session = None
 
     def __str__(self):
         _s = "SOLIDserverRest: API={}, user={}"
