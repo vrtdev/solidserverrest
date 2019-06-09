@@ -68,7 +68,8 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
             testR.use_native_ssd(USER, PWD)
         elif auth==SOLIDserverRest.CNX_BASIC:
             testR.use_basicauth_ssd(USER, PWD)
-    except SSDInitError:
+    except SSDInitError as error:
+        logging.critical(error)
         if srv is not None:
             assert None, "server connect error {}".format(srv)
         return
@@ -211,7 +212,7 @@ def test_get_string():
     logging.info('================================')
     testR = SOLIDserverRest(SERVER)
     testR.use_basicauth_ssd(USER, PWD)
-    print(testR)
+    # print(testR)
 
 def test_options():
     fct_auto_dico(SOLIDserverRest.CNX_BASIC, SERVER, options=True)
