@@ -82,7 +82,6 @@ SERVICE_MAPPER = {
     'app_application_delete': 'app_application_delete',
     'app_application_count': 'app_application_count',
     'app_application_info': 'app_application_info',
-    'app_application_delete': 'app_application_delete',
 
     'app_pool_add': 'app_pool_add',
     'app_pool_update': 'app_pool_add',
