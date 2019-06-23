@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*-coding:Utf-8 -*
+#
+# disable naming convention issue
+# pylint: disable=C0103
 ##########################################################
 """
 Exceptions for the SOLIDServer modules
@@ -9,6 +12,7 @@ __all__ = ["SSDError",
            "SSDInitError",
            "SSDServiceError",
            "SSDRequestError",
+           "SDSEmptyError",
            "SSDAuthError"]
 
 
@@ -56,4 +60,11 @@ class SSDAuthError(SSDError):
     """ raised when auth on request is wrong """
 
     def __init__(self, message=""):
-        super(SSDAuthError, self).__init__("authent {}".format(message))
+        super(SSDAuthError, self).__init__("authent: {}".format(message))
+
+
+class SDSEmptyError(SSDError):
+    """ raised when empty answer """
+
+    def __init__(self, message=""):
+        super(SDSEmptyError, self).__init__("empty answer: {}".format(message))

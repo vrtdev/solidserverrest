@@ -1,3 +1,11 @@
+# -*- Mode: Python; python-indent-offset: 4 -*-
+# -*-coding:Utf-8 -*
+#
+# Time-stamp: <2019-06-23 15:00:18 alex>
+#
+# disable naming convention issue
+# pylint: disable=C0103
+##########################################################
 
 """
 init of the SOLIDserver module

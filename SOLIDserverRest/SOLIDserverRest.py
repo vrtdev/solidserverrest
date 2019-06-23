@@ -1,4 +1,10 @@
+# -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
+#
+# Time-stamp: <2019-06-23 16:10:55 alex>
+#
+# disable naming convention issue
+# pylint: disable=C0103
 ##########################################################
 # Request example:
 # http://<SOLIDserver-IP>/rest/<service>?<param> [param=URLencode(value)]
@@ -36,6 +42,8 @@ __all__ = ["SOLIDserverRest"]
 ##########################################################################
 
 
+# effectively few variables in this class, just disabling the warning
+# pylint: disable=R0902
 class SOLIDserverRest:
     """ main SSD class """
     CNX_NATIVE = 1
@@ -47,7 +55,7 @@ class SOLIDserverRest:
             this function is not active,
             just set host and parameters
         """
-        self.clean()
+
         self.auth = None
         self.cnx_type = None
         self.debug = debug
@@ -62,6 +70,7 @@ class SOLIDserverRest:
         self.python_version = 0
         self.fct_url_encode = None
         self.fct_b64_encode = None
+        self.ssl_verify = True
 
         # set specific features for python v2 (<=2020, not supported after)
         if sys.version_info[0] == 2:
@@ -80,6 +89,9 @@ class SOLIDserverRest:
 
         self.session = requests.Session()
         self.session.verify = "cert.pem"
+
+    def __del__(self):
+        self.clean()
 
     def use_native_ssd(self, user, password):
         """ propose to use a native EfficientIP SSD connection with Username
@@ -124,13 +136,19 @@ class SOLIDserverRest:
     def set_certificate_file(self, file_path):
         """set the certificate that will be used to authenticate the server"""
         self.session.verify = file_path
+        self.ssl_verify = True
 
-    def query(
-            self, service,
-            params=None,
-            ssl_verify=True,
-            timeout=2,
-            option=False):
+    def set_ssl_verify(self, value):
+        """allows to enable or disable the certificate validation"""
+        if isinstance(value, bool):
+            self.ssl_verify = value
+        else:
+            logging.error("bad type when calling set_ssl_verify")
+
+    def query(self, service,
+              params=None,
+              timeout=2,
+              option=False):
         """ send request to the API endpoint, returns request result """
 
         if params is not None:
@@ -178,14 +196,14 @@ class SOLIDserverRest:
                           method,
                           url,
                           self.headers,
-                          ssl_verify,
+                          self.ssl_verify,
                           self.auth)
 
             return self.session.request(
                 method,
                 url,
                 headers=self.headers,
-                verify=ssl_verify,
+                verify=self.ssl_verify,
                 timeout=timeout,
                 auth=self.auth)
         except requests.exceptions.SSLError:
@@ -222,6 +240,7 @@ class SOLIDserverRest:
         self.resp = None
         self.user = None
         self.session = None
+        self.ssl_verify = True
 
     def __str__(self):
         _s = "SOLIDserverRest: API={}, user={}"
