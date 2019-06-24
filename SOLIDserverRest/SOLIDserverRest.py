@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2019-06-24 22:05:06 alex>
+# Time-stamp: <2019-06-24 22:16:52 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -17,16 +17,15 @@ Efficient IP low level SOLIDServer API binding
 import sys
 import base64
 import re
-
 import logging
 import urllib
+from OpenSSL import crypto
+
 import requests
 # pylint: disable=F0401, E1101
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # pylint: enable=F0401, E1101
-
-from OpenSSL import crypto
 
 if sys.version_info[0] == 2:
     # pylint: disable=F0401
@@ -139,7 +138,8 @@ class SOLIDserverRest:
         """set the certificate that will be used to authenticate the server"""
         try:
             file_content = open(file_path, 'r').read()
-            maincert = crypto.load_certificate(crypto.FILETYPE_PEM, file_content)
+            crypto.load_certificate(crypto.FILETYPE_PEM,
+                                    file_content)
         except IOError:
             logging.error("cannot load CA file")
             raise SSDInitError("cannot load CA file {}".format(file_path))
@@ -149,7 +149,6 @@ class SOLIDserverRest:
 
         self.session.verify = file_path
         self.ssl_verify = True
-
 
     def set_ssl_verify(self, value):
         """allows to enable or disable the certificate validation"""
