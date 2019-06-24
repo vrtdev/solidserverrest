@@ -16,7 +16,7 @@ cache:
 
 before_script:
    - ls -la
-   - apk add --no-cache --virtual .build-deps python-dev gcc linux-headers libc-dev libffi-dev openssl-dev
+   - apk add --no-cache --virtual .build-deps python-dev gcc linux-headers libc-dev libffi-dev openssl-dev git
    - pip install -r requirements.txt
 
 build-37:
