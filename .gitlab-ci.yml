@@ -49,8 +49,7 @@ test-27:
   script:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py
-     - coverage run ./SOLIDserverRest/*.py
-     - pytest -x --cov=./SOLIDserverRest tests/test*py
+     - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
      - cp .coverage .coverage-py27
 
 test-36:
@@ -62,8 +61,7 @@ test-36:
   script:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
-     - coverage run ./SOLIDserverRest/*.py
-     - pytest -x --cov=./SOLIDserverRest tests/test*py
+     - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
      - cp .coverage .coverage-py36
 
 test-37:
@@ -75,8 +73,7 @@ test-37:
   script:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
-     - coverage run ./SOLIDserverRest/*.py
-     - pytest -x --cov=./SOLIDserverRest tests/test*py
+     - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
      - cp .coverage .coverage-py37
 
 coverage:
