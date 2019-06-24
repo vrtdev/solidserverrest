@@ -39,7 +39,7 @@ def test_no_server():
         testR = SOLIDserverRest(None)
         testR.use_native_ssd('soliduser', 'solidpass')
         logging.info('Test = NO-OK')
-
+        assert None, "test without server, should have failed"
     except SSDError as e:
         logging.info('Test = OK {}'.format(str(e)))
         None
@@ -62,6 +62,8 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
     logging.info('TESTS AUTO')
     logging.info('================================')
     testR = SOLIDserverRest(srv)
+    sds_str = str(testR)
+    testR.set_ssl_verify(False)
 
     try:
         if auth==SOLIDserverRest.CNX_NATIVE:
@@ -247,6 +249,37 @@ def test_get_memberme():
     if j[0]['member_is_me'] != '1':
         assert None, "member list should have a me item"
         return
+
+def test_use_validcert():
+    testR = SOLIDserverRest(SERVER)
+    testR.set_certificate_file("ca.crt")
+
+def test_use_invalidcert():
+    testR = SOLIDserverRest(SERVER)
+    try:
+        testR.set_certificate_file("ca-invalid.crt")
+    except SSDInitError:
+        return
+
+    assert None, "no certificate file provided, should have failed"
+
+def test_use_missingcert():
+    testR = SOLIDserverRest(SERVER)
+    try:
+        testR.set_certificate_file("ca-missing.crt")
+    except SSDInitError:
+        return
+
+    assert None, "no certificate file provided, should have failed"
+
+def test_ssl_verify_bad_param():
+    testR = SOLIDserverRest(SERVER)
+    try:
+        testR.set_ssl_verify("test")
+    except SSDError:
+        return
+
+    assert None, "bool check to ssl_verify"
 
 if __name__ == '__main__':
     # test_get_string()

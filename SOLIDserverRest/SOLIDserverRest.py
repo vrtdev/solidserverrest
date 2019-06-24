@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2019-06-23 16:10:55 alex>
+# Time-stamp: <2019-06-24 22:05:06 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -26,15 +26,17 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # pylint: enable=F0401, E1101
 
+from OpenSSL import crypto
+
 if sys.version_info[0] == 2:
     # pylint: disable=F0401
     from mapper import SERVICE_MAPPER, METHOD_MAPPER
-    from Exception import SSDInitError
+    from Exception import SSDInitError, SSDError
     from Exception import SSDServiceError, SSDRequestError
     # pylint: enable=F0401
 else:
     from .mapper import SERVICE_MAPPER, METHOD_MAPPER
-    from .Exception import SSDInitError
+    from .Exception import SSDInitError, SSDError
     from .Exception import SSDServiceError, SSDRequestError
 
 __all__ = ["SOLIDserverRest"]
@@ -88,7 +90,7 @@ class SOLIDserverRest:
         self.resp = None
 
         self.session = requests.Session()
-        self.session.verify = "cert.pem"
+        # self.session.verify = "cert.pem"
 
     def __del__(self):
         self.clean()
@@ -135,8 +137,19 @@ class SOLIDserverRest:
 
     def set_certificate_file(self, file_path):
         """set the certificate that will be used to authenticate the server"""
+        try:
+            file_content = open(file_path, 'r').read()
+            maincert = crypto.load_certificate(crypto.FILETYPE_PEM, file_content)
+        except IOError:
+            logging.error("cannot load CA file")
+            raise SSDInitError("cannot load CA file {}".format(file_path))
+        except crypto.Error as error:
+            logging.error(error)
+            raise SSDInitError("invalid CA file {}".format(file_path))
+
         self.session.verify = file_path
         self.ssl_verify = True
+
 
     def set_ssl_verify(self, value):
         """allows to enable or disable the certificate validation"""
@@ -144,6 +157,7 @@ class SOLIDserverRest:
             self.ssl_verify = value
         else:
             logging.error("bad type when calling set_ssl_verify")
+            raise SSDError("requested bool on set_ssl_verify")
 
     def query(self, service,
               params=None,
