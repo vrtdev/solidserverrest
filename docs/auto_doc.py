@@ -49,7 +49,7 @@ def test_no_server():
         testR.use_native_ssd('soliduser', 'solidpass')
         print('Test = NO-OK')
 
-    except SSDError:
+    except SDSError:
         print('Test = OK')
         None
 
@@ -76,7 +76,7 @@ def test_few_services():
         print('Answer: {}'.format(answerR))
         print('Answer: {}'.format(answerR.status_code))
         print('Answer: {}'.format(answerR.content))
-    except SSDError:
+    except SDSError:
         None
 
     #ip_site_update
@@ -91,7 +91,7 @@ def test_few_services():
         print('Answer: {}'.format(answerR))
         print('Answer: {}'.format(answerR.status_code))
         print('Answer: {}'.format(answerR.content))
-    except SSDError:
+    except SDSError:
         None
 
 def test_auto_dico():
@@ -124,7 +124,7 @@ def test_auto_dico():
                     requierement = value["mandatory_addition_params"]
                     print('Requierement parameters: {}'.format(value["mandatory_addition_params"]))
 
-        except SSDError:
+        except SDSError:
             None
 
         #Parameters preparation
@@ -141,7 +141,7 @@ def test_auto_dico():
             print('Answer: {}'.format(answerR.status_code))
             print('Answer:')
             print(json.dumps(json.loads(answerR.content), indent=4, sort_keys=True, encoding="utf-8"))
-        except SSDError:
+        except SDSError:
             None
 
         display_test = display_test + '*'

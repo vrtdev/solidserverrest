@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2019-06-24 22:16:52 alex>
+# Time-stamp: <2019-07-06 19:04:08 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -30,13 +30,13 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 if sys.version_info[0] == 2:
     # pylint: disable=F0401
     from mapper import SERVICE_MAPPER, METHOD_MAPPER
-    from Exception import SSDInitError, SSDError
-    from Exception import SSDServiceError, SSDRequestError
+    from Exception import SDSInitError, SDSError
+    from Exception import SDSServiceError, SDSRequestError
     # pylint: enable=F0401
 else:
     from .mapper import SERVICE_MAPPER, METHOD_MAPPER
-    from .Exception import SSDInitError, SSDError
-    from .Exception import SSDServiceError, SSDRequestError
+    from .Exception import SDSInitError, SDSError
+    from .Exception import SDSServiceError, SDSRequestError
 
 __all__ = ["SOLIDserverRest"]
 
@@ -46,13 +46,13 @@ __all__ = ["SOLIDserverRest"]
 # effectively few variables in this class, just disabling the warning
 # pylint: disable=R0902
 class SOLIDserverRest:
-    """ main SSD class """
+    """ main SDS class """
     CNX_NATIVE = 1
     CNX_APIKEY = 2
     CNX_BASIC = 3
 
     def __init__(self, host, debug=False):
-        """ initialize connection with SSD host,
+        """ initialize connection with SDS host,
             this function is not active,
             just set host and parameters
         """
@@ -94,15 +94,15 @@ class SOLIDserverRest:
     def __del__(self):
         self.clean()
 
-    def use_native_ssd(self, user, password):
-        """ propose to use a native EfficientIP SSD connection with Username
+    def use_native_sds(self, user, password):
+        """ propose to use a native EfficientIP SDS connection with Username
         and password encoded in the headers of each requests
         """
-        logging.debug("useNativeSSD %s %s", user, password)
+        logging.debug("useNativeSDS %s %s", user, password)
 
-        # check if SSD connection is established
+        # check if SDS connection is established
         if self.host is None:
-            raise SSDInitError()
+            raise SDSInitError()
 
         self.user = user
         self.password = password
@@ -115,14 +115,14 @@ class SOLIDserverRest:
             'content-type': 'application/json'
         }
 
-    def use_basicauth_ssd(self, user, password):
+    def use_basicauth_sds(self, user, password):
         """ propose to use the basic auth implementation on the SDS
         """
-        logging.debug("useBasicAuthSSD %s %s", user, password)
+        logging.debug("useBasicAuthSDS %s %s", user, password)
 
-        # check if SSD connection is established
+        # check if SDS connection is established
         if self.host is None:
-            raise SSDInitError()
+            raise SDSInitError()
 
         self.user = user
         self.password = password
@@ -142,10 +142,10 @@ class SOLIDserverRest:
                                     file_content)
         except IOError:
             logging.error("cannot load CA file")
-            raise SSDInitError("cannot load CA file {}".format(file_path))
+            raise SDSInitError("cannot load CA file {}".format(file_path))
         except crypto.Error as error:
             logging.error(error)
-            raise SSDInitError("invalid CA file {}".format(file_path))
+            raise SDSInitError("invalid CA file {}".format(file_path))
 
         self.session.verify = file_path
         self.ssl_verify = True
@@ -156,7 +156,7 @@ class SOLIDserverRest:
             self.ssl_verify = value
         else:
             logging.error("bad type when calling set_ssl_verify")
-            raise SSDError("requested bool on set_ssl_verify")
+            raise SDSError("requested bool on set_ssl_verify")
 
     def query(self, service,
               params=None,
@@ -184,7 +184,7 @@ class SOLIDserverRest:
         if method is None:
             msg = "no method available for request {}".format(service)
             logging.error("no method available for request %s", service)
-            raise SSDServiceError(service,
+            raise SDSServiceError(service,
                                   message=msg)
 
         logging.debug("method %s selected for service %s", method, service)
@@ -199,7 +199,7 @@ class SOLIDserverRest:
         svc_mapped = SERVICE_MAPPER.get(service)
         if svc_mapped is None:
             logging.error("unknown service %s", service)
-            raise SSDServiceError(service)
+            raise SDSServiceError(service)
 
         self.last_url = "{}{}".format(svc_mapped, params).strip()
         url = "{}{}".format(self.prefix_url, self.last_url)
@@ -220,19 +220,19 @@ class SOLIDserverRest:
                 timeout=timeout,
                 auth=self.auth)
         except requests.exceptions.SSLError:
-            raise SSDRequestError(method,
+            raise SDSRequestError(method,
                                   url,
                                   self.headers,
                                   message="SSL certificate error")
         except BaseException as error:
-            raise SSDRequestError(method, url, self.headers, message=error)
+            raise SDSRequestError(method, url, self.headers, message=error)
 
     def get_headers(self):
         """ returns the headers attached to this connection """
         return self.headers
 
     def get_status(self):
-        """ returns status of the SSD connection """
+        """ returns status of the SDS connection """
         _r = {
             'host': self.host,
             'python_version': self.python_version
@@ -240,7 +240,7 @@ class SOLIDserverRest:
         return _r
 
     def clean(self):
-        """ clean all status of the SSD connection """
+        """ clean all status of the SDS connection """
         self.auth = None
         self.cnx_type = None
         self.debug = None
@@ -259,3 +259,15 @@ class SOLIDserverRest:
         _s = "SOLIDserverRest: API={}, user={}"
         return(_s.format(self.prefix_url,
                          self.user))
+
+    # deprecated method to be suppressed
+
+    def use_native_ssd(self, user, password):
+        """deprecated version of use_native_sds"""
+        logging.critical("deprecated method use_native_ssd")
+        self.use_native_sds(user, password)
+
+    def use_basicauth_ssd(self, user, password):
+        """deprecated version of use_basicauth_ssd"""
+        logging.critical("deprecated method use_basicauth_ssd")
+        self.use_basicauth_sds(user, password)

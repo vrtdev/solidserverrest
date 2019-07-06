@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-06-23 18:37:03 alex>
+# Time-stamp: <2019-07-06 18:57:14 alex>
 #
 # only for python v3
 
@@ -13,7 +13,7 @@ import ipaddress
 
 from json.decoder import JSONDecodeError
 
-from SOLIDserverRest.Exception import SSDInitError, SSDAuthError
+from SOLIDserverRest.Exception import SDSInitError, SDSAuthError
 from SOLIDserverRest.Exception import SDSEmptyError
 from SOLIDserverRest import SOLIDserverRest
 
@@ -22,8 +22,11 @@ from .class_params import ClassParams
 __all__ = ["SDS"]
 
 
+# more than 7 arguments to class
+# pylint: disable=R0902
 class SDS(ClassParams):
     """ class to get connected to a SDS server """
+
     # ---------------------------
     def __init__(self, ip_address=None, user=None, pwd=None):
         """init the SDS object:
@@ -45,6 +48,7 @@ class SDS(ClassParams):
         self.check_certificate = False
 
         self.sds = None
+        self.timeout = 1
 
     # ---------------------------
     def set_server_ip(self, ip_address):
@@ -52,7 +56,7 @@ class SDS(ClassParams):
         try:
             ipaddress.IPv4Address(ip_address)
         except ipaddress.AddressValueError as error:
-            raise SSDInitError(message="IPv4 address of server error: {}".
+            raise SDSInitError(message="IPv4 address of server error: {}".
                                format(error))
 
         self.sds_ip = ip_address
@@ -62,12 +66,12 @@ class SDS(ClassParams):
         """add user and login to credentials of this session"""
         if user is None or pwd is None:
             msg = "missing user or password in credentials"
-            raise SSDInitError(message=msg)
+            raise SDSInitError(message=msg)
         self.user = user
         self.pwd = pwd
 
     # ---------------------------
-    def connect(self, method="basicauth", cert_file_path=None):
+    def connect(self, method="basicauth", cert_file_path=None, timeout=1):
         """connects to SOLIDserver and check everything is OK by
            querying the version of the admin node in the member list
 
@@ -77,17 +81,17 @@ class SDS(ClassParams):
         """
         if self.user is None or self.pwd is None:
             msg = "missing user or password in credentials for connect"
-            raise SSDInitError(message=msg)
+            raise SDSInitError(message=msg)
         if self.sds_ip is None:
-            raise SSDInitError(message="missing ip for server for connect")
+            raise SDSInitError(message="missing ip for server for connect")
 
         self.sds = SOLIDserverRest(self.sds_ip)
 
         if method == "basicauth":
-            self.sds.use_basicauth_ssd(self.user, self.pwd)
+            self.sds.use_basicauth_sds(self.user, self.pwd)
             self.auth_method = "basic auth"
         elif method == "native":
-            self.sds.use_native_ssd(self.user, self.pwd)
+            self.sds.use_native_sds(self.user, self.pwd)
             self.auth_method = "native"
 
         # certificate & SSL check
@@ -97,10 +101,13 @@ class SDS(ClassParams):
         else:
             self.sds.set_ssl_verify(False)
 
+        if timeout != self.timeout:
+            self.timeout = timeout
+
         self.version = self.get_version()
 
         if self.version is None:
-            raise SSDInitError(message="version of SOLIDserver not found")
+            raise SDSInitError(message="version of SOLIDserver not found")
 
     # ---------------------------
     def get_version(self):
@@ -115,8 +122,7 @@ class SDS(ClassParams):
                        params={
                            'WHERE': 'member_is_me=1',
                        },
-                       option=False,
-                       timeout=2)
+                       option=False)
 
         if j is None:
             logging.error("error in getting answer on version")
@@ -133,14 +139,18 @@ class SDS(ClassParams):
     def query(self, method, params=None, option=False, timeout=1):
         """execute a query towards the SDS"""
 
+        _timeout = self.timeout
+        if timeout not in (self.timeout, 1):
+            _timeout = timeout
+
         try:
             answer_req = self.sds.query(method,
                                         params=params,
                                         option=option,
-                                        timeout=timeout)
+                                        timeout=_timeout)
 
             if answer_req.status_code == 401:
-                raise SSDAuthError(message="authentication error")
+                raise SDSAuthError(message="authentication error")
 
             if answer_req.status_code == 204:
                 raise SDSEmptyError(message="204 returned")
@@ -152,8 +162,8 @@ class SDS(ClassParams):
                 logging.error("no json in return")
                 return None
 
-        except SSDAuthError as error:
-            raise SSDAuthError("{}".format(error))
+        except SDSAuthError as error:
+            raise SDSAuthError("{}".format(error))
 
         return None
 

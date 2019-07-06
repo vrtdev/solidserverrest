@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-06-23 16:09:13 alex>
+# Time-stamp: <2019-07-06 18:50:34 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -10,7 +10,7 @@ this file is used to tdd"""
 import logging
 import sys
 
-from SOLIDserverRest.Exception import SSDInitError, SSDRequestError, SSDAuthError, SSDError
+from SOLIDserverRest.Exception import SDSInitError, SDSRequestError, SDSAuthError, SDSError
 
 if sys.version_info[0] == 3:
     try:
@@ -48,18 +48,18 @@ def test_create_sds_bad_ip():
     sds = sdsadv.SDS()
     try:
         sds.set_server_ip('192.168.56.254.test')
-    except SSDInitError:
+    except SDSInitError:
         return
     assert None, "should have raised an error on bad IP address"
 
-def _test_create_sds_bad_not_responsive_ip():
+def test_create_sds_bad_not_responsive_ip():
     """create a connection to a SOLIDserver with a bad ip address format"""
     sds = sdsadv.SDS()
     sds.set_server_ip('192.168.56.1')
     sds.set_credentials(user=USER, pwd=PWD)
     try:
-        sds.connect()
-    except SSDError:
+        sds.connect(timeout=0.01)
+    except SDSError:
         None
 
 def test_create_sds_withuser():
@@ -75,7 +75,7 @@ def test_create_sds_set_user():
     try:
         sds.set_credentials()
         assert None, "should have raised an error on no credentials"
-    except SSDInitError:
+    except SDSInitError:
         None
 
     sds.set_credentials(user=USER, pwd=PWD)
@@ -88,7 +88,7 @@ def test_create_sds_set_baduser():
     sds.set_credentials(user=USER, pwd="error")
     try:
         sds.connect()
-    except SSDAuthError as e:
+    except SDSAuthError as e:
         return
 
     assert None, "should have raised an error on bad credentials"
@@ -99,7 +99,7 @@ def test_create_sds_connect_wo_user():
     sds.set_server_ip(SERVER)
     try:
         sds.connect()
-    except SSDInitError as e:
+    except SDSInitError as e:
         return
 
     assert None, "should have raised an error on no credentials"
@@ -110,7 +110,7 @@ def test_create_sds_connect_wo_ip():
     sds.set_credentials(user=USER, pwd=PWD)
     try:
         sds.connect()
-    except SSDInitError as e:
+    except SDSInitError as e:
         return
 
     assert None, "should have raised an error on no ip"
@@ -134,10 +134,10 @@ def test_basic_auth_with_cert():
     sds.set_credentials(user=USER, pwd=PWD)
     try:
         sds.connect(method="basicauth", cert_file_path="ca.crt")
-    except SSDRequestError:
+    except SDSRequestError:
         logging.debug(e)
         assert None, "certifiate validation error"
-    except SSDInitError as e:
+    except SDSInitError as e:
         logging.debug(e)
         assert None, "connection error, probable certificate issue"
 

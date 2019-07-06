@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-06-23 18:40:26 alex>
+# Time-stamp: <2019-07-06 18:47:28 alex>
 #
 
 """
@@ -10,7 +10,7 @@ SOLIDserver space management
 
 # import logging
 
-from SOLIDserverRest.Exception import SSDInitError, SSDError
+from SOLIDserverRest.Exception import SDSInitError, SDSError
 from SOLIDserverRest.Exception import SDSEmptyError
 
 from .class_params import ClassParams
@@ -43,26 +43,44 @@ class Space(ClassParams):
 
         super(Space, self).__init__()
 
-    def refresh(self):
-        """refresh content of the object from the SDS"""
+    def create(self):
+        """creates the space in the SDS"""
         if self.sds is None:
-            raise SSDInitError(message="not connected")
+            raise SDSInitError(message="not connected")
+
+        space_id = self._get_siteid_by_name(self.name)
+        if space_id is not None:
+            raise SDSError(message="already existant space")
+
+    def _get_siteid_by_name(self, name):
+        """get the space ID from its name, return None if non existant"""
 
         try:
             rjson = self.sds.query("ip_site_list",
                                    params={
                                        "WHERE": "site_name='{}'".
-                                                format(self.name),
+                                                format(name),
                                    })
         except SDSEmptyError:
-            raise SDSEmptyError(message="non existant space")
+            return None
 
         if rjson[0]['errno'] != '0':
-            raise SSDError("errno raised")
+            raise SDSError("errno raised")
+
+        return rjson[0]['site_id']
+
+    def refresh(self):
+        """refresh content of the object from the SDS"""
+        if self.sds is None:
+            raise SDSInitError(message="not connected")
+
+        space_id = self._get_siteid_by_name(self.name)
+        if space_id is None:
+            raise SDSEmptyError(message="non existant space")
 
         rjson = self.sds.query("ip_site_info",
                                params={
-                                   "site_id": rjson[0]['site_id'],
+                                   "site_id": space_id,
                                })
 
         rjson = rjson[0]
@@ -79,7 +97,7 @@ class Space(ClassParams):
                       'row_enabled',
                       'multistatus']:
             if label not in rjson:
-                raise SSDError("parameter {} not found in space".format(label))
+                raise SDSError("parameter {} not found in space".format(label))
             self.space_params[label] = rjson[label]
 
         if 'site_class_parameters' in rjson:

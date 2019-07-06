@@ -41,8 +41,8 @@ def test_setup_woinit():
     con = SOLIDserverRest(SERVER)
     con.clean()
     try:
-        con.use_native_ssd(user=USER, password=PWD)
-    except SSDInitError:
+        con.use_native_sds(user=USER, password=PWD)
+    except SDSInitError:
         return
 
     con.clean()
@@ -50,9 +50,9 @@ def test_setup_woinit():
 
 
 def test_setup_simple():
-    """ simple setup of SSD native connection """
+    """ simple setup of SDS native connection """
     con = SOLIDserverRest(SERVER)
-    con.use_native_ssd(user=USER, password=PWD)
+    con.use_native_sds(user=USER, password=PWD)
 
     s = con.get_status()
     if 'python_version' not in s:
@@ -66,9 +66,9 @@ def test_setup_simple():
 
 
 def test_native_simple_call():
-    """ simple call with SSD native connection """
+    """ simple call with SDS native connection """
     con = SOLIDserverRest(SERVER)
-    con.use_native_ssd(user=USER, password=PWD)
+    con.use_native_sds(user=USER, password=PWD)
     con.set_ssl_verify(False)
 
     try:
@@ -80,7 +80,7 @@ def test_native_simple_call():
             logging.error(answer.status_code)
             assert False, "native call failed"
 
-    except SSDError:
+    except SDSError:
         None
 
 # ---------------------------------------------
