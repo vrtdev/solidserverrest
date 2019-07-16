@@ -37,11 +37,11 @@ def test_no_server():
     logging.info('TEST: Test no server')
     try:
         testR = SOLIDserverRest(None)
-        testR.use_native_ssd('soliduser', 'solidpass')
+        testR.use_native_sds('soliduser', 'solidpass')
         logging.info('Test = NO-OK')
-
-    except SSDError:
-        logging.info('Test = OK')
+        assert None, "test without server, should have failed"
+    except SDSError as e:
+        logging.info('Test = OK {}'.format(str(e)))
         None
 
 def test_auto_dico_native_srv():
@@ -62,13 +62,16 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
     logging.info('TESTS AUTO')
     logging.info('================================')
     testR = SOLIDserverRest(srv)
+    sds_str = str(testR)
+    testR.set_ssl_verify(False)
 
     try:
         if auth==SOLIDserverRest.CNX_NATIVE:
-            testR.use_native_ssd(USER, PWD)
+            testR.use_native_sds(USER, PWD)
         elif auth==SOLIDserverRest.CNX_BASIC:
-            testR.use_basicauth_ssd(USER, PWD)
-    except SSDInitError:
+            testR.use_basicauth_sds(USER, PWD)
+    except SDSInitError as error:
+        logging.critical(error)
         if srv is not None:
             assert None, "server connect error {}".format(srv)
         return
@@ -101,13 +104,13 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
         logging.info('method: {}'.format(method))
             
         try:
-            answerR = testR.query(serviceR, parameters, option=options, timeout=1)
+            answerR = testR.query(serviceR, parameters, option=options, timeout=0.2)
             logging.info('Answer: {}'.format(answerR))
             logging.info('Answer: {}'.format(answerR.status_code))
             logging.info('Answer:')
             logging.info(answerR.content)
-        except SSDError as e:
-            logging.info("error on SDS query",e)
+        except SDSError as e:
+            logging.info("error on SDS query - {}".format(str()))
             None
 
         if method not in method_tested:
@@ -132,9 +135,9 @@ def test_ukn_svc(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
     testR = SOLIDserverRest(srv)
 
     if auth==SOLIDserverRest.CNX_NATIVE:
-        testR.use_native_ssd(USER, PWD)
+        testR.use_native_sds(USER, PWD)
     elif auth==SOLIDserverRest.CNX_BASIC:
-        testR.use_basicauth_ssd(USER, PWD)
+        testR.use_basicauth_sds(USER, PWD)
 
     try:
         answerR = testR.query('ukn_service_list', PARAMETERS, timeout=1)
@@ -142,7 +145,8 @@ def test_ukn_svc(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
         logging.info(answerR.content)
-    except SSDServiceError:
+    except SDSServiceError as e:
+        logging.info("unknown service - {}".format(str(e)))        
         return
 
     assert None, "ukn service should have raised an error"
@@ -154,9 +158,9 @@ def test_no_params(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
     testR = SOLIDserverRest(srv)
 
     if auth==SOLIDserverRest.CNX_NATIVE:
-        testR.use_native_ssd(USER, PWD)
+        testR.use_native_sds(USER, PWD)
     elif auth==SOLIDserverRest.CNX_BASIC:
-        testR.use_basicauth_ssd(USER, PWD)
+        testR.use_basicauth_sds(USER, PWD)
 
     try:
         answerR = testR.query('ukn_service_list', None)
@@ -164,7 +168,7 @@ def test_no_params(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
         logging.info(answerR.content)
-    except SSDServiceError:
+    except SDSServiceError:
         logging.info("error on SDS query in test_no_params")
         None
 
@@ -174,7 +178,7 @@ def test_method_none():
     logging.info('================================')
     testR = SOLIDserverRest(SERVER)
 
-    testR.use_basicauth_ssd(USER, PWD)
+    testR.use_basicauth_sds(USER, PWD)
 
     try:
         answerR = testR.query('ukn_service_none', timeout=1)
@@ -182,7 +186,7 @@ def test_method_none():
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
         logging.info(answerR.content)
-    except SSDServiceError:
+    except SDSServiceError:
         logging.info("error on SDS query in test_no_params")
         None
 
@@ -191,7 +195,7 @@ def test_get_headers():
     logging.info('TEST get headers')
     logging.info('================================')
     testR = SOLIDserverRest(SERVER)
-    testR.use_basicauth_ssd(USER, PWD)
+    testR.use_basicauth_sds(USER, PWD)
 
     testR.get_headers()
 
@@ -200,7 +204,7 @@ def test_get_status():
     logging.info('TEST get status')
     logging.info('================================')
     testR = SOLIDserverRest(SERVER)
-    testR.use_basicauth_ssd(USER, PWD)
+    testR.use_basicauth_sds(USER, PWD)
 
     testR.get_status()
 
@@ -209,12 +213,73 @@ def test_get_string():
     logging.info('TEST get string')
     logging.info('================================')
     testR = SOLIDserverRest(SERVER)
-    testR.use_basicauth_ssd(USER, PWD)
-    print(testR)
-
+    testR.use_basicauth_sds(USER, PWD)
+    # print(testR)
 
 def test_options():
     fct_auto_dico(SOLIDserverRest.CNX_BASIC, SERVER, options=True)
+
+
+def test_get_memberme():
+    logging.info('================================')
+    logging.info('TEST get memberme')
+    logging.info('================================')
+    testR = SOLIDserverRest(SERVER)
+    testR.use_basicauth_sds(USER, PWD)
+    parameters = {
+        'WHERE': 'member_is_me=1',
+    }
+
+    j = None
+    try:
+        answerR = testR.query("member_list", params=parameters, option=False, timeout=1)
+        logging.info('Answer: {}'.format(answerR))
+        logging.info('Answer: {}'.format(answerR.status_code))
+        #logging.info('Answer:')
+        #logging.info(answerR.content)
+        j = json.loads(answerR.content)
+    except SDSError as e:
+        logging.info("error on SDS query - {}".format(str(e)))
+        return
+
+    if j is None:
+        assert None, "no json result from member_list request"
+        return
+
+    if j[0]['member_is_me'] != '1':
+        assert None, "member list should have a me item"
+        return
+
+def test_use_validcert():
+    testR = SOLIDserverRest(SERVER)
+    testR.set_certificate_file("ca.crt")
+
+def test_use_invalidcert():
+    testR = SOLIDserverRest(SERVER)
+    try:
+        testR.set_certificate_file("ca-invalid.crt")
+    except SDSInitError:
+        return
+
+    assert None, "no certificate file provided, should have failed"
+
+def test_use_missingcert():
+    testR = SOLIDserverRest(SERVER)
+    try:
+        testR.set_certificate_file("ca-missing.crt")
+    except SDSInitError:
+        return
+
+    assert None, "no certificate file provided, should have failed"
+
+def test_ssl_verify_bad_param():
+    testR = SOLIDserverRest(SERVER)
+    try:
+        testR.set_ssl_verify("test")
+    except SDSError:
+        return
+
+    assert None, "bool check to ssl_verify"
 
 if __name__ == '__main__':
     # test_get_string()
