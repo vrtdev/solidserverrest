@@ -18,3 +18,4 @@ env37/**
 coverage.xml
 **/*~
 report.txt
+htmlcov/**

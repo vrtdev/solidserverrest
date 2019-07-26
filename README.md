@@ -59,10 +59,12 @@ You can also use the basic authentication method for connecting the SOLIDserver.
 You need parameters:
 * method = choose your method in the list below
 * parameters = Python dico with parameters you want to use
-* ssl_verify = this option permits to check your server SSL certificate.
-To check the certificate, you must set ssl_verify=True
+
+SSL certificate chain is validated by default, to disable it, use the set_ssl_verify method
+
 ```python
-	rest_answer = con.query("method", "parameters", ssl_verify=True)
+        con.set_ssl_verify(False)  # True by default
+	rest_answer = con.query("method", "parameters")
 ```
 
 ### 4. Analyze answer
