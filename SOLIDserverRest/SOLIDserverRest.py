@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2019-07-06 19:04:08 alex>
+# Time-stamp: <2019-08-13 17:09:40 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -67,7 +67,8 @@ class SOLIDserverRest:
         self.resp = None
         self.user = None
         self.session = None
-        self.prefix_url = 'https://{}/rest/'.format(host)
+        self.default_method = 'rest'
+        self.prefix_url = 'https://{}/'.format(host)
         self.python_version = 0
         self.fct_url_encode = None
         self.fct_b64_encode = None
@@ -202,7 +203,15 @@ class SOLIDserverRest:
             raise SDSServiceError(service)
 
         self.last_url = "{}{}".format(svc_mapped, params).strip()
-        url = "{}{}".format(self.prefix_url, self.last_url)
+
+        if re.match('.*_find_free$', service) is not None:
+            url = "{}/{}/{}".format(self.prefix_url,
+                                    'rpc',
+                                    self.last_url)
+        else:
+            url = "{}/{}/{}".format(self.prefix_url,
+                                    self.default_method,
+                                    self.last_url)
 
         try:
             logging.debug("m=%s u=%s h=%s v=%s a=%s",
@@ -248,6 +257,7 @@ class SOLIDserverRest:
         self.host = None
         self.last_url = ''
         self.password = None
+        self.default_method = 'rest'
         self.prefix_url = None
         self.python_version = None
         self.resp = None
