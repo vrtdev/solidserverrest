@@ -161,8 +161,6 @@ SERVICE_MAPPER = {
     'dhcp_static6_info': 'dhcp6_static6_info',
     'dhcp_static6_count': 'dhcp6_static6_count',
     'dhcp_static6_delete': 'dhcp6_static6_delete',
-
-
 }
 
 METHOD_MAPPER = {
