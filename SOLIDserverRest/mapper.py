@@ -105,7 +105,64 @@ SERVICE_MAPPER = {
     'app_healthcheck_list': 'app_healthcheck_list',
 
     'member_list': 'member_list',
-    
+
+    'dhcp_server_info': 'dhcp_server_info',
+    'dhcp_server_count': 'dhcp_server_count',
+    'dhcp_server_list': 'dhcp_server_list',
+
+    'dhcp_server6_info': 'dhcp6_server6_info',
+    'dhcp_server6_count': 'dhcp6_server6_count',
+    'dhcp_server6_list': 'dhcp6_server6_list',
+
+    'dhcp_scope_create': 'dhcp_scope_add',
+    'dhcp_scope_update': 'dhcp_scope_add',
+    'dhcp_scope_count': 'dhcp_scope_count',
+    'dhcp_scope_list': 'dhcp_scope_list',
+    'dhcp_scope_info': 'dhcp_scope_info',
+    'dhcp_scope_delete': 'dhcp_scope_delete',
+
+    'dhcp_scope6_create': 'dhcp6_scope6_add',
+    'dhcp_scope6_update': 'dhcp6_scope6_add',
+    'dhcp_scope6_count': 'dhcp6_scope6_count',
+    'dhcp_scope6_list': 'dhcp6_scope6_list',
+    'dhcp_scope6_info': 'dhcp6_scope6_info',
+    'dhcp_scope6_delete': 'dhcp6_scope6_delete',
+
+    'dhcp_shared_network_create': 'dhcp_sn_add',
+    'dhcp_shared_network_update': 'dhcp_sn_add',
+    'dhcp_shared_network_count': 'dhcp_shared_network_count',
+    'dhcp_shared_network_list': 'dhcp_shared_network_list',
+    'dhcp_shared_network_info': 'dhcp_shared_network_info',
+
+    'dhcp_range_create': 'dhcp_range_add',
+    'dhcp_range_update': 'dhcp_range_add',
+    'dhcp_range_list': 'dhcp_range_list',
+    'dhcp_range_info': 'dhcp_range_info',
+    'dhcp_range_count': 'dhcp_range_count',
+    'dhcp_range_delete': 'dhcp_range_delete',
+
+    'dhcp_range6_create': 'dhcp6_range6_add',
+    'dhcp_range6_update': 'dhcp6_range6_add',
+    'dhcp_range6_list': 'dhcp6_range6_list',
+    'dhcp_range6_info': 'dhcp6_range6_info',
+    'dhcp_range6_count': 'dhcp6_range6_count',
+    'dhcp_range6_delete': 'dhcp6_range6_delete',
+
+    'dhcp_static_create': 'dhcp_static_add',
+    'dhcp_static_update': 'dhcp_static_add',
+    'dhcp_static_list': 'dhcp_static_list',
+    'dhcp_static_info': 'dhcp_static_info',
+    'dhcp_static_count': 'dhcp_static_count',
+    'dhcp_static_delete': 'dhcp_static_delete',
+
+    'dhcp_static6_create': 'dhcp6_static6_add',
+    'dhcp_static6_update': 'dhcp6_static6_add',
+    'dhcp_static6_list': 'dhcp6_static6_list',
+    'dhcp_static6_info': 'dhcp6_static6_info',
+    'dhcp_static6_count': 'dhcp6_static6_count',
+    'dhcp_static6_delete': 'dhcp6_static6_delete',
+
+
 }
 
 METHOD_MAPPER = {
