@@ -42,7 +42,7 @@ encoded in base64
 * password = password of the user
 
 ```python
-	con.use_native_ssd(user="apiuser", password="apipwd")
+	con.use_native_sds(user="apiuser", password="apipwd")
 ```
 
 You can also use the basic authentication method for connecting the SOLIDserver.
@@ -51,15 +51,10 @@ You can also use the basic authentication method for connecting the SOLIDserver.
 * password = password of the user
 
 ```python
-	con.use_basicauth_ssd(user="apiuser", password="apipwd")
+	con.use_basicauth_sds(user="apiuser", password="apipwd")
 ```
 
-### 3. Request to SOLIDserver API
-
-You need parameters:
-* method = choose your method in the list below
-* parameters = Python dico with parameters you want to use
-
+### 3. Set TLS security
 SSL certificate chain is validated by default, to disable it, use the set_ssl_verify method
 
 ```python
@@ -67,7 +62,23 @@ SSL certificate chain is validated by default, to disable it, use the set_ssl_ve
 	rest_answer = con.query("method", "parameters")
 ```
 
-### 4. Analyze answer
+Otherwise, you have to provide the certificate file:
+```python
+    con = SOLIDserverRest(SERVER)
+```
+If the certificate file is not valide, an exception ```SDSInitError``` is raised.
+
+### 4. Request to SOLIDserver API
+
+You need parameters:
+* method = choose your method in the list below
+* parameters = Python dictionary with parameters you want to use
+
+```python
+	rest_answer = con.query("method", "parameters")
+```
+
+### 5. Analyze answer
 
 * rest_answer => object name
 * rest_answer.status_code => current http answer code set in the object
