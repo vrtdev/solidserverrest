@@ -73,7 +73,6 @@ def test_native_simple_call():
 
     try:
         answer = con.query('ip_site_count',
-                            None,
                             timeout=1)
         
         if answer.status_code != 200:
