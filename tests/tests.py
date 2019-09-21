@@ -9,7 +9,7 @@ import logging
 
 
 _logFormat = '%(asctime)-15s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s'
-logging.basicConfig(format=_logFormat, level=logging.INFO)
+logging.basicConfig(format=_logFormat, level=logging.ERROR)
 
 sys.path.append(os.getcwd())
 
@@ -108,7 +108,7 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
             logging.info('Answer: {}'.format(answerR))
             logging.info('Answer: {}'.format(answerR.status_code))
             logging.info('Answer:')
-            logging.info(answerR.content)
+            logging.debug(answerR.content)
         except SDSError as e:
             logging.info("error on SDS query - {}".format(str()))
             None

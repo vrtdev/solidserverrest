@@ -1,5 +1,5 @@
 requests==2.22.0
-urllib3==1.25.3
+urllib3==1.25.5
 idna==2.8
 chardet==3.0.4
 pyopenssl==19.0.0
