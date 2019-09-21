@@ -15,6 +15,8 @@ __all__ = ["SDSAuthError",
            "SDSInitError",
            "SDSRequestError",
            "SDSServiceError",
+           "SDSSpaceError",
+
            # deprecated versions
            "SSDAuthError",
            "SSDError",
@@ -126,3 +128,10 @@ class SDSEmptyError(SDSError):
 
     def __init__(self, message=""):
         super(SDSEmptyError, self).__init__("empty answer: {}".format(message))
+
+
+class SDSSpaceError(SDSError):
+    """ raised when error on space """
+
+    def __init__(self, message=""):
+        super(SDSSpaceError, self).__init__("space error: {}".format(message))

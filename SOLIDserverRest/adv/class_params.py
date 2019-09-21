@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-06-23 18:41:05 alex>
+# Time-stamp: <2019-09-21 15:06:05 alex>
 #
 # only for python v3
 
@@ -50,3 +50,10 @@ class ClassParams(Base):
         if 'domain_list' in params:
             dlist = str.split(params['domain_list'], ';')
             params['domain_list'] = dlist
+
+    # ---------------------------
+    @classmethod
+    def encode_class_params(cls, params):
+        """get parameters from the structure and create string"""
+
+        return urllib.parse.urlencode(params)
