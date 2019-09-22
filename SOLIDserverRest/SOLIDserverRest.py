@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2019-09-21 15:49:38 alex>
+# Time-stamp: <2019-09-22 15:38:59 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -27,7 +27,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # pylint: enable=F0401, E1101
 
-if sys.version_info[0] == 2:
+if sys.version_info[0] == 2:   # pragma: no cover
     # pylint: disable=F0401
     from mapper import SERVICE_MAPPER, METHOD_MAPPER
     from Exception import SDSInitError, SDSError
@@ -69,14 +69,14 @@ class SOLIDserverRest:
         self.user = None
         self.session = None
         self.default_method = 'rest'
-        self.prefix_url = 'https://{}/'.format(host)
+        self.prefix_url = 'https://{}'.format(host)
         self.python_version = 0
         self.fct_url_encode = None
         self.fct_b64_encode = None
         self.ssl_verify = True
 
         # set specific features for python v2 (<=2020, not supported after)
-        if sys.version_info[0] == 2:
+        if sys.version_info[0] == 2:   # pragma: no cover
             # pylint: disable=E1101
             self.python_version = 2
             self.fct_url_encode = urllib.urlencode
@@ -245,7 +245,7 @@ class SOLIDserverRest:
                                   url,
                                   self.headers,
                                   message="SSL certificate error")
-        except BaseException as error:
+        except BaseException as error:   # pragma: no cover
             raise SDSRequestError(method, url, self.headers, message=error)
 
     # -------------------------------------
@@ -281,19 +281,19 @@ class SOLIDserverRest:
         self.ssl_verify = True
 
     # -------------------------------------
-    def __str__(self):
+    def __str__(self):   # pragma: no cover
         _s = "SOLIDserverRest: API={}, user={}"
         return(_s.format(self.prefix_url,
                          self.user))
 
     # deprecated method to be suppressed
 
-    def use_native_ssd(self, user, password):
+    def use_native_ssd(self, user, password):   # pragma: no cover
         """deprecated version of use_native_sds"""
         logging.critical("deprecated method use_native_ssd")
         self.use_native_sds(user, password)
 
-    def use_basicauth_ssd(self, user, password):
+    def use_basicauth_ssd(self, user, password):   # pragma: no cover
         """deprecated version of use_basicauth_ssd"""
         logging.critical("deprecated method use_basicauth_ssd")
         self.use_basicauth_sds(user, password)

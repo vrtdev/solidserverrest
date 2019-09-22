@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-21 15:40:48 alex>
+# Time-stamp: <2019-09-22 16:02:01 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -105,6 +105,28 @@ def test_space_refresh_not_found():
         return
 
     assert None, "should not be able to refresh unknown space"
+
+# -------------------------------------------------------
+def test_space_create_not_connected():
+    """create new top level space w/o connection to SDS"""
+
+    space = sdsadv.Space(name=str(uuid.uuid4()))
+    try:
+        space.create()
+        assert None, "not catching create space not connected"
+    except SDSSpaceError:
+        None
+
+# -------------------------------------------------------
+def test_space_delete_not_connected():
+    """delete space w/o connection to SDS"""
+
+    space = sdsadv.Space(name=str(uuid.uuid4()))
+    try:
+        space.delete()
+        assert None, "not catching create space not connected"
+    except SDSSpaceError:
+        None
 
 # -------------------------------------------------------
 def test_space_create_new():

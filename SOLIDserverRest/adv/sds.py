@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-07-06 18:57:14 alex>
+# Time-stamp: <2019-09-22 15:55:46 alex>
 #
 # only for python v3
 
@@ -106,7 +106,7 @@ class SDS(ClassParams):
 
         self.version = self.get_version()
 
-        if self.version is None:
+        if self.version is None:   # pragma: no cover
             raise SDSInitError(message="version of SOLIDserver not found")
 
     # ---------------------------
@@ -124,11 +124,11 @@ class SDS(ClassParams):
                        },
                        option=False)
 
-        if j is None:
+        if j is None:   # pragma: no cover
             logging.error("error in getting answer on version")
             return None
 
-        if 'member_is_me' not in j[0]:
+        if 'member_is_me' not in j[0]:   # pragma: no cover
             logging.error("error in getting version")
             return None
 
@@ -136,7 +136,7 @@ class SDS(ClassParams):
         return self.version
 
     # ---------------------------
-    def query(self, method, params=None, option=False, timeout=1):
+    def query(self, method, params='', option=False, timeout=1):
         """execute a query towards the SDS"""
 
         _timeout = self.timeout
@@ -158,14 +158,12 @@ class SDS(ClassParams):
             try:
                 j = answer_req.json()
                 return j
-            except JSONDecodeError:
+            except JSONDecodeError:   # pragma: no cover
                 logging.error("no json in return")
                 return None
 
         except SDSAuthError as error:
             raise SDSAuthError("{}".format(error))
-
-        return None
 
     # ---------------------------
     def __str__(self):

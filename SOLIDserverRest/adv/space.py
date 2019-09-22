@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-21 15:51:58 alex>
+# Time-stamp: <2019-09-22 16:02:53 alex>
 #
 
 """
@@ -59,7 +59,7 @@ class Space(ClassParams):
     def create(self, class_params=None):
         """creates the space in the SDS"""
         if self.sds is None:
-            raise SDSInitError(message="not connected")
+            raise SDSSpaceError(message="not connected")
 
         space_id = self._get_siteid_by_name(self.name)
         if space_id is not None:
@@ -78,13 +78,13 @@ class Space(ClassParams):
         try:
             rjson = self.sds.query("ip_site_create",
                                    params=params)
-        except SDSError:
+        except SDSError:   # pragma: no cover
             logging.error("create space")
 
-        if len(rjson) != 1:
+        if len(rjson) != 1:   # pragma: no cover
             raise SDSSpaceError(message="space creation error,"
                                 + " array not recognized")
-        if 'ret_oid' not in rjson[0]:
+        if 'ret_oid' not in rjson[0]:   # pragma: no cover
             raise SDSSpaceError(message="space creation error, id not found")
 
         self.params['site_id'] = int(rjson[0]['ret_oid'])
@@ -94,21 +94,17 @@ class Space(ClassParams):
     def delete(self):
         """deletes the space in the SDS"""
         if self.sds is None:
-            raise SDSInitError(message="not connected")
+            raise SDSSpaceError(message="not connected")
 
         space_id = self._get_siteid_by_name(self.name)
-        if space_id is None:
-            raise SDSSpaceError(message="space not in SDS, cannot delete")
 
         try:
-            rjson = self.sds.query("ip_site_delete",
-                                   params={
-                                       'site_name': self.name
-                                   })
-        except SDSError:
+            self.sds.query("ip_site_delete",
+                           params={
+                               'site_name': self.name
+                           })
+        except SDSError:   # pragma: no cover
             logging.error("delete space")
-
-        print(rjson)
 
     # -------------------------------------
     def _get_siteid_by_name(self, name):
@@ -123,7 +119,7 @@ class Space(ClassParams):
         except SDSEmptyError:
             return None
 
-        if rjson[0]['errno'] != '0':
+        if rjson[0]['errno'] != '0':   # pragma: no cover
             raise SDSError("errno raised")
 
         return rjson[0]['site_id']
@@ -147,7 +143,7 @@ class Space(ClassParams):
                                    "site_id": space_id,
                                })
 
-        if not rjson:
+        if not rjson:   # pragma: no cover
             raise SDSSpaceError(message="space refresh error, len of array")
 
         rjson = rjson[0]
@@ -163,7 +159,7 @@ class Space(ClassParams):
                       'parent_site_class_name',
                       'row_enabled',
                       'multistatus']:
-            if label not in rjson:
+            if label not in rjson:   # pragma: no cover
                 raise SDSError("parameter {} not found in space".format(label))
             self.params[label] = rjson[label]
 
@@ -171,8 +167,8 @@ class Space(ClassParams):
             if rjson['site_class_parameters'] != "":
                 self.decode_class_params(self.class_params,
                                          rjson['site_class_parameters'])
-            # logging.info(rjson['site_class_parameters'])
-            # logging.info(self.params)
+                # logging.info(rjson['site_class_parameters'])
+                # logging.info(self.params)
 
     # -------------------------------------
     def __str__(self):

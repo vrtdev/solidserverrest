@@ -161,6 +161,28 @@ SERVICE_MAPPER = {
     'dhcp_static6_info': 'dhcp6_static6_info',
     'dhcp_static6_count': 'dhcp6_static6_count',
     'dhcp_static6_delete': 'dhcp6_static6_delete',
+
+    # device manager
+    'host_device_create': 'hostdev_add',
+    'host_device_update': 'hostdev_add',
+    'host_device_delete': 'hostdev_delete',
+    'host_device_list':   'hostdev_list',
+    'host_device_count':  'hostdev_count',
+    'host_device_info':   'hostdev_info',
+
+    'host_iface_create': 'hostiface_add',
+    'host_iface_update': 'hostiface_add',
+    'host_iface_delete': 'hostiface_delete',
+    'host_iface_list':   'hostiface_list',
+    'host_iface_count':  'hostiface_count',
+    'host_iface_info':   'hostiface_info',
+
+    'host_link_create':  'link_hostiface_add',
+    'host_link_update':  'link_hostiface_add',
+    'host_link_delete':  'link_hostiface_delete',
+    'host_link_count':   'link_hostiface_count',
+    'host_link_list':    'link_hostiface_list',
+    'host_link_info':    'link_hostiface_list',
 }
 
 METHOD_MAPPER = {
