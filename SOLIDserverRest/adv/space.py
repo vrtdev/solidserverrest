@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-22 16:02:53 alex>
+# Time-stamp: <2019-09-27 11:00:40 alex>
 #
 
 """
@@ -29,7 +29,7 @@ class Space(ClassParams):
     """ class to manipulate the SOLIDserver spaces """
 
     # -------------------------------------
-    def __init__(self, sds=None, name="Local"):
+    def __init__(self, sds=None, name="Local", class_params=None):
         """init the space object:
         - sds: object SOLIDserver, could be set afterwards
         - name: space name, default Local
@@ -51,12 +51,13 @@ class Space(ClassParams):
             'multistatus': None,
         }
 
-        self.class_params = {}
-
         super(Space, self).__init__()
 
+        if class_params is not None:
+            self.set_class_params(class_params)
+
     # -------------------------------------
-    def create(self, class_params=None):
+    def create(self):
         """creates the space in the SDS"""
         if self.sds is None:
             raise SDSSpaceError(message="not connected")
@@ -69,11 +70,7 @@ class Space(ClassParams):
             'site_name': self.name
         }
 
-        if class_params is not None:
-            # add a key for param push to SDS
-            key = 'site_class_parameters'
-            params[key] = self.encode_class_params(class_params)
-            self.class_params.update(class_params)
+        self.prepare_class_params('site', params)
 
         try:
             rjson = self.sds.query("ip_site_create",
@@ -101,7 +98,7 @@ class Space(ClassParams):
         try:
             self.sds.query("ip_site_delete",
                            params={
-                               'site_name': self.name
+                               'site_id': space_id,
                            })
         except SDSError:   # pragma: no cover
             logging.error("delete space")
@@ -164,11 +161,7 @@ class Space(ClassParams):
             self.params[label] = rjson[label]
 
         if 'site_class_parameters' in rjson:
-            if rjson['site_class_parameters'] != "":
-                self.decode_class_params(self.class_params,
-                                         rjson['site_class_parameters'])
-                # logging.info(rjson['site_class_parameters'])
-                # logging.info(self.params)
+            self.update_class_params(rjson['site_class_parameters'])
 
     # -------------------------------------
     def __str__(self):
@@ -181,12 +174,6 @@ class Space(ClassParams):
         if self.params['parent_site_id'] is not None:
             return_val += " parent={}".format(self.params['parent_site_id'])
 
-        if self.class_params:
-            return_val += " class-params=["
-            sep = ""
-            for key, value in self.class_params.items():
-                return_val += "{}{}={}".format(sep, key, value)
-                sep = ", "
-            return_val += "]"
+        return_val += str(super(Space, self).__str__())
 
         return return_val

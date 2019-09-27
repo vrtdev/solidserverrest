@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-22 16:02:01 alex>
+# Time-stamp: <2019-09-27 16:09:32 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -19,12 +19,8 @@ from SOLIDserverRest.Exception import SDSInitError, SDSRequestError
 from SOLIDserverRest.Exception import SDSAuthError, SDSError
 from SOLIDserverRest.Exception import SDSEmptyError, SDSSpaceError
 
-try:
-    from tests.data_sample import *
-except:
-    from .data_sample import *
-
 from .context import sdsadv
+from .context import _connect_to_sds
 
 # -------------------------------------------------------
 def test_space_set_empty():
@@ -47,56 +43,15 @@ def test_space_refresh_not_connected():
 # -------------------------------------------------------
 def test_space_refresh_local():
     """create empty space and do a refresh"""
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
-    try:
-        sds.connect(method="basicauth", cert_file_path="ca.crt")
-    except SDSRequestError:
-        logging.debug(e)
-        assert None, "certifiate validation error"
-    except SDSInitError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
+    sds = _connect_to_sds()
 
     space = sdsadv.Space(sds=sds, name="Local")
     space.refresh()
 
 # -------------------------------------------------------
-def test_space_refresh_with_classparams():
-    """refresh a space with class params
-    TODO: suppress this test"""
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
-    try:
-        sds.connect(method="basicauth", cert_file_path="ca.crt")
-    except SDSRequestError:
-        logging.debug(e)
-        assert None, "certifiate validation error"
-    except SDSInitError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
-
-    space = sdsadv.Space(sds=sds, name="t01")
-    space.refresh()
-    
-    logging.debug(space)
-
-# -------------------------------------------------------
 def test_space_refresh_not_found():
     """lookup for a non existant space"""
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
-    try:
-        sds.connect(method="basicauth", cert_file_path="ca.crt")
-    except SDSRequestError:
-        logging.debug(e)
-        assert None, "certifiate validation error"
-    except SDSInitError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
+    sds = _connect_to_sds()
 
     space = sdsadv.Space(sds=sds, name="not_known")
     try:
@@ -131,15 +86,7 @@ def test_space_delete_not_connected():
 # -------------------------------------------------------
 def test_space_create_new():
     """create new top level space, then delete it"""
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
-
-    try:
-        sds.connect(method="basicauth")
-    except SDSError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
+    sds = _connect_to_sds()
 
     space = sdsadv.Space(sds, name=str(uuid.uuid4()))
     try:
@@ -154,17 +101,9 @@ def test_space_create_new():
 # -------------------------------------------------------
 def test_space_create_existing():
     """create new top level space 2 times, then delete it"""
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
+    sds = _connect_to_sds()
 
     space_name = str(uuid.uuid4())
-
-    try:
-        sds.connect(method="basicauth")
-    except SDSError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
 
     # first creation
     space01 = sdsadv.Space(sds, name=space_name)
@@ -186,15 +125,7 @@ def test_space_create_existing():
 # -------------------------------------------------------
 def test_space_create_new_with_params():
     """create new top level space with specific class params, then delete it"""
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
-
-    try:
-        sds.connect(method="basicauth")
-    except SDSError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
+    sds = _connect_to_sds()
 
     space_name = str(uuid.uuid4())
     space01 = sdsadv.Space(sds, name=space_name)
@@ -205,8 +136,10 @@ def test_space_create_new_with_params():
         'date': datetime.datetime.now()
     }
 
+    space01.set_class_params(params)
+
     try:
-        space01.create(class_params = params)
+        space01.create()
     except SDSSpaceError:
         assert None, "this space should not exists"
 
@@ -224,3 +157,10 @@ def test_space_create_new_with_params():
         assert None, "2 spaces are different"
     
     space01.delete()
+
+    space_name = str(uuid.uuid4())
+    space02 = sdsadv.Space(sds, name=space_name,
+                           class_params = { 'key1': 'ok',
+                                            'key2': 12,
+                                            'date': datetime.datetime.now()})
+

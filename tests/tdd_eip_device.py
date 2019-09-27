@@ -1,9 +1,24 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-22 15:27:40 alex>
+# Time-stamp: <2019-09-27 15:19:26 alex>
 #
 
 """test file for the device manager
+
+* test_device_new_object
+* test_device_refresh_not_connected
+* test_device_new_object_wo_name
+* test_device_create
+* test_device_delete_not_connected
+* test_device_update_not_connected
+* test_device_refresh
+* test_device_refresh_ukn
+* test_device_refresh_destroyed
+* test_device_create_not_connected
+* test_device_create_twice
+* test_device_delete_ukn
+* test_device_async
+
 """
 
 import logging
@@ -16,26 +31,8 @@ from SOLIDserverRest.Exception import SDSAuthError, SDSError
 from SOLIDserverRest.Exception import SDSEmptyError
 from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
 
-try:
-    from tests.data_sample import *
-except:
-    from .data_sample import *
-
 from .context import sdsadv
-
-# -------------------------------------------------------
-def _connect_to_sds():
-    sds = sdsadv.SDS()
-    sds.set_server_ip(SERVER)
-    sds.set_credentials(user=USER, pwd=PWD)
-
-    try:
-        sds.connect(method="basicauth")
-    except SDSError as e:
-        logging.debug(e)
-        assert None, "connection error, probable certificate issue"
-
-    return sds
+from .context import _connect_to_sds
 
 # -------------------------------------------------------
 def test_device_new_object():
@@ -86,6 +83,35 @@ def test_device_create():
     dev.delete()
 
 # -------------------------------------------------------
+def test_device_with_classparams():
+    """create a device in SDS with meta-data, refresh and delete"""
+
+    device_name = str(uuid.uuid4())
+
+    sds = _connect_to_sds()
+
+    classparams = {
+        'a': 12,
+        'b': "string",
+    }
+
+    dev01 = sdsadv.Device(name=device_name, 
+                          sds=sds,
+                          class_params = classparams)
+
+    dev01.add_class_params({'c': 'new add'})
+
+    dev01.create()
+
+    dev02 = sdsadv.Device(name=device_name, sds=sds)
+    dev02.refresh()
+   
+    if int(dev02.get_class_params('a')) != int(classparams['a']):
+        assert None, "class params not correct"
+
+    dev01.delete()
+
+# -------------------------------------------------------
 def test_device_delete_not_connected():
     """delete a device while not connected to SDS"""
 
@@ -94,6 +120,19 @@ def test_device_delete_not_connected():
     dev = sdsadv.Device(name=device_name)
     try:
         dev.delete()
+        assert None, "not detecting delete on not connected"
+    except SDSDeviceError:
+        None
+
+# -------------------------------------------------------
+def test_device_update_not_connected():
+    """update a device while not connected to SDS"""
+
+    device_name = str(uuid.uuid4())
+
+    dev = sdsadv.Device(name=device_name)
+    try:
+        dev.update()
         assert None, "not detecting delete on not connected"
     except SDSDeviceError:
         None
@@ -161,7 +200,7 @@ def test_device_create_not_connected():
     try:
         dev.create()
         assert None, "assertion should be raised on device with no name"
-    except SDSInitError:
+    except SDSDeviceError:
         None
 
 # -------------------------------------------------------
@@ -205,3 +244,59 @@ def test_device_delete_ukn():
         assert None, "delete ukn device"
     except SDSDeviceNotFoundError:
         None
+
+# -------------------------------------------------------
+def test_device_async():
+    """async modification are not pushed"""
+
+    device_name = str(uuid.uuid4())
+    sds = _connect_to_sds()
+    dev01 = sdsadv.Device(name=device_name, sds=sds)
+
+    # sync mode
+    dev01.set_sync()
+
+    dev01.create()
+    device_name = str(uuid.uuid4())
+
+    # coverage test also
+    dev01.set_sync()
+    dev01.set_param(param='notexistant')
+    dev01.set_param(param={'test':1})
+    dev01.set_param(param='notexistant', value=12)
+    dev01.set_param(param='hostdev_id', value=12)
+
+    dev01.set_param('hostdev_name', device_name)
+
+    dev02 = sdsadv.Device(name=device_name, sds=sds)
+    dev02.refresh()
+
+    dev01_name = dev01.params['hostdev_name']
+    dev02_name = dev02.params['hostdev_name']
+
+    if dev01_name != dev02_name:
+        assert None, "sync mode not working"
+
+    # async mode
+    dev01.set_async()
+
+    dev01.set_param('hostdev_name', str(uuid.uuid4()))
+
+    dev03 = sdsadv.Device(name=device_name, sds=sds)
+    dev03.refresh()
+
+    dev01_name = dev01.params['hostdev_name']
+    dev03_name = dev03.params['hostdev_name']
+
+    if dev01_name == dev03_name:
+        assert None, "async mode not working"
+
+    dev01.update()
+    dev03.refresh()
+    dev01_name = dev01.params['hostdev_name']
+    dev03_name = dev03.params['hostdev_name']
+
+    if dev01_name != dev03_name:
+        assert None, "async mode not working"
+
+    dev01.delete()
