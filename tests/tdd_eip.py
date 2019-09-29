@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-07-06 18:50:34 alex>
+# Time-stamp: <2019-09-22 15:54:35 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -151,10 +151,11 @@ def test_native_auth():
     sds.connect(method="native")
     logging.debug(sds)
 
-# ------ SPACE ---------------------
-def test_set_space_empty():
-    """create a space object and populate it with the content of the SDS"""
-    space = sdsadv.Space()
-    logging.debug(space.name)
-    logging.debug(space)
+#----
+def test_query_timeout():
+    sds = sdsadv.SDS()
+    sds.set_server_ip(SERVER)
+    sds.set_credentials(user=USER, pwd=PWD)
+    sds.connect(method="native")
 
+    sds.query("ip_site_count", timeout=2)

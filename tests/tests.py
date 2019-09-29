@@ -9,7 +9,7 @@ import logging
 
 
 _logFormat = '%(asctime)-15s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s'
-logging.basicConfig(format=_logFormat, level=logging.INFO)
+logging.basicConfig(format=_logFormat, level=logging.ERROR)
 
 sys.path.append(os.getcwd())
 
@@ -56,7 +56,6 @@ def test_auto_dico_basic_srv():
 def test_auto_dico_basic_nosrv():
     fct_auto_dico(SOLIDserverRest.CNX_BASIC, None)
 
-
 def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
     logging.info('================================')
     logging.info('TESTS AUTO')
@@ -71,7 +70,7 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
         elif auth==SOLIDserverRest.CNX_BASIC:
             testR.use_basicauth_sds(USER, PWD)
     except SDSInitError as error:
-        logging.critical(error)
+        logging.info(error)
         if srv is not None:
             assert None, "server connect error {}".format(srv)
         return
@@ -108,7 +107,7 @@ def fct_auto_dico(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER, options=False):
             logging.info('Answer: {}'.format(answerR))
             logging.info('Answer: {}'.format(answerR.status_code))
             logging.info('Answer:')
-            logging.info(answerR.content)
+            logging.debug(answerR.content)
         except SDSError as e:
             logging.info("error on SDS query - {}".format(str()))
             None
@@ -163,7 +162,7 @@ def test_no_params(auth=SOLIDserverRest.CNX_NATIVE, srv=SERVER):
         testR.use_basicauth_sds(USER, PWD)
 
     try:
-        answerR = testR.query('ukn_service_list', None)
+        answerR = testR.query('ukn_service_list')
         logging.info('Answer: {}'.format(answerR))
         logging.info('Answer: {}'.format(answerR.status_code))
         logging.info('Answer:')
