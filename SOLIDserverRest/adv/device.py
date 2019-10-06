@@ -1,7 +1,7 @@
 
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-27 16:02:16 alex>
+# Time-stamp: <2019-09-29 18:23:26 alex>
 #
 
 """
@@ -9,7 +9,7 @@ SOLIDserver device manager
 
 """
 
-import logging
+# import logging
 
 from SOLIDserverRest.Exception import SDSError
 from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError

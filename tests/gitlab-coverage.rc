@@ -1,2 +1,3 @@
 [run]
 omit = SOLIDserverRest/adv/*
+omit = SOLIDserverRest/cli/*

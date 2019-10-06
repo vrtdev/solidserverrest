@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-22 15:55:46 alex>
+# Time-stamp: <2019-10-06 15:22:11 alex>
 #
 # only for python v3
 
@@ -110,10 +110,25 @@ class SDS(ClassParams):
             raise SDSInitError(message="version of SOLIDserver not found")
 
     # ---------------------------
+    def disconnect(self):
+        """disconnects from the SOLIDserver"""
+        self.sds = None
+        self.version = None
+        self.sds_ip = None
+        self.user = None
+        self.pwd = None
+        self.auth_method = None
+        self.check_certificate = False
+        self.timeout = 1
+
+    # ---------------------------
     def get_version(self):
         """get software version of the SDS based on the management platform
         returns version as a string
         """
+
+        if self.sds is None:
+            raise SDSEmptyError(message="not connected")
 
         if self.version is not None:
             return self.version
@@ -136,8 +151,38 @@ class SDS(ClassParams):
         return self.version
 
     # ---------------------------
+    def get_load(self):
+        """get cpu, mem, io"""
+        if self.sds is None:
+            raise SDSEmptyError(message="not connected")
+
+        j = self.query("member_list",
+                       params={
+                           'WHERE': 'member_is_me=1',
+                       },
+                       option=False)
+
+        if j is None:   # pragma: no cover
+            logging.error("error in getting answer on version")
+            return None
+
+        if 'member_is_me' not in j[0]:   # pragma: no cover
+            logging.error("error in getting version")
+            return None
+
+        return {
+            'cpu': float(j[0]['member_snmp_cpuload_percent']),
+            'ioload': int(j[0]['member_snmp_ioload']),
+            'mem': int(j[0]['member_snmp_memory']),
+            'hdd': int(j[0]['member_snmp_hdd']),
+        }
+        
+    # ---------------------------
     def query(self, method, params='', option=False, timeout=1):
         """execute a query towards the SDS"""
+
+        if self.sds is None:
+            raise SDSEmptyError(message="not connected")
 
         _timeout = self.timeout
         if timeout not in (self.timeout, 1):

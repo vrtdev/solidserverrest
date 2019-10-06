@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-22 15:54:35 alex>
+# Time-stamp: <2019-10-06 17:16:39 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -10,7 +10,9 @@ this file is used to tdd"""
 import logging
 import sys
 
-from SOLIDserverRest.Exception import SDSInitError, SDSRequestError, SDSAuthError, SDSError
+from SOLIDserverRest.Exception import SDSInitError, SDSRequestError
+from SOLIDserverRest.Exception import SDSAuthError, SDSError
+from SOLIDserverRest.Exception import SDSEmptyError
 
 if sys.version_info[0] == 3:
     try:
@@ -159,3 +161,42 @@ def test_query_timeout():
     sds.connect(method="native")
 
     sds.query("ip_site_count", timeout=2)
+
+def test_disconnect():
+    """create a connection to a SOLIDserver and suppress it"""
+    sds = sdsadv.SDS()
+    sds.set_server_ip(SERVER)
+    sds.set_credentials(user=USER, pwd=PWD)
+    sds.connect()
+
+    try:
+        version = sds.get_version()
+    except SDSEmptyError:
+        assert None, "get version on connected SDS" 
+
+    try:
+        stats = sds.get_load()
+    except SDSEmptyError:
+        assert None, "get load stats on connected SDS" 
+
+    sds.query("ip_site_count", timeout=2)
+
+    sds.disconnect()
+
+    try:
+        version = sds.get_version()
+        assert None, "get version on disconnected SDS" 
+    except SDSEmptyError:
+        None
+
+    try:
+        stats = sds.get_load()
+        assert None, "get load stats on disconnected SDS" 
+    except SDSEmptyError:
+        None
+
+    try:
+        sds.query("ip_site_count", timeout=2)
+        assert None, "query on disconnected SDS" 
+    except SDSEmptyError:
+        None
