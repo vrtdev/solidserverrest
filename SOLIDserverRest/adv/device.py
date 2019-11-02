@@ -1,7 +1,7 @@
 
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-29 18:23:26 alex>
+# Time-stamp: <2019-11-01 17:53:53 alex>
 #
 
 """
@@ -9,7 +9,7 @@ SOLIDserver device manager
 
 """
 
-# import logging
+import logging
 
 from SOLIDserverRest.Exception import SDSError
 from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
@@ -30,16 +30,12 @@ class Device(ClassParams):
         if name is None:
             raise SDSDeviceError("no name provided at device init")
 
-        self.name = name
-        self.myid = -1
-
-        self.sds = sds
+        super(Device, self).__init__()
+        self.set_sds(sds)
+        self.set_name(name)
 
         # params mapping the object in SDS
-        self.params = {}
         self.clean_params()
-
-        super(Device, self).__init__()
 
         if class_params is not None:
             self.set_class_params(class_params)
@@ -69,27 +65,11 @@ class Device(ClassParams):
         }
 
     # -------------------------------------
-    def set_param(self, param=None, value=None):
-        """ set a specific param value """
-        if param is None or not isinstance(param, str):
-            return
-
-        if value is None:
-            return
-
-        if param == 'hostdev_id':
-            return
-
-        if param not in self.params:
-            return
-
-        self.params[param] = value
-
-        if param == 'hostdev_name':
-            self.name = value
-
-        if self.in_sync:
-            self.update()
+    def set_param(self, param=None, value=None, exclude=None, name=None):
+        super(Device, self).set_param(param,
+                                      value,
+                                      exclude=['hostdev_id'],
+                                      name='hostdev_name')
 
     # -------------------------------------
     def create(self):
@@ -124,7 +104,8 @@ class Device(ClassParams):
             raise SDSDeviceError(message="not connected")
 
         params = {
-            'hostdev_id': self._get_id(),
+            'hostdev_id': self._get_id(query="host_device_list",
+                                       key="hostdev"),
             'hostdev_name': self.name,
         }
 
@@ -158,49 +139,14 @@ class Device(ClassParams):
         self.clean_params()
 
     # -------------------------------------
-    def _get_id(self):
-        """get the device ID"""
-
-        if self.myid >= 0:
-            return self.myid
-
-        if self.params['hostdev_id'] is None:
-            device_id = self._get_id_by_name(self.name)
-
-        self.myid = int(device_id)
-        self.params['hostdev_id'] = int(device_id)
-
-        return device_id
-
-    # -------------------------------------
-    def _get_id_by_name(self, name):
-        """get the device ID from its name, return None if non existant"""
-
-        params = {
-            "WHERE": "hostdev_name='{}'".format(name),
-        }
-
-        try:
-            rjson = self.sds.query("host_device_list",
-                                   params=params)
-        except SDSError as err_descr:
-            msg = "cannot found device by name {}".format(name)
-            msg += " / "+str(err_descr)
-            raise SDSDeviceError(msg)
-
-        if rjson[0]['errno'] != '0':  # pragma: no cover
-            raise SDSDeviceError("errno raised on get id by name")
-
-        return rjson[0]['hostdev_id']
-
-    # -------------------------------------
     def refresh(self):
         """refresh content of the device from the SDS"""
 
         if self.sds is None:
             raise SDSDeviceError(message="not connected")
 
-        device_id = self._get_id()
+        device_id = self._get_id(query="host_device_list",
+                                 key="hostdev")
 
         params = {
             "hostdev_id": device_id,
@@ -243,28 +189,56 @@ class Device(ClassParams):
             self.update_class_params(rjson['hostdev_class_parameters'])
 
     # -------------------------------------
+    def add_if(self, name=None, mac=None, ipaddr=None, iftype="interface"):
+        """add a new interface to the current device"""
+
+        if self.params['hostdev_id'] is None:
+            raise SDSDeviceNotFoundError("on delete")
+
+        device_id = self._get_id(query="host_device_list",
+                                 key="hostdev")
+
+        params = {
+            "hostdev_id": device_id,
+            "hostiface_type": iftype,
+        }
+
+        if name is None:
+            raise SDSDeviceError("no name provided to interface")
+        params['hostiface_name'] = name
+
+        # need surface control here - TODO
+        if mac is not None:
+            params['hostiface_mac'] = mac
+
+        # need surface control here - TODO
+        if ipaddr is not None:
+            params['hostiface_addr'] = ipaddr
+
+        try:
+            rjson = self.sds.query("host_iface_create",
+                                   params=params)
+        except SDSError as err_descr:
+            msg = "error adding an interface to id={}".format(device_id)
+            msg += " / "+str(err_descr)
+            raise SDSDeviceError(msg)
+
+        rjson = rjson[0]
+
+        logging.info(rjson)
+
+    # -------------------------------------
     def __str__(self):  # pragma: no cover
         """return the string notation of the device object"""
 
         return_val = "*device* name={}".format(self.name)
 
-        return_val += " id={}".format(self.myid)
-
         if self.params['hostdev_site_name'] != '':
             return_val += " site={}".format(self.params['hostdev_site_name'])
             return_val += " [{}]".format(self.params['hostdev_site_id'])
 
-        sep = " "
-        for key, value in self.params.items():
-            if key in ['hostdev_id',
-                       'hostdev_name']:
-                continue
-
-            if value == "":
-                continue
-
-            return_val += "{}{}={}".format(sep, key, value)
-            sep = ", "
+        return_val += self.str_params(exclude=['hostdev_id',
+                                               'hostdev_name'])
 
         return_val += str(super(Device, self).__str__())
 

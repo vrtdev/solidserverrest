@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-27 16:09:32 alex>
+# Time-stamp: <2019-11-01 11:28:22 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -8,6 +8,15 @@ and set in data_sample file
 this file is used to tdd
 
 scenario:
+* test_space_set_empty
+* test_space_refresh_not_connected
+* test_space_refresh_local
+* test_space_refresh_not_found
+* test_space_create_not_connected
+* test_space_delete_not_connected
+* test_space_create_new
+* test_space_create_existing
+* test_space_create_new_with_params
 """
 
 import logging

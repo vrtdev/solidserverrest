@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-10-06 15:22:11 alex>
+# Time-stamp: <2019-11-01 16:55:47 alex>
 #
 # only for python v3
 
@@ -176,7 +176,7 @@ class SDS(ClassParams):
             'mem': int(j[0]['member_snmp_memory']),
             'hdd': int(j[0]['member_snmp_hdd']),
         }
-        
+
     # ---------------------------
     def query(self, method, params='', option=False, timeout=1):
         """execute a query towards the SDS"""

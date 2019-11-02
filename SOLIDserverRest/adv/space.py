@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-27 11:00:40 alex>
+# Time-stamp: <2019-11-01 17:29:56 alex>
 #
 
 """
@@ -34,6 +34,9 @@ class Space(ClassParams):
         - sds: object SOLIDserver, could be set afterwards
         - name: space name, default Local
         """
+
+        super(Space, self).__init__()
+
         self.name = name
         self.sds = sds
 
@@ -50,8 +53,6 @@ class Space(ClassParams):
             'row_enabled': None,
             'multistatus': None,
         }
-
-        super(Space, self).__init__()
 
         if class_params is not None:
             self.set_class_params(class_params)

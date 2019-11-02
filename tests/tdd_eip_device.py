@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-27 15:19:26 alex>
+# Time-stamp: <2019-11-01 17:46:32 alex>
 #
 
 """test file for the device manager
@@ -167,7 +167,7 @@ def test_device_refresh_ukn():
     try:
         dev02.refresh()
         assert None, "not detecting refresh ukn"
-    except SDSDeviceError:
+    except SDSError:
         None
 
 # -------------------------------------------------------

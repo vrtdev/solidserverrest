@@ -19,6 +19,7 @@ __all__ = ["SDSAuthError",
            "SDSSpaceError",
 
            "SDSDeviceError", "SDSDeviceNotFoundError",
+           "SDSNetworkError", "SDSNetworkNotFoundError",
 
            # deprecated versions
            "SSDAuthError",
@@ -107,6 +108,22 @@ class SDSDeviceNotFoundError(SDSError):   # pragma: no cover
     def __init__(self, message=""):
         message = "device not found: {}".format(message)
         super(SDSDeviceNotFoundError, self).__init__(message)
+
+
+class SDSNetworkError(SDSError):   # pragma: no cover
+    """ raised when error on network """
+
+    def __init__(self, message=""):
+        message = "network error: {}".format(message)
+        super(SDSNetworkError, self).__init__(message)
+
+
+class SDSNetworkNotFoundError(SDSError):   # pragma: no cover
+    """ raised when network not found """
+
+    def __init__(self, message=""):
+        message = "network not found: {}".format(message)
+        super(SDSNetworkNotFoundError, self).__init__(message)
 
 
 # ---- DEPRECATED TO BE SUPPRESSED --------------------------------------
