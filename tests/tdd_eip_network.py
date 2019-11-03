@@ -1,10 +1,22 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-02 17:44:39 alex>
+# Time-stamp: <2019-11-03 17:38:20 alex>
 #
 
 """test network
 
+* test_net_new_network
+* test_net_create_network_no_mandatory
+* test_net_create_block
+* test_net_create_block_refresh_error
+* test_net_refresh_non_exist
+* test_net_delete_block_wo_mandatory
+* test_net_create_block_wo_sds
+* test_net_refresh_block_wo_sds
+* test_net_create_block_collision
+* test_net_update_block
+* test_net_create_block_with_classparams
+* test_net_block_net_subnets_wo_parent
 
 """
 
@@ -114,7 +126,7 @@ def test_net_create_block():
                              name=net_name)
 
     network.set_address_prefix('172.16.0.0', 16)
-    network.set_block(True)
+    network.set_is_block(True)
     network.create()
 
     obj_string = str(network)
@@ -141,7 +153,7 @@ def test_net_create_block_refresh_error():
                              name=net_name)
 
     network.set_address_prefix('172.16.0.0', 16)
-    network.set_block(True)
+    network.set_is_block(True)
     network.create()
 
     # delete using direct API
@@ -262,7 +274,7 @@ def test_net_create_block_collision():
                                name=name01)
 
     network01.set_address_prefix('172.16.0.0', 16)
-    network01.set_block(True)
+    network01.set_is_block(True)
     network01.create()
 
     # collision inside the network object
@@ -274,7 +286,7 @@ def test_net_create_block_collision():
                                name=name02)
 
     network02.set_address_prefix('172.16.0.0', 16)
-    network02.set_block(True)
+    network02.set_is_block(True)
 
     try:
         network02.create()
@@ -305,7 +317,7 @@ def test_net_update_block():
                              name=net_name)
 
     network.set_address_prefix('172.16.0.0', 16)
-    network.set_block(True)
+    network.set_is_block(True)
     network.create()
 
     network.set_async()
@@ -345,7 +357,7 @@ def test_net_create_block_with_classparams():
                              class_params=params)
 
     network.set_address_prefix('172.16.0.0', 16)
-    network.set_block(True)
+    network.set_is_block(True)
     network.create()
 
     check_net01 = str(network)
@@ -358,6 +370,8 @@ def test_net_create_block_with_classparams():
     check_net02 = str(network02)
 
     if check_net01 != check_net02:
+        logging.error(check_net01)
+        logging.error(check_net02)
         assert None, "2 networks are different"
     
     network.delete()
@@ -365,16 +379,144 @@ def test_net_create_block_with_classparams():
 
 
 # -------------------------------------------------------
+def test_net_block_net_subnets():
+    """create a hierarchy of block/net/terms"""
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    # creates a space
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    # create a network object
+    net01 = sdsadv.Network(sds=sds,
+                             space=space,
+                             name=str(uuid.uuid4()))
+
+    net01.set_address_prefix('172.16.0.0', 16)
+    net01.set_is_block(True)
+    net01.create()
+
+    net02 = sdsadv.Network(sds=sds,
+                               space=space,
+                               name=str(uuid.uuid4()))
+
+    net02.set_address_prefix('172.16.0.0', 24)
+    net02.set_parent(net01)
+    net02.set_is_terminal(False)
+    net02.create()
+
+    net03 = sdsadv.Network(sds=sds,
+                               space=space,
+                               name=str(uuid.uuid4()))
+
+    net03.set_address_prefix('172.16.0.0', 25)
+    net03.set_parent(net02)
+    net03.set_is_terminal(True)
+    net03.create()
+    
+    net03.delete()
+    net02.delete()
+    net01.delete()
+
+    space.delete()
+
+# -------------------------------------------------------
+def test_net_block_net_subnets_wo_parent():
+    """create a subnet in a not defined parent"""
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    # creates a space
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    # create a network object
+    net01 = sdsadv.Network(sds=sds,
+                             space=space,
+                             name=str(uuid.uuid4()))
+
+    net01.set_address_prefix('172.16.0.0', 16)
+    net01.set_is_block(True)
+
+
+    net02 = sdsadv.Network(sds=sds,
+                               space=space,
+                               name=str(uuid.uuid4()))
+
+    net02.set_address_prefix('172.16.0.0', 24)
+
+    try:
+        net02.set_parent(net01)
+        assert None, "should not be able to link to unk parent"
+    except SDSNetworkError:
+        None
+
+    space.delete()
+
+# -------------------------------------------------------
 def _test_none():
     """test only"""
 
     sds = _connect_to_sds()
 
-    space = sdsadv.Space(sds=sds, name="882b9eb3-59c8-439b-b2b4-49066f775cbc")
-    space.refresh()
+    try:
+        space = sdsadv.Space(sds=sds, name="test")
+        space.create()
+    except SDSError:
+        space.refresh()
+        None
+
+    # create block
+    net_name = "test_block"
+    block = sdsadv.Network(sds=sds,
+                             space=space,
+                             name=net_name)
+
+    block.set_address_prefix('172.16.0.0', 16)
+    block.set_is_block(True)
+
+    try:
+        block.create()
+    except SDSNetworkError:
+        block.refresh()
+        None
 
     network = sdsadv.Network(sds=sds,
                              space=space,
-                             name="test")
-    network.refresh()
+                             name="t01")
+
+    network.set_address_prefix('172.16.0.0', 23)
+    network.set_parent(block)
+    try:
+        network.create()
+    except SDSNetworkError:
+        network.refresh()
+        None
+
     logging.info(network)
+
+    network02 = sdsadv.Network(sds=sds,
+                               space=space,
+                               name="t02")
+
+    network02.set_address_prefix('172.16.0.0', 24)
+    network02.set_parent(network)
+    network02.create()
+
+    network03 = sdsadv.Network(sds=sds,
+                               space=space,
+                               name="t03")
+
+    network03.set_address_prefix('172.16.0.0', 25)
+    network03.set_parent(network02)
+    network03.set_is_terminal(True)
+    network03.create()
+
+    return
+
+    # delete
+    block.delete()
+    space.delete()

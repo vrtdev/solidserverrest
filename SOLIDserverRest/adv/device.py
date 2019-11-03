@@ -1,7 +1,7 @@
 
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-01 17:53:53 alex>
+# Time-stamp: <2019-11-03 17:45:04 alex>
 #
 
 """
@@ -9,7 +9,7 @@ SOLIDserver device manager
 
 """
 
-import logging
+# import logging
 
 from SOLIDserverRest.Exception import SDSError
 from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
@@ -225,7 +225,7 @@ class Device(ClassParams):
 
         rjson = rjson[0]
 
-        logging.info(rjson)
+        # logging.info(rjson)
 
     # -------------------------------------
     def __str__(self):  # pragma: no cover

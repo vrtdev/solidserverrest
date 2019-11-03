@@ -1,7 +1,6 @@
-
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-02 17:48:58 alex>
+# Time-stamp: <2019-11-03 17:46:45 alex>
 #
 # pylint: disable=R0801
 
@@ -19,6 +18,7 @@ from SOLIDserverRest.Exception import SDSNetworkError, SDSNetworkNotFoundError
 from .class_params import ClassParams
 
 
+# pylint: disable=R0902
 class Network(ClassParams):
     """ class to manipulate the SOLIDserver network """
 
@@ -45,6 +45,9 @@ class Network(ClassParams):
         self.subnet_prefix = None
 
         self.is_block = False
+        self.is_terminal = False
+
+        self.parent_network = None
 
         # params mapping the object in SDS
         self.clean_params()
@@ -59,6 +62,11 @@ class Network(ClassParams):
         self.subnet_addr = None
         self.subnet_prefix = None
 
+        self.is_block = False
+        self.is_terminal = False
+
+        self.parent_network = None
+
         self.params = {
             'subnet_id': None,
         }
@@ -71,9 +79,27 @@ class Network(ClassParams):
         self.subnet_prefix = prefix
 
     # -------------------------------------
-    def set_block(self, block=False):
+    def set_is_block(self, block=False):
         """is this network a block"""
         self.is_block = block
+        if block:
+            self.set_is_terminal(False)
+
+    # -------------------------------------
+    def set_is_terminal(self, terminal=False):
+        """is this network a terminal"""
+        self.is_terminal = terminal
+        if terminal:
+            self.set_is_block(False)
+
+    # -------------------------------------
+    def set_parent(self, network):
+        """set the parent network => not a block then"""
+        if network.myid == -1:
+            raise SDSNetworkError("no valid parent network found")
+
+        self.parent_network = network
+        self.set_is_block(False)
 
     # -------------------------------------
     def set_param(self, param=None, value=None, exclude=None, name=None):
@@ -118,8 +144,20 @@ class Network(ClassParams):
         if self.is_block:
             params['is_terminal'] = '0'
             params['subnet_level'] = '0'
+        else:
+            if self.parent_network is not None:
+                params['parent_subnet_id'] = self.parent_network.myid
+            else:  # pragma: no cover
+                assert None, "TODO - not a block and no parent set, abort"
+
+            if self.is_terminal:
+                params['is_terminal'] = '1'
+            else:
+                params['is_terminal'] = '0'
 
         self.prepare_class_params('network', params)
+
+        # logging.info(params)
 
         rjson = self.sds.query("ip_subnet_create",
                                params=params)
@@ -230,6 +268,16 @@ class Network(ClassParams):
                 raise SDSNetworkError(msg)
             self.params[label] = rjson[label]
 
+        self.myid = int(rjson['subnet_id'])
+        if rjson['is_terminal'] == '1':
+            self.is_terminal = True
+        else:
+            self.is_terminal = False
+            if rjson['subnet_level'] == '0':
+                self.is_block = True
+            else:
+                self.is_block = False
+
         # should be this variable (see API doc), but not working...
         if 'network_class_parameters' in rjson:   # pragma: no cover
             self.update_class_params(rjson['network_class_parameters'])
@@ -249,6 +297,14 @@ class Network(ClassParams):
 
         if self.description is not None:
             return_val += " \"{}\"".format(self.description)
+
+        if self.is_block:
+            return_val += " [block]"
+
+        if self.is_terminal:
+            return_val += " [terminal]"
+        else:
+            return_val += " [network]"
 
         return_val += self.str_params(exclude=['subnet_id',
                                                'subnet_name'])
