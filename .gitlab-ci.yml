@@ -5,8 +5,8 @@ stages:
    - test37
    - coverage
 
-variables:
-   CODECOV_TOKEN: "c963ecec-e627-4bc4-8ac0-fa6569cb312f"
+#variables:
+#   CODECOV_TOKEN: "c963ecec-e627-4bc4-8ac0-fa6569cb312f"
 
 cache:
    paths:
@@ -26,6 +26,11 @@ build-37:
      - python setup.py sdist
      - pip install ./dist/*
      - rm -rf .coverage-py*
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
 
 build-36:
   stage: build
@@ -33,6 +38,11 @@ build-36:
   script:
      - python setup.py sdist
      - pip install ./dist/*
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
 
 build-27:
   stage: build
@@ -40,6 +50,11 @@ build-27:
   script:
      - python setup.py sdist
      - pip install ./dist/*
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
 
 test-27:
   stage: test27
@@ -51,6 +66,11 @@ test-27:
      - pycodestyle ./SOLIDserverRest/*.py
      - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
      - cp .coverage .coverage-py27
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
 
 test-36:
   stage: test36
@@ -63,6 +83,11 @@ test-36:
      - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
      - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
      - cp .coverage .coverage-py36
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
 
 test-37:
   stage: test37
@@ -75,6 +100,11 @@ test-37:
      - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
      - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
      - cp .coverage .coverage-py37
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
 
 coverage:
   stage: coverage
@@ -88,3 +118,8 @@ coverage:
      - coverage combine .coverage-py27 .coverage-py36 .coverage-py37
      - coverage report -m
      - codecov
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/

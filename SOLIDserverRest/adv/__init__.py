@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-06-23 15:08:25 alex>
+# Time-stamp: <2019-11-01 16:51:26 alex>
 #
 
 """
@@ -11,3 +11,5 @@ from .sds import SDS
 from .base import Base
 from .class_params import ClassParams
 from .space import Space
+from .device import Device
+from .network import Network

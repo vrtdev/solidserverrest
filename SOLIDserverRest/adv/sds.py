@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-07-06 18:57:14 alex>
+# Time-stamp: <2019-11-01 16:55:47 alex>
 #
 # only for python v3
 
@@ -106,14 +106,29 @@ class SDS(ClassParams):
 
         self.version = self.get_version()
 
-        if self.version is None:
+        if self.version is None:   # pragma: no cover
             raise SDSInitError(message="version of SOLIDserver not found")
+
+    # ---------------------------
+    def disconnect(self):
+        """disconnects from the SOLIDserver"""
+        self.sds = None
+        self.version = None
+        self.sds_ip = None
+        self.user = None
+        self.pwd = None
+        self.auth_method = None
+        self.check_certificate = False
+        self.timeout = 1
 
     # ---------------------------
     def get_version(self):
         """get software version of the SDS based on the management platform
         returns version as a string
         """
+
+        if self.sds is None:
+            raise SDSEmptyError(message="not connected")
 
         if self.version is not None:
             return self.version
@@ -124,11 +139,11 @@ class SDS(ClassParams):
                        },
                        option=False)
 
-        if j is None:
+        if j is None:   # pragma: no cover
             logging.error("error in getting answer on version")
             return None
 
-        if 'member_is_me' not in j[0]:
+        if 'member_is_me' not in j[0]:   # pragma: no cover
             logging.error("error in getting version")
             return None
 
@@ -136,8 +151,38 @@ class SDS(ClassParams):
         return self.version
 
     # ---------------------------
-    def query(self, method, params=None, option=False, timeout=1):
+    def get_load(self):
+        """get cpu, mem, io"""
+        if self.sds is None:
+            raise SDSEmptyError(message="not connected")
+
+        j = self.query("member_list",
+                       params={
+                           'WHERE': 'member_is_me=1',
+                       },
+                       option=False)
+
+        if j is None:   # pragma: no cover
+            logging.error("error in getting answer on version")
+            return None
+
+        if 'member_is_me' not in j[0]:   # pragma: no cover
+            logging.error("error in getting version")
+            return None
+
+        return {
+            'cpu': float(j[0]['member_snmp_cpuload_percent']),
+            'ioload': int(j[0]['member_snmp_ioload']),
+            'mem': int(j[0]['member_snmp_memory']),
+            'hdd': int(j[0]['member_snmp_hdd']),
+        }
+
+    # ---------------------------
+    def query(self, method, params='', option=False, timeout=1):
         """execute a query towards the SDS"""
+
+        if self.sds is None:
+            raise SDSEmptyError(message="not connected")
 
         _timeout = self.timeout
         if timeout not in (self.timeout, 1):
@@ -158,14 +203,12 @@ class SDS(ClassParams):
             try:
                 j = answer_req.json()
                 return j
-            except JSONDecodeError:
+            except JSONDecodeError:   # pragma: no cover
                 logging.error("no json in return")
                 return None
 
         except SDSAuthError as error:
             raise SDSAuthError("{}".format(error))
-
-        return None
 
     # ---------------------------
     def __str__(self):
