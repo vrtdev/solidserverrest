@@ -21,11 +21,21 @@ __all__ = ["Base"]
 class Base:
     """ standard class for all objects in SDS """
     # ---------------------------
+
     def __init__(self):
         """init the base object:
         """
 
         # if true, modification on object are pushed to SDS
+        self.in_sync = True
+        self.sds = None
+        self.myid = -1
+        self.name = None
+        self.params = {}
+
+    # -------------------------------------
+    def clean_params(self):
+        """ clean the object params """
         self.in_sync = True
         self.sds = None
         self.myid = -1
