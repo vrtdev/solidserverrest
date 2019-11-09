@@ -34,23 +34,20 @@ class Network(ClassParams):
         """
 
         super(Network, self).__init__()
+
+        # params mapping the object in SDS
+        self.clean_params()
+
         self.set_sds(sds)
         self.set_name(name)
 
         self.description = None
-
         self.space = space
-
         self.subnet_addr = None
         self.subnet_prefix = None
-
         self.is_block = False
         self.is_terminal = False
-
         self.parent_network = None
-
-        # params mapping the object in SDS
-        self.clean_params()
 
         if class_params is not None:
             self.set_class_params(class_params)
@@ -58,6 +55,8 @@ class Network(ClassParams):
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
+
+        super(Network, self).clean_params()
 
         self.subnet_addr = None
         self.subnet_prefix = None

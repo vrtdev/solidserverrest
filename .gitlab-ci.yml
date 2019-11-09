@@ -1,8 +1,7 @@
 stages:
-   - build
-   - test27
    - test36
    - test37
+   - test38
    - coverage
 
 #variables:
@@ -12,72 +11,16 @@ cache:
    paths:
       - .coverage-py36
       - .coverage-py37
-      - .coverage-py27
+      - .coverage-py38
 
 before_script:
    - ls -la
    - apk add --no-cache --virtual .build-deps python-dev gcc linux-headers libc-dev libffi-dev openssl-dev git
    - pip install -r requirements.txt
 
-build-37:
-  stage: build
-  image: python:3.7-alpine
-  script:
-     - python setup.py sdist
-     - pip install ./dist/*
-     - rm -rf .coverage-py*
-  only:
-     - master
-     - dev
-     - advanced-lib
-     - /^fix.*/
-
-build-36:
-  stage: build
-  image: python:3.6-alpine
-  script:
-     - python setup.py sdist
-     - pip install ./dist/*
-  only:
-     - master
-     - dev
-     - advanced-lib
-     - /^fix.*/
-
-build-27:
-  stage: build
-  image: python:2.7-alpine
-  script:
-     - python setup.py sdist
-     - pip install ./dist/*
-  only:
-     - master
-     - dev
-     - advanced-lib
-     - /^fix.*/
-
-test-27:
-  stage: test27
-  image: python:2.7-alpine
-  dependencies:
-    - build-27
-  script:
-     - pip install -r requirements-tests.txt
-     - pycodestyle ./SOLIDserverRest/*.py
-     - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
-     - cp .coverage .coverage-py27
-  only:
-     - master
-     - dev
-     - advanced-lib
-     - /^fix.*/
-
 test-36:
   stage: test36
   image: python:3.6-alpine
-  dependencies:
-    - build-36
-    - test-27
   script:
      - pip install -r requirements-tests.txt
      - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
@@ -93,7 +36,6 @@ test-37:
   stage: test37
   image: python:3.7-alpine
   dependencies:
-    - build-37
     - test-36
   script:
      - pip install -r requirements-tests.txt
@@ -106,16 +48,32 @@ test-37:
      - advanced-lib
      - /^fix.*/
 
+test-38:
+  stage: test38
+  image: python:3.8-alpine
+  dependencies:
+    - test-37
+  script:
+     - pip install -r requirements-tests.txt
+     - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
+     - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
+     - cp .coverage .coverage-py38
+  only:
+     - master
+     - dev
+     - advanced-lib
+     - /^fix.*/
+
 coverage:
   stage: coverage
-  image: python:3.7-alpine
+  image: python:3.8-alpine
   dependencies:
-    - test-27
+    - test-38
     - test-37
     - test-36
   script:
      - pip install -r requirements-tests.txt
-     - coverage combine .coverage-py27 .coverage-py36 .coverage-py37
+     - coverage combine .coverage-py36 .coverage-py37 .coverage-py38
      - coverage report -m
      - codecov
   only:

@@ -13,3 +13,4 @@ from .class_params import ClassParams
 from .space import Space
 from .device import Device
 from .network import Network
+from .ipaddress import IpAddress
