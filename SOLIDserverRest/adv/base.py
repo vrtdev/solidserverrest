@@ -50,7 +50,11 @@ class Base:
     # ---------------------------
     def set_name(self, name=None):
         """set the name for this object"""
-        self.name = name
+        if isinstance(name, str):
+            self.name = name
+        else:
+            self.name = None
+            raise SDSError("name format not valid")
 
     # ---------------------------
     def set_sync(self):

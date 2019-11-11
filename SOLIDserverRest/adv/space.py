@@ -164,6 +164,8 @@ class Space(ClassParams):
                 raise SDSError("parameter {} not found in space".format(label))
             self.params[label] = rjson[label]
 
+        self.myid = self.params['site_id']
+
         if 'site_class_parameters' in rjson:
             self.update_class_params(rjson['site_class_parameters'])
 
@@ -172,8 +174,8 @@ class Space(ClassParams):
         """return the string notation of the space object"""
         return_val = "*space* name={}".format(self.name)
 
-        if self.params['site_id'] is not None:
-            return_val += " id={}".format(self.params['site_id'])
+        if self.myid != -1:
+            return_val += " id={}".format(self.myid)
 
         if self.params['parent_site_id'] is not None:
             return_val += " parent={}".format(self.params['parent_site_id'])

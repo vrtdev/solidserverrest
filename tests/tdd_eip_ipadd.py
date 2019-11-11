@@ -183,7 +183,7 @@ def test_ipadd_new_in_block_and_update():
     try:
         add.set_name(None)
         assert None, "bad name format"
-    except SDSIpAddressError:
+    except SDSError:
         None
 
     add.set_name('ip_name')
