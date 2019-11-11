@@ -22,29 +22,35 @@ from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
 from .context import sdsadv
 from .context import _connect_to_sds
 
+
 # -------------------------------------------------------
 def create_rnd_mac():
     return "00:25:9D:%02x:%02x:%02x" % (
         random.randint(0, 255),
         random.randint(0, 255),
         random.randint(0, 255),
-        )
+    )
+
 
 # -------------------------------------------------------
 def create_rnd_ipv4():
-    return '.'.join('%s'%random.randint(0, 255) for i in range(4))
+    return '.'.join('%s' % random.randint(0, 255) for i in range(4))
+
 
 # -------------------------------------------------------
 def create_rnd_ipv4_hex():
-    return ''.join('%x'%random.randint(0, 255) for i in range(4))
+    return ''.join('%x' % random.randint(0, 255) for i in range(4))
+
 
 # -------------------------------------------------------
 def create_rnd_ipv6():
     return ':'.join('{:x}'.format(random.randint(0, 2**16 - 1)) for i in range(8))
 
+
 # -------------------------------------------------------
 def create_rnd_ipv6_hex():
     return ''.join('{:x}'.format(random.randint(0, 2**16 - 1)) for i in range(8))
+
 
 # -------------------------------------------------------
 def device_create(sds):
@@ -56,6 +62,7 @@ def device_create(sds):
 
     dev.create()
     return dev
+
 
 # -------------------------------------------------------
 def device_delete(dev):
@@ -71,6 +78,7 @@ def test_devif_add_if():
     sds = _connect_to_sds()
 
     space = sdsadv.Space(sds, name=str(uuid.uuid4()))
+    space.create()
 
     mac = create_rnd_mac()
     ip_v4 = create_rnd_ipv4_hex()

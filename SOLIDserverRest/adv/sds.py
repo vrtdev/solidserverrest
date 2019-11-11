@@ -166,10 +166,6 @@ class SDS(ClassParams):
             logging.error("error in getting answer on version")
             return None
 
-        if 'member_is_me' not in j[0]:   # pragma: no cover
-            logging.error("error in getting version")
-            return None
-
         return {
             'cpu': float(j[0]['member_snmp_cpuload_percent']),
             'ioload': int(j[0]['member_snmp_ioload']),

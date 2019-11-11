@@ -31,11 +31,12 @@ class Device(ClassParams):
             raise SDSDeviceError("no name provided at device init")
 
         super(Device, self).__init__()
-        self.set_sds(sds)
-        self.set_name(name)
 
         # params mapping the object in SDS
         self.clean_params()
+
+        self.set_sds(sds)
+        self.set_name(name)
 
         if class_params is not None:
             self.set_class_params(class_params)
@@ -43,6 +44,8 @@ class Device(ClassParams):
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
+        super(Device, self).clean_params()
+
         self.params = {
             'hostdev_id': None,
             'hostdev_name': None,
@@ -133,8 +136,11 @@ class Device(ClassParams):
             'hostdev_id': self.params['hostdev_id']
         }
 
-        self.sds.query("host_device_delete",
-                       params=params)
+        rjson = self.sds.query("host_device_delete",
+                               params=params)
+
+        if 'errmsg' in rjson:
+            raise SDSDeviceNotFoundError("on delete "+rjson['errmsg'])
 
         self.clean_params()
 
@@ -233,7 +239,8 @@ class Device(ClassParams):
 
         return_val = "*device* name={}".format(self.name)
 
-        if self.params['hostdev_site_name'] != '':
+        if ('hostdev_site_name' in self.params
+                and self.params['hostdev_site_name'] != ''):
             return_val += " site={}".format(self.params['hostdev_site_name'])
             return_val += " [{}]".format(self.params['hostdev_site_id'])
 

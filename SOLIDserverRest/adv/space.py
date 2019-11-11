@@ -97,12 +97,15 @@ class Space(ClassParams):
         space_id = self._get_siteid_by_name(self.name)
 
         try:
-            self.sds.query("ip_site_delete",
-                           params={
-                               'site_id': space_id,
-                           })
+            rjson = self.sds.query("ip_site_delete",
+                                   params={
+                                       'site_id': space_id,
+                                   })
+            if 'errmsg' in rjson:  # pragma: no cover
+                raise SDSSpaceError(message="space delete error, "
+                                    + rjson['errmsg'])
         except SDSError:   # pragma: no cover
-            logging.error("delete space")
+            raise SDSSpaceError(message="space delete error")
 
     # -------------------------------------
     def _get_siteid_by_name(self, name):

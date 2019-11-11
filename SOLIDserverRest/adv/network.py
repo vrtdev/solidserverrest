@@ -77,6 +77,9 @@ class Network(ClassParams):
         self.subnet_addr = ipaddress
         self.subnet_prefix = prefix
 
+        if self.in_sync:  # pragma: no cover
+            self.update()
+
     # -------------------------------------
     def set_is_block(self, block=False):
         """is this network a block"""
@@ -84,12 +87,18 @@ class Network(ClassParams):
         if block:
             self.set_is_terminal(False)
 
+        if self.in_sync:  # pragma: no cover
+            self.update()
+
     # -------------------------------------
     def set_is_terminal(self, terminal=False):
         """is this network a terminal"""
         self.is_terminal = terminal
         if terminal:
             self.set_is_block(False)
+
+        if self.in_sync:  # pragma: no cover
+            self.update()
 
     # -------------------------------------
     def set_parent(self, network):
@@ -99,6 +108,9 @@ class Network(ClassParams):
 
         self.parent_network = network
         self.set_is_block(False)
+
+        if self.in_sync:  # pragma: no cover
+            self.update()
 
     # -------------------------------------
     def set_param(self, param=None, value=None, exclude=None, name=None):
