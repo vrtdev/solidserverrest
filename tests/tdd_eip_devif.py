@@ -4,7 +4,16 @@
 #
 
 """test for device manager interfaces
-
+ * create_rnd_mac
+ * create_rnd_ipv4
+ * create_rnd_ipv4_hex
+ * create_rnd_ipv6
+ * create_rnd_ipv6_hex
+ * device_create
+ * device_delete
+ * test_devif_new_object
+ * test_devif_create
+ * test_devif_create_ipmac
 
 """
 
@@ -12,6 +21,7 @@ import logging
 import sys
 import uuid
 import datetime
+import time
 import random
 
 from SOLIDserverRest.Exception import SDSInitError, SDSRequestError
@@ -128,15 +138,88 @@ def test_devif_create():
     devif.create()
 
     obj_string = str(devif)
-    logging.info(obj_string)
+    # logging.info(obj_string)
+
+    # coverage no sds
+    devif.sds = None
+    try:
+        devif.delete()
+        assert None, "no sds"
+    except SDSDeviceIfError:
+        None
+    devif.sds = sds
+
+    # coverage no id
+    oldid = devif.myid
+    devif.myid = -1
+    try:
+        devif.delete()
+        assert None, "no id"
+    except SDSDeviceIfNotFoundError:
+        None
+    devif.myid = oldid
 
     devif.delete()
     dev.delete()
     space.delete()
 
+
 # -------------------------------------------------------
+def test_devif_create_meta():
+    """create a device interface object in SDS with meta-data"""
+
+    sds = _connect_to_sds()
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    if_name = 'tdd-'+str(uuid.uuid4())
+    device_name = 'tdd-'+str(uuid.uuid4())
+
+    dev = sdsadv.Device(sds=sds, name=device_name)
+    dev.create()
+
+    cparams = {
+        'key1': 'ok',
+        'key2': 12,
+        'date': datetime.datetime.now()
+    }
+
+    devif = sdsadv.DeviceInterface(sds=sds,
+                                   name=if_name,
+                                   device=dev,
+                                   class_params=cparams)
+
+    devif.set_param(param='modify_time', value=int(time.time()))
+
+    devif.create()
+    check_if01 = str(devif)
+
+    devif02 = sdsadv.DeviceInterface(sds=sds,
+                                     name=if_name,
+                                     device=dev)
+
+    devif02.refresh()
+    check_if02 = str(devif02)
+
+    if check_if01 != check_if02:
+        logging.error(check_if01)
+        logging.error(check_if02)
+        assert None, "2 device interfaces are different"
+
+    # coverage refresh
+    devif02.sds = None
+    try:
+        devif02.refresh()
+        assert None, "no sds"
+    except SDSDeviceIfError:
+        None
+
+    devif.delete()
+    dev.delete()
+    space.delete()
 
 
+# -------------------------------------------------------
 def test_devif_create_ipmac():
     """create a device interface object in SDS with ip/mac"""
 
@@ -173,9 +256,106 @@ def test_devif_create_ipmac():
     devif.create()
 
     obj_string = str(devif)
-    logging.info(obj_string)
+    # logging.info(obj_string)
 
     add.delete()
+    devif.delete()
+    dev.delete()
+    space.delete()
+
+
+# -------------------------------------------------------
+def test_devif_create_errors():
+    """create a device interface object in SDS through error paths"""
+
+    sds = _connect_to_sds()
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    if_name = 'tdd-'+str(uuid.uuid4())
+    device_name = 'tdd-'+str(uuid.uuid4())
+
+    dev = sdsadv.Device(sds=sds, name=device_name)
+    dev.create()
+
+    devif = sdsadv.DeviceInterface(sds=sds, name=if_name, device=dev)
+
+    # bad sds
+    devif.sds = None
+    try:
+        devif.create()
+        assert None, "should have raised no sds"
+    except SDSDeviceIfError:
+        None
+    devif.sds = sds
+
+    olddevid = devif.device.myid
+
+    # bad device
+    devif.device.myid = -1
+    try:
+        devif.create()
+        assert None, "bad device id"
+    except SDSDeviceIfError:
+        None
+    devif.device.myid = olddevid
+
+    dev.delete()
+    space.delete()
+
+
+# -------------------------------------------------------
+def test_devif_update():
+    """update a device interface object in SDS"""
+
+    sds = _connect_to_sds()
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    if_name = 'tdd-'+str(uuid.uuid4())
+    device_name = 'tdd-'+str(uuid.uuid4())
+
+    dev = sdsadv.Device(sds=sds, name=device_name)
+    dev.create()
+
+    devif = sdsadv.DeviceInterface(sds=sds, name=if_name, device=dev)
+    devif.create()
+
+    # update coverage
+    devif.sds = None
+    try:
+        devif.update()
+        assert None, "no sds"
+    except SDSDeviceIfError:
+        None
+    devif.sds = sds
+
+    # update
+    devif.update()
+
+    devif.set_ipv4(create_rnd_ipv4())
+    devif.update()
+
+    try:
+        devif.set_ipv4(create_rnd_ipv6())
+        assert None, "bad ipv4 address"
+    except SDSDeviceIfError:
+        None
+
+    try:
+        devif.set_space(None)
+        assert None, "set space null"
+    except SDSDeviceIfError:
+        None
+
+    space02 = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space02.myid = -1
+    try:
+        devif.set_space(space02)
+        assert None, "set space -1"
+    except SDSDeviceIfError:
+        None
+
     devif.delete()
     dev.delete()
     space.delete()
