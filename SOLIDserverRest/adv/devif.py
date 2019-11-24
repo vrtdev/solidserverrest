@@ -10,6 +10,7 @@ SOLIDserver device manager host interface
 
 import logging
 import ipaddress
+import time
 
 from SOLIDserverRest.Exception import SDSError
 from SOLIDserverRest.Exception import SDSDeviceIfError
@@ -70,6 +71,7 @@ class DeviceInterface(ClassParams):
             'hostiface_id': None,
             'hostiface_name': None,
             'hostdev_id': None,
+            'modify_time': None,
         }
 
         self.device = None
@@ -114,6 +116,8 @@ class DeviceInterface(ClassParams):
 
         self.prepare_class_params('hostiface', params)
 
+        # logging.info(params)
+
         rjson = self.sds.query("host_iface_create",
                                params=params)
 
@@ -137,6 +141,7 @@ class DeviceInterface(ClassParams):
             'hostiface_id': self._get_id(query="host_iface_list",
                                          key="hostiface"),
             'hostiface_name': self.name,
+            'modify_time': int(time.time()),
         }
 
         if self.ipv4 is not None:
@@ -169,7 +174,7 @@ class DeviceInterface(ClassParams):
         rjson = self.sds.query("host_iface_delete",
                                params=params)
 
-        if 'errmsg' in rjson:
+        if 'errmsg' in rjson:  # pragma: no cover
             raise SDSDeviceIfNotFoundError("on delete "+rjson['errmsg'])
 
         self.clean_params()
@@ -191,12 +196,13 @@ class DeviceInterface(ClassParams):
         try:
             rjson = self.sds.query("host_iface_info",
                                    params=params)
-        except SDSError as err_descr:
+        except SDSError as err_descr:   # pragma: no cover
             msg = "cannot get device interface info on id={}".format(if_id)
             msg += " / "+str(err_descr)
             raise SDSDeviceIfError(msg)
 
         rjson = rjson[0]
+        # logging.info(rjson)
 
         for label in ['hostiface_id',
                       'hostiface_name',
@@ -225,16 +231,17 @@ class DeviceInterface(ClassParams):
                 raise SDSDeviceIfError(msg)
             self.params[label] = rjson[label]
 
-        self.myid = self.params['hostiface_id']
+        self.myid = int(self.params['hostiface_id'])
         self.name = self.params['hostiface_name']
 
-        if int(self.params['hostdev_id']) != int(self.device.myid):
-            logging.error('interface has changed deveice - TODO')
+        if (int(self.params['hostdev_id'])
+                != self.device.myid):  # pragma: no cover
+            logging.error('interface has changed device - TODO')
             logging.error('%s / %s', self.device.myid,
                           self.params['hostdev_id'])
 
-        if 'hostdev_class_parameters' in rjson:
-            self.update_class_params(rjson['hostdev_class_parameters'])
+        if 'hostiface_class_parameters' in rjson:
+            self.update_class_params(rjson['hostiface_class_parameters'])
 
     # ---------------------------
     def set_device(self, dev):
