@@ -164,7 +164,7 @@ class Space(ClassParams):
                 raise SDSError("parameter {} not found in space".format(label))
             self.params[label] = rjson[label]
 
-        self.myid = self.params['site_id']
+        self.myid = int(self.params['site_id'])
 
         if 'site_class_parameters' in rjson:
             self.update_class_params(rjson['site_class_parameters'])
