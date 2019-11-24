@@ -177,7 +177,7 @@ class IpAddress(ClassParams):
                 raise SDSIpAddressError(msg)
             self.params[label] = rjson[label]
 
-        logging.warning('update subnet ip in main')
+        # logging.warning('update subnet ip in main')
         if 'mac_addr' in self.params:
             if self.params['mac_addr'].startswith('EIP:'):
                 del self.params['mac_addr']
