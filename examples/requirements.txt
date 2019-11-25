@@ -1,0 +1,3 @@
+SOLIDserverRest
+pyopenssl
+requests

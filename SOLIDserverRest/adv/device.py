@@ -1,4 +1,3 @@
-
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
 # Time-stamp: <2019-11-03 17:45:04 alex>
@@ -31,11 +30,12 @@ class Device(ClassParams):
             raise SDSDeviceError("no name provided at device init")
 
         super(Device, self).__init__()
-        self.set_sds(sds)
-        self.set_name(name)
 
         # params mapping the object in SDS
         self.clean_params()
+
+        self.set_sds(sds)
+        self.set_name(name)
 
         if class_params is not None:
             self.set_class_params(class_params)
@@ -43,6 +43,8 @@ class Device(ClassParams):
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
+        super(Device, self).clean_params()
+
         self.params = {
             'hostdev_id': None,
             'hostdev_name': None,
@@ -133,8 +135,11 @@ class Device(ClassParams):
             'hostdev_id': self.params['hostdev_id']
         }
 
-        self.sds.query("host_device_delete",
-                       params=params)
+        rjson = self.sds.query("host_device_delete",
+                               params=params)
+
+        if 'errmsg' in rjson:
+            raise SDSDeviceNotFoundError("on delete "+rjson['errmsg'])
 
         self.clean_params()
 
@@ -189,52 +194,14 @@ class Device(ClassParams):
             self.update_class_params(rjson['hostdev_class_parameters'])
 
     # -------------------------------------
-    def add_if(self, name=None, mac=None, ipaddr=None, iftype="interface"):
-        """add a new interface to the current device"""
-
-        if self.params['hostdev_id'] is None:
-            raise SDSDeviceNotFoundError("on delete")
-
-        device_id = self._get_id(query="host_device_list",
-                                 key="hostdev")
-
-        params = {
-            "hostdev_id": device_id,
-            "hostiface_type": iftype,
-        }
-
-        if name is None:
-            raise SDSDeviceError("no name provided to interface")
-        params['hostiface_name'] = name
-
-        # need surface control here - TODO
-        if mac is not None:
-            params['hostiface_mac'] = mac
-
-        # need surface control here - TODO
-        if ipaddr is not None:
-            params['hostiface_addr'] = ipaddr
-
-        try:
-            rjson = self.sds.query("host_iface_create",
-                                   params=params)
-        except SDSError as err_descr:
-            msg = "error adding an interface to id={}".format(device_id)
-            msg += " / "+str(err_descr)
-            raise SDSDeviceError(msg)
-
-        rjson = rjson[0]
-
-        # logging.info(rjson)
-
-    # -------------------------------------
     def __str__(self):  # pragma: no cover
         """return the string notation of the device object"""
 
         return_val = "*device* name={}".format(self.name)
 
-        if self.params['hostdev_site_name'] != '':
-            return_val += " site={}".format(self.params['hostdev_site_name'])
+        if ('hostdev_site_name' in self.params
+                and self.params['hostdev_site_name'] != ''):
+            return_val += " space={}".format(self.params['hostdev_site_name'])
             return_val += " [{}]".format(self.params['hostdev_site_id'])
 
         return_val += self.str_params(exclude=['hostdev_id',

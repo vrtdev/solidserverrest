@@ -27,7 +27,7 @@ class Base:
         """
 
         # if true, modification on object are pushed to SDS
-        self.in_sync = True
+        self.in_sync = False
         self.sds = None
         self.myid = -1
         self.name = None
@@ -36,7 +36,7 @@ class Base:
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
-        self.in_sync = True
+        self.in_sync = False
         self.sds = None
         self.myid = -1
         self.name = None
@@ -50,7 +50,11 @@ class Base:
     # ---------------------------
     def set_name(self, name=None):
         """set the name for this object"""
-        self.name = name
+        if isinstance(name, str):
+            self.name = name
+        else:
+            self.name = None
+            raise SDSError("name format not valid")
 
     # ---------------------------
     def set_sync(self):

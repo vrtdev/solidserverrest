@@ -34,6 +34,7 @@ from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
 from .context import sdsadv
 from .context import _connect_to_sds
 
+
 # -------------------------------------------------------
 def test_device_new_object():
     """create a device object"""
@@ -44,6 +45,7 @@ def test_device_new_object():
 
     obj_string = str(dev)
     logging.debug(obj_string)
+
 
 # -------------------------------------------------------
 def test_device_refresh_not_connected():
@@ -69,6 +71,7 @@ def test_device_new_object_wo_name():
     except SDSDeviceError:
         None
 
+
 # -------------------------------------------------------
 def test_device_create():
     """create a device in SDS"""
@@ -77,10 +80,11 @@ def test_device_create():
 
     sds = _connect_to_sds()
 
-    dev = sdsadv.Device(name=device_name, sds=sds)
+    dev = sdsadv.Device(sds=sds, name=device_name)
 
     dev.create()
     dev.delete()
+
 
 # -------------------------------------------------------
 def test_device_with_classparams():
@@ -95,21 +99,21 @@ def test_device_with_classparams():
         'b': "string",
     }
 
-    dev01 = sdsadv.Device(name=device_name, 
+    dev01 = sdsadv.Device(name=device_name,
                           sds=sds,
-                          class_params = classparams)
+                          class_params=classparams)
 
     dev01.add_class_params({'c': 'new add'})
-
     dev01.create()
 
-    dev02 = sdsadv.Device(name=device_name, sds=sds)
+    dev02 = sdsadv.Device(sds=sds, name=device_name)
     dev02.refresh()
-   
+
     if int(dev02.get_class_params('a')) != int(classparams['a']):
         assert None, "class params not correct"
 
     dev01.delete()
+
 
 # -------------------------------------------------------
 def test_device_delete_not_connected():
@@ -124,6 +128,7 @@ def test_device_delete_not_connected():
     except SDSDeviceError:
         None
 
+
 # -------------------------------------------------------
 def test_device_update_not_connected():
     """update a device while not connected to SDS"""
@@ -136,6 +141,7 @@ def test_device_update_not_connected():
         assert None, "not detecting delete on not connected"
     except SDSDeviceError:
         None
+
 
 # -------------------------------------------------------
 def test_device_refresh():
@@ -154,6 +160,7 @@ def test_device_refresh():
 
     dev02.delete()
 
+
 # -------------------------------------------------------
 def test_device_refresh_ukn():
     """refresh on ukn device"""
@@ -169,6 +176,7 @@ def test_device_refresh_ukn():
         assert None, "not detecting refresh ukn"
     except SDSError:
         None
+
 
 # -------------------------------------------------------
 def test_device_refresh_destroyed():
@@ -191,6 +199,7 @@ def test_device_refresh_destroyed():
     except SDSDeviceError:
         None
 
+
 # -------------------------------------------------------
 def test_device_create_not_connected():
     """create a device with no connection to SDS"""
@@ -202,6 +211,7 @@ def test_device_create_not_connected():
         assert None, "assertion should be raised on device with no name"
     except SDSDeviceError:
         None
+
 
 # -------------------------------------------------------
 def test_device_create_twice():
@@ -227,6 +237,7 @@ def test_device_create_twice():
     if error:
         assert None, "assertion should be raised on device already in database"
 
+
 # -------------------------------------------------------
 def test_device_delete_ukn():
     """delete non existant device"""
@@ -238,12 +249,17 @@ def test_device_delete_ukn():
     dev = sdsadv.Device(name=device_name, sds=sds)
 
     dev.create()
+
+    dev02 = sdsadv.Device(name=device_name, sds=sds)
+    dev02.refresh()
+
     dev.delete()
     try:
-        dev.delete()
+        dev02.delete()
         assert None, "delete ukn device"
     except SDSDeviceNotFoundError:
         None
+
 
 # -------------------------------------------------------
 def test_device_async():
@@ -262,7 +278,7 @@ def test_device_async():
     # coverage test also
     dev01.set_sync()
     dev01.set_param(param='notexistant')
-    dev01.set_param(param={'test':1})
+    dev01.set_param(param={'test': 1})
     dev01.set_param(param='notexistant', value=12)
     dev01.set_param(param='hostdev_id', value=12)
 
@@ -300,3 +316,20 @@ def test_device_async():
         assert None, "async mode not working"
 
     dev01.delete()
+
+
+# -------------------------------------------------------
+def test_device_delete_empty():
+    """create a device and delete it without in SDS"""
+
+    device_name = str(uuid.uuid4())
+
+    sds = _connect_to_sds()
+
+    dev = sdsadv.Device(sds=sds, name=device_name)
+
+    try:
+        dev.delete()
+        assert None, "should not be able to delete empty device"
+    except SDSDeviceNotFoundError:
+        None

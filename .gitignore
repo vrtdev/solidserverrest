@@ -4,15 +4,18 @@
 /dist
 *.coverage
 *.coveragerc
+
 #virtualenv management
 /bin
 /include
 /lib
 /lib64
+
 # virtualenv for python version regression test
-env27/**
-env36/**
-env37/**
+**/env/**
+**/env36/**
+**/env37/**
+
 #Files
 /tests/data.py
 coverage.xml

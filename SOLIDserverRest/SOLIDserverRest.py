@@ -19,13 +19,16 @@ import base64
 import re
 import logging
 import urllib
-from OpenSSL import crypto
-
 import requests
+
+
 # pylint: disable=F0401, E1101
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from OpenSSL import crypto  # not working on windows pylint: disable=E0401
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # pylint: enable=F0401, E1101
+
 
 if sys.version_info[0] == 2:   # pragma: no cover
     # pylint: disable=F0401
