@@ -97,12 +97,15 @@ class Space(ClassParams):
         space_id = self._get_siteid_by_name(self.name)
 
         try:
-            self.sds.query("ip_site_delete",
-                           params={
-                               'site_id': space_id,
-                           })
+            rjson = self.sds.query("ip_site_delete",
+                                   params={
+                                       'site_id': space_id,
+                                   })
+            if 'errmsg' in rjson:  # pragma: no cover
+                raise SDSSpaceError(message="space delete error, "
+                                    + rjson['errmsg'])
         except SDSError:   # pragma: no cover
-            logging.error("delete space")
+            raise SDSSpaceError(message="space delete error")
 
     # -------------------------------------
     def _get_siteid_by_name(self, name):
@@ -161,6 +164,8 @@ class Space(ClassParams):
                 raise SDSError("parameter {} not found in space".format(label))
             self.params[label] = rjson[label]
 
+        self.myid = int(self.params['site_id'])
+
         if 'site_class_parameters' in rjson:
             self.update_class_params(rjson['site_class_parameters'])
 
@@ -169,8 +174,8 @@ class Space(ClassParams):
         """return the string notation of the space object"""
         return_val = "*space* name={}".format(self.name)
 
-        if self.params['site_id'] is not None:
-            return_val += " id={}".format(self.params['site_id'])
+        if self.myid != -1:
+            return_val += " id={}".format(self.myid)
 
         if self.params['parent_site_id'] is not None:
             return_val += " parent={}".format(self.params['parent_site_id'])

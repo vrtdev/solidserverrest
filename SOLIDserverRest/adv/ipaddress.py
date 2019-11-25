@@ -53,7 +53,9 @@ class IpAddress(ClassParams):
             self.set_class_params(class_params)
 
     # -------------------------------------
-    def check_ipv4_format(self, addr):
+    @classmethod
+    def check_ipv4_format(cls, addr):
+        """ check the ip v4 format """
         ipv4 = None
         try:
             ipv4 = str(ipaddress.IPv4Address(addr))
@@ -95,6 +97,9 @@ class IpAddress(ClassParams):
 
         if self.name is not None:
             params['name'] = self.name
+
+        if self.mac is not None:
+            params['mac_addr'] = self.mac
 
         self.prepare_class_params('ip', params)
 
@@ -172,10 +177,10 @@ class IpAddress(ClassParams):
                 raise SDSIpAddressError(msg)
             self.params[label] = rjson[label]
 
-        logging.warning('update subnet ip in main')
+        # logging.warning('update subnet ip in main')
         if 'mac_addr' in self.params:
             if self.params['mac_addr'].startswith('EIP:'):
-                del(self.params['mac_addr'])
+                del self.params['mac_addr']
             else:
                 self.mac = self.params['mac_addr'].lower()
 
@@ -224,8 +229,8 @@ class IpAddress(ClassParams):
                                params=params)
 
         if 'errmsg' in rjson:  # pragma: no cover
-            raise SDSNetworkError(message="ip addr update error, "
-                                  + rjson['errmsg'])
+            raise SDSIpAddressError(message="ip addr update error, "
+                                    + rjson['errmsg'])
 
         self.refresh()
 
@@ -239,6 +244,7 @@ class IpAddress(ClassParams):
 
     # -------------------------------------
     def set_ipv4(self, addr):
+        """set the ip v4 address"""
         self.ipv4 = self.check_ipv4_format(addr)
         if self.ipv4 is None:
             raise SDSIpAddressError("bad ip v4 address format")
@@ -257,15 +263,8 @@ class IpAddress(ClassParams):
             self.mac = mac
             # logging.info(self.mac)
         else:
-            self.max = None
+            self.mac = None
             raise SDSIpAddressError("bad mac format")
-
-    # -------------------------------------
-    def set_name(self, name):
-        if isinstance(name, str):
-            self.name = name
-        else:
-            raise SDSIpAddressError("name format not valid")
 
     # -------------------------------------
     def __str__(self):  # pragma: no cover
