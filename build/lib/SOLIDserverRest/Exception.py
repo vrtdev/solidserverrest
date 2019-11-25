@@ -19,7 +19,10 @@ __all__ = ["SDSAuthError",
            "SDSSpaceError",
 
            "SDSDeviceError", "SDSDeviceNotFoundError",
+           "SDSDeviceIfError", "SDSDeviceIfNotFoundError",
            "SDSNetworkError", "SDSNetworkNotFoundError",
+           "SDSIpAddressError", "SDSIpAddressNotFoundError",
+
 
            # deprecated versions
            "SSDAuthError",
@@ -33,6 +36,7 @@ __all__ = ["SDSAuthError",
 # --------------------------------------------------------------------------
 class SDSError(Exception):
     """ generic class for any exception in SOLIDServer communication """
+
     def __init__(self, message=""):
         super(SDSError, self).__init__()
         self.message = message
@@ -43,6 +47,7 @@ class SDSError(Exception):
 
 class SDSInitError(SDSError):
     """ raised when action on non initialized SSD connection """
+
     def __init__(self, message=""):
         super(SDSInitError, self).__init__("[init] {}".format(message))
 
@@ -110,6 +115,22 @@ class SDSDeviceNotFoundError(SDSError):   # pragma: no cover
         super(SDSDeviceNotFoundError, self).__init__(message)
 
 
+class SDSDeviceIfError(SDSError):   # pragma: no cover
+    """ raised when error on device interface """
+
+    def __init__(self, message=""):
+        message = "device interface error: {}".format(message)
+        super(SDSDeviceIfError, self).__init__(message)
+
+
+class SDSDeviceIfNotFoundError(SDSError):   # pragma: no cover
+    """ raised when device interface not found """
+
+    def __init__(self, message=""):
+        message = "device interface not found: {}".format(message)
+        super(SDSDeviceIfNotFoundError, self).__init__(message)
+
+
 class SDSNetworkError(SDSError):   # pragma: no cover
     """ raised when error on network """
 
@@ -126,9 +147,27 @@ class SDSNetworkNotFoundError(SDSError):   # pragma: no cover
         super(SDSNetworkNotFoundError, self).__init__(message)
 
 
+class SDSIpAddressError(SDSError):   # pragma: no cover
+    """ raised when error on ip address """
+
+    def __init__(self, message=""):
+        message = "ip error: {}".format(message)
+        super(SDSIpAddressError, self).__init__(message)
+
+
+class SDSIpAddressNotFoundError(SDSError):   # pragma: no cover
+    """ raised when ip address not found """
+
+    def __init__(self, message=""):
+        message = "ip not found: {}".format(message)
+        super(SDSIpAddressNotFoundError, self).__init__(message)
+
 # ---- DEPRECATED TO BE SUPPRESSED --------------------------------------
+
+
 class SSDError(Exception):   # pragma: no cover
     """ generic class for any exception in SOLIDServer communication """
+
     def __init__(self, message=""):
         super(SSDError, self).__init__()
         self.message = message
@@ -140,6 +179,7 @@ class SSDError(Exception):   # pragma: no cover
 
 class SSDInitError(SSDError):   # pragma: no cover
     """ raised when action on non initialized SSD connection """
+
     def __init__(self, message=""):
         super(SSDInitError, self).__init__("[init] {}".format(message))
 

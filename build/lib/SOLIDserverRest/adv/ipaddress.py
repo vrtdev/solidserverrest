@@ -1,0 +1,289 @@
+# -*- Mode: Python; python-indent-offset: 4 -*-
+#
+# Time-stamp: <2019-11-03 17:46:45 alex>
+#
+# pylint: disable=R0801
+
+
+"""
+SOLIDserver ip address manager
+
+"""
+
+import ipaddress
+import logging
+import re
+
+from SOLIDserverRest.Exception import SDSError
+from SOLIDserverRest.Exception import SDSIpAddressError
+from SOLIDserverRest.Exception import SDSIpAddressNotFoundError
+
+from .class_params import ClassParams
+
+
+class IpAddress(ClassParams):
+    """ class to manipulate the SOLIDserver ip address """
+
+    # -------------------------------------
+    def __init__(self, sds=None,
+                 space=None,
+                 ipv4=None,
+                 class_params=None):
+        """init an address object:
+        - sds: object SOLIDserver, could be set afterwards
+        - space: space object for this network
+        """
+
+        super(IpAddress, self).__init__()
+
+        self.clean_params()
+
+        self.set_sds(sds)
+
+        self.space = space
+        self.name = None
+        self.mac = None
+
+        if ipv4 is not None:
+            self.ipv4 = self.check_ipv4_format(ipv4)
+            if self.ipv4 is None:
+                raise SDSIpAddressError("bad ipv4 format")
+
+        if class_params is not None:
+            self.set_class_params(class_params)
+
+    # -------------------------------------
+    @classmethod
+    def check_ipv4_format(cls, addr):
+        """ check the ip v4 format """
+        ipv4 = None
+        try:
+            ipv4 = str(ipaddress.IPv4Address(addr))
+        except ValueError:
+            ipv4 = None
+
+        return ipv4
+
+    # -------------------------------------
+    def clean_params(self):
+        """ clean the object params """
+        super(IpAddress, self).clean_params()
+
+        self.ipv4 = None
+        self.space = None
+        self.mac = None
+
+    # -------------------------------------
+    def create(self):
+        """ create the ip address in SDS """
+
+        if self.sds is None:
+            raise SDSIpAddressError(message="not connected")
+
+        if self.space is None:
+            raise SDSIpAddressError("no space attached to address for create")
+
+        if self.ipv4 is None:
+            raise SDSIpAddressError("no address for create")
+
+        # if object already created
+        if self.myid > 0:
+            return
+
+        params = {
+            'hostaddr': self.ipv4,
+            'site_id': self.space.params['site_id'],
+        }
+
+        if self.name is not None:
+            params['name'] = self.name
+
+        if self.mac is not None:
+            params['mac_addr'] = self.mac
+
+        self.prepare_class_params('ip', params)
+
+        # logging.info(params)
+
+        rjson = self.sds.query("ip_address_create",
+                               params=params)
+
+        if 'errmsg' in rjson:
+            raise SDSIpAddressError(message="creation, "
+                                    + rjson['errmsg'])
+
+        self.params['ip_id'] = int(rjson[0]['ret_oid'])
+        self.myid = int(self.params['ip_id'])
+
+        self.refresh()
+
+    # -------------------------------------
+    def get_id_by_ipaddr(self, ipaddr):
+        """get the ID from its ip addr, return None if non existant"""
+
+        params = {
+            "WHERE": "hostaddr='{}'".format(ipaddr),
+        }
+
+        try:
+            rjson = self.sds.query('ip_address_list',
+                                   params=params)
+        except SDSError as err_descr:
+            msg = "cannot found object by ip addr {}".format(ipaddr)
+            msg += " / "+str(err_descr)
+            raise SDSIpAddressNotFoundError(msg)
+
+        if rjson[0]['errno'] != '0':  # pragma: no cover
+            raise SDSError("errno raised on get id by addr")
+
+        return rjson[0]['ip_id']
+
+    # -------------------------------------
+    def refresh(self):
+        """refresh content of the ip address from the SDS"""
+
+        if self.sds is None:
+            raise SDSIpAddressError(message="not connected")
+
+        try:
+            ip_id = self.get_id_by_ipaddr(ipaddr=self.ipv4)
+        except SDSError as err_descr:
+            msg = "cannot get ip addr id"
+            msg += " / "+str(err_descr)
+            raise SDSIpAddressNotFoundError(msg)
+
+        params = {
+            "ip_id": ip_id,
+        }
+
+        rjson = self.sds.query("ip_address_info",
+                               params=params)
+
+        rjson = rjson[0]
+        # logging.info(rjson)
+
+        for label in ['ip_id',
+                      'name',
+                      'mac_addr',
+                      'subnet_id',
+                      'subnet_size',
+                      'subnet_is_terminal',
+                      'parent_subnet_start_hostaddr',
+                      'parent_subnet_end_hostaddr',
+                      'subnet_start_ip_addr',
+                      'subnet_end_ip_addr']:
+            if label not in rjson:  # pragma: no cover
+                msg = "parameter {} not found in ip address".format(label)
+                raise SDSIpAddressError(msg)
+            self.params[label] = rjson[label]
+
+        # logging.warning('update subnet ip in main')
+        if 'mac_addr' in self.params:
+            if self.params['mac_addr'].startswith('EIP:'):
+                del self.params['mac_addr']
+            else:
+                self.mac = self.params['mac_addr'].lower()
+
+        self.myid = int(rjson['ip_id'])
+
+        if 'ip_class_parameters' in rjson:   # pragma: no cover
+            self.update_class_params(rjson['ip_class_parameters'])
+
+    # -------------------------------------
+    def delete(self):
+        """deletes the ip address in the SDS"""
+        if self.sds is None:
+            raise SDSIpAddressError(message="not connected")
+
+        if self.myid == -1:
+            raise SDSIpAddressNotFoundError("on delete")
+
+        params = {
+            'ip_id': self.myid
+        }
+
+        self.sds.query("ip_address_delete",
+                       params=params)
+
+        self.clean_params()
+
+    # -------------------------------------
+    def update(self):
+        """ update the ip address in SDS """
+
+        if self.sds is None:
+            raise SDSIpAddressError(message="not connected")
+
+        params = {
+            'ip_id': self.myid
+        }
+
+        if self.mac is not None:
+            params['mac_addr'] = self.mac
+
+        self.prepare_class_params('ip', params)
+
+        # logging.info(params)
+
+        rjson = self.sds.query("ip_address_update",
+                               params=params)
+
+        if 'errmsg' in rjson:  # pragma: no cover
+            raise SDSIpAddressError(message="ip addr update error, "
+                                    + rjson['errmsg'])
+
+        self.refresh()
+
+    # -------------------------------------
+    def set_param(self, param=None, value=None, exclude=None, name=None):
+        """ set a specific param on the ip address object """
+        super(IpAddress, self).set_param(param,
+                                         value,
+                                         exclude=['ip_id'],
+                                         name='name')
+
+    # -------------------------------------
+    def set_ipv4(self, addr):
+        """set the ip v4 address"""
+        self.ipv4 = self.check_ipv4_format(addr)
+        if self.ipv4 is None:
+            raise SDSIpAddressError("bad ip v4 address format")
+
+    # -------------------------------------
+    def set_mac(self, mac):
+        """set the mac address linked to this ip"""
+        mac = mac.lower()
+        if re.match("^[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$",
+                    mac):
+            mac = re.sub(r'-', ':', mac)
+            mac = re.sub(r':', '', mac)
+            mac = re.sub(r'(..)(..)(..)(..)(..)(..)',
+                         '\\1:\\2:\\3:\\4:\\5:\\6',
+                         mac)
+            self.mac = mac
+            # logging.info(self.mac)
+        else:
+            self.mac = None
+            raise SDSIpAddressError("bad mac format")
+
+    # -------------------------------------
+    def __str__(self):  # pragma: no cover
+        """return the string notation of the ip address object"""
+
+        return_val = "*ip address*"
+
+        if self.ipv4 is not None:
+            return_val += " {}".format(self.ipv4)
+
+        if self.name is not None:
+            return_val += " {}".format(self.name)
+
+        if self.mac is not None:
+            return_val += " {}".format(self.mac)
+
+        return_val += self.str_params(exclude=['ip_id',
+                                               'name'])
+
+        return_val += str(super(IpAddress, self).__str__())
+
+        return return_val
