@@ -3,7 +3,15 @@
 # Time-stamp: <2019-08-13 17:58:13 alex>
 #
 
-"""example file: get a subnet from the Local space and print informations"""
+"""example file used in the blog: https://www.efficientip.com/python-library/
+    get a subnet from the Local space and print informations
+    get a free address
+    create an entry
+
+pip install pyopenssl
+pip install requests
+
+"""
 
 import sys
 import json
@@ -26,6 +34,7 @@ SDS_CON = SOLIDserverRest('192.168.56.254')
 SDS_CON.set_ssl_verify(False)
 SDS_CON.use_basicauth_sds(user='api', password='apipwd')
 
+
 def get_space(name):
     """get a space by its name from the SDS"""
     parameters = {
@@ -47,6 +56,7 @@ def get_space(name):
         'is_default': rjson[0]['site_is_default'],
         'id': rjson[0]['site_id']
     }
+
 
 def get_subnet_v4(name, space_id=None):
     """get a subnet by its name from the SDS"""
@@ -77,6 +87,7 @@ def get_subnet_v4(name, space_id=None):
         'space': rjson[0]['site_id'],
         'id': rjson[0]['subnet_id']
     }
+
 
 def get_next_free_address(subnet_id, number=1, start_address=None):
     """get a set of free address, by default one is returned"""
@@ -109,6 +120,7 @@ def get_next_free_address(subnet_id, number=1, start_address=None):
 
     return result
 
+
 def add_ip_address(ip, name, space_id):
     """add an IP address and its name in the IPAM"""
 
@@ -118,19 +130,20 @@ def add_ip_address(ip, name, space_id):
         "name": str(name)
     }
 
-    rest_answer = SDS_CON.query("ip_address_add", parameters)
+    rest_answer = SDS_CON.query("ip_address_create", parameters)
 
     if rest_answer.status_code != 201:
         logging.error("cannot add IP node %s", name)
         return None
 
     rjson = json.loads(rest_answer.content)
-    
+
     return {
         'type': 'add_ipv4_address',
         'name': str(name),
         'id': rjson[0]['ret_oid'],
     }
+
 
 space = get_space("Local")
 # print(space)
