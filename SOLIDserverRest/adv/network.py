@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:46:45 alex>
+# Time-stamp: <2020-03-29 15:55:53 alex>
 #
 # pylint: disable=R0801
 
@@ -10,9 +10,12 @@ SOLIDserver network manager
 
 """
 
-# import logging
+import math
 
-from SOLIDserverRest.Exception import SDSError
+# import logging
+# import pprint
+
+from SOLIDserverRest.Exception import SDSError, SDSEmptyError
 from SOLIDserverRest.Exception import SDSNetworkError, SDSNetworkNotFoundError
 
 from .class_params import ClassParams
@@ -124,6 +127,123 @@ class Network(ClassParams):
                                        value,
                                        exclude=['subnet_id'],
                                        name='subnet_name')
+
+    # -------------------------------------
+    def find_free(self, prefix, max_find=4):
+        """ find the next free subnets in the space within this network
+            by order of priority to avoid fragmentation
+        """
+        params = {
+            'site_id': self.space.params['site_id'],
+            'prefix': prefix,
+            'max_find': max_find,
+            'begin_addr': self.subnet_addr
+        }
+
+        params['WHERE'] = 'block_id={}'.format(self.myid)
+
+        try:
+            rjson = self.sds.query("ip_subnet_find_free",
+                                   params=params)
+        except SDSEmptyError:
+            return None
+
+        if 'errmsg' in rjson:  # pragma: no cover
+            raise SDSNetworkError(message="find free net, "
+                                  + rjson['errmsg'])
+
+        aip = []
+        for net in rjson:
+            iphex = net['start_ip_addr']
+            ipv4_addr = "{}.{}.{}.{}".format(int(iphex[0:2], 16),
+                                             int(iphex[2:4], 16),
+                                             int(iphex[4:6], 16),
+                                             int(iphex[6:8], 16))
+            aip.append(ipv4_addr)
+
+        return aip
+
+    # -------------------------------------
+    def find_free_ip(self, max_find=4):
+        """ find the next free ip in the current subnet
+        """
+        params = {
+            'max_find': max_find,
+            'subnet_id': self.myid
+        }
+
+        try:
+            rjson = self.sds.query("ip_address_find_free",
+                                   params=params)
+        except SDSEmptyError:
+            return None
+
+        if 'errmsg' in rjson:  # pragma: no cover
+            raise SDSNetworkError(message="find free ip, "
+                                  + rjson['errmsg'])
+
+        aip = []
+        for net in rjson:
+            aip.append(net['hostaddr'])
+
+        return aip
+
+    # -------------------------------------
+    def get_subnet_list(self, depth=1, terminal=None,
+                        offset=0, page=25, limit=0, collected=0):
+        """return the list of subnet in the parent subnet"""
+        params = {
+            'limit': page,
+            'offset': offset
+        }
+
+        if limit > 0:
+            if page > limit:
+                params['limit'] = limit
+
+        params['WHERE'] = "site_id='{}'".format(self.space.params['site_id'])
+
+        if depth == 1:
+            params['WHERE'] += "and parent_subnet_id='{}'".format(self.myid)
+
+        if terminal is not None:
+            if terminal in [1, 0]:
+                params['WHERE'] += " and is_terminal='{}'".format(terminal)
+
+        try:
+            rjson = self.sds.query("ip_subnet_list",
+                                   params=params)
+        except SDSEmptyError:
+            return None
+
+        if 'errmsg' in rjson:  # pragma: no cover
+            raise SDSNetworkError(message="net list, "
+                                  + rjson['errmsg'])
+
+        anets = []
+        for net in rjson:
+            anets.append({
+                'start_hostaddr': net['start_hostaddr'],
+                'subnet_size': 32-int(math.log(int(net['subnet_size']), 2)),
+                'subnet_name': net['subnet_name']
+            })
+
+        # no limit, we should get all the records
+        if len(rjson) == page:
+            if limit == 0 or collected < limit:
+                newnets = self.get_subnet_list(depth, terminal,
+                                               offset+page,
+                                               page=page,
+                                               limit=limit,
+                                               collected=(len(anets)
+                                                          + collected))
+                if newnets is not None:
+                    anets += newnets
+
+        if limit and len(anets) > limit:
+            anets = anets[:limit]
+
+        return anets
 
     # -------------------------------------
     def create(self):

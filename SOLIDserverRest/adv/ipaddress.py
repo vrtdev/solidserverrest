@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:46:45 alex>
+# Time-stamp: <2020-03-29 15:53:11 alex>
 #
 # pylint: disable=R0801
 
@@ -11,7 +11,7 @@ SOLIDserver ip address manager
 """
 
 import ipaddress
-import logging
+# import logging
 import re
 
 from SOLIDserverRest.Exception import SDSError
@@ -28,6 +28,7 @@ class IpAddress(ClassParams):
     def __init__(self, sds=None,
                  space=None,
                  ipv4=None,
+                 name=None,
                  class_params=None):
         """init an address object:
         - sds: object SOLIDserver, could be set afterwards
@@ -41,7 +42,7 @@ class IpAddress(ClassParams):
         self.set_sds(sds)
 
         self.space = space
-        self.name = None
+        self.name = name
         self.mac = None
 
         if ipv4 is not None:

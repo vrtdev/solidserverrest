@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:38:20 alex>
+# Time-stamp: <2020-03-29 14:36:10 alex>
 #
 
 """test ip address
@@ -11,6 +11,12 @@
 * test_ipadd_new_in_block
 * test_ipadd_mac
 * test_ipadd_new_in_block_and_update
+* test_ipadd_create_with_classparams
+* test_ipadd_new_address_no_mandatory
+* test_ipadd_refresh_ukn
+* test_ipadd_no_sds
+* test_ipadd_free
+* test_ipadd_free_empty
 
 """
 
@@ -28,6 +34,7 @@ from SOLIDserverRest.Exception import SDSIpAddressNotFoundError
 
 from .context import sdsadv
 from .context import _connect_to_sds
+from .adv_basic import _create_net
 
 
 def test_ipadd_new_address_obj():
@@ -120,7 +127,6 @@ def test_ipadd_new_in_block():
     add.create()
 
     obj_string = str(add)
-    logging.info(obj_string)
 
     add.delete()
     network.delete()
@@ -348,3 +354,90 @@ def test_ipadd_no_sds():
         assert None, "ip update no sds"
     except SDSIpAddressError:
         None
+
+
+def test_ipadd_free():
+    """check if an ip address is free"""
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    network = _create_net(sds, space, 
+                          name=str(uuid.uuid4()),
+                          net='192.168.0.0', prefix=16, 
+                          is_block=True)
+
+    net01 = _create_net(sds, space, 
+                        name=str(uuid.uuid4()),
+                        net='192.168.0.0', prefix=24, 
+                        is_block=False,
+                        is_terminal=True,
+                        parent=network)
+
+    afreeip = net01.find_free_ip()
+
+    if afreeip[0] != '192.168.0.1':
+        assert None, 'bad free address returned'
+
+    add = sdsadv.IpAddress(sds=sds,
+                           space=space,
+                           ipv4=afreeip[0])
+    add.create()
+
+    afreeip = net01.find_free_ip()
+
+    if afreeip[0] != '192.168.0.2':
+        assert None, 'bad free address returned'
+
+    add.delete()
+    network.delete()
+    space.delete()
+    
+    
+def test_ipadd_free_empty():
+    """check if an ip address is free in a full net"""
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    network = _create_net(sds, space, 
+                          name=str(uuid.uuid4()),
+                          net='192.168.0.0', prefix=29, 
+                          is_block=True)
+
+    net01 = _create_net(sds, space, 
+                        name=str(uuid.uuid4()),
+                        net='192.168.0.0', prefix=30, 
+                        is_block=False,
+                        is_terminal=True,
+                        parent=network)
+
+    add1 = sdsadv.IpAddress(sds=sds,
+                            space=space,
+                            name=str(uuid.uuid4()),
+                            ipv4='192.168.0.1')
+    add1.create()
+
+    afreeip = net01.find_free_ip()
+
+    add2 = sdsadv.IpAddress(sds=sds,
+                            space=space,
+                            name=str(uuid.uuid4()),
+                            ipv4='192.168.0.2')
+    add2.create()
+
+    afreeip = net01.find_free_ip()
+    if afreeip:
+        assert None, "free pool should be empty"
+
+
+    add1.delete()
+    add2.delete()
+    network.delete()
+    space.delete()

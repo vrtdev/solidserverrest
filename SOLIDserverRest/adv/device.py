@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:45:04 alex>
+# Time-stamp: <2020-03-29 15:48:51 alex>
 #
 
 """
@@ -84,6 +84,12 @@ class Device(ClassParams):
             'hostdev_name': self.name
         }
 
+        if 'hostdev_class_name' in self.params:
+            self.add_class_params({
+                'hostdev_class_name': self.params['hostdev_class_name']
+            })
+            params['hostdev_class_name'] = self.params['hostdev_class_name']
+
         self.prepare_class_params('hostdev', params)
 
         rjson = self.sds.query("host_device_create",
@@ -110,6 +116,12 @@ class Device(ClassParams):
                                        key="hostdev"),
             'hostdev_name': self.name,
         }
+
+        if 'hostdev_class_name' in self.params:
+            self.add_class_params({
+                'hostdev_class_name': self.params['hostdev_class_name']
+            })
+            params['hostdev_class_name'] = self.params['hostdev_class_name']
 
         self.prepare_class_params('hostdev', params)
 
