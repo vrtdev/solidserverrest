@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-01 17:29:56 alex>
+# Time-stamp: <2020-03-29 16:33:36 alex>
 #
 
 """
@@ -18,6 +18,8 @@ create a new space:
 """
 
 import logging
+import math
+import pprint
 
 from SOLIDserverRest.Exception import SDSInitError, SDSError
 from SOLIDserverRest.Exception import SDSEmptyError, SDSSpaceError
@@ -168,6 +170,56 @@ class Space(ClassParams):
 
         if 'site_class_parameters' in rjson:
             self.update_class_params(rjson['site_class_parameters'])
+
+    # -------------------------------------
+    def list_block_networks(self, offset=0, page=25, limit=0, collected=0):
+        """return the list of blocks"""
+        params = {
+            'limit': page,
+            'offset': offset
+        }
+
+        if limit > 0:
+            if page > limit:
+                params['limit'] = limit
+
+        params['WHERE'] = "site_id='{}'".format(self.myid)
+        params['WHERE'] += " and subnet_level='0' and is_terminal='0'"
+
+        try:
+            rjson = self.sds.query("ip_subnet_list",
+                                   params=params)
+        except SDSEmptyError:
+            return None
+
+        if 'errmsg' in rjson:  # pragma: no cover
+            raise SDSNetworkError(message="net list, "
+                                  + rjson['errmsg'])
+
+        anets = []
+        for net in rjson:
+            anets.append({
+                'start_hostaddr': net['start_hostaddr'],
+                'subnet_size': 32-int(math.log(int(net['subnet_size']), 2)),
+                'subnet_name': net['subnet_name']
+            })
+
+        # no limit, we should get all the records
+        if len(rjson) == page:
+            if limit == 0 or collected < limit:
+                newnets = self.list_block_networks(depth, terminal,
+                                                   offset+page,
+                                                   page=page,
+                                                   limit=limit,
+                                                   collected=(len(anets)
+                                                              + collected))
+                if newnets is not None:
+                    anets += newnets
+
+        if limit and len(anets) > limit:
+            anets = anets[:limit]
+
+        return anets
 
     # -------------------------------------
     def __str__(self):

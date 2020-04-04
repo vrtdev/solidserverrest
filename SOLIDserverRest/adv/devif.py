@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:45:04 alex>
+# Time-stamp: <2020-03-29 18:35:50 alex>
 #
 
 """
@@ -11,6 +11,7 @@ SOLIDserver device manager host interface
 import logging
 import ipaddress
 import time
+import re
 
 from SOLIDserverRest.Exception import SDSError
 from SOLIDserverRest.Exception import SDSDeviceIfError
@@ -242,6 +243,14 @@ class DeviceInterface(ClassParams):
 
         if 'hostiface_class_parameters' in rjson:
             self.update_class_params(rjson['hostiface_class_parameters'])
+
+        if 'hostiface_ip_formated' in rjson:
+            ip_raw = re.search('^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)) .*$', rjson['hostiface_ip_formated'])
+
+            if ip_raw:
+                self.ipv4 = ip_raw.group(1)
+
+        self.device.link_interface(self)
 
     # ---------------------------
     def set_device(self, dev):

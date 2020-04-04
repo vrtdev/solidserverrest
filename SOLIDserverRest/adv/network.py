@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 15:55:53 alex>
+# Time-stamp: <2020-03-29 16:59:00 alex>
 #
 # pylint: disable=R0801
 
@@ -190,7 +190,7 @@ class Network(ClassParams):
 
     # -------------------------------------
     def get_subnet_list(self, depth=1, terminal=None,
-                        offset=0, page=25, limit=0, collected=0):
+                        offset=0, page=25, limit=50, collected=0):
         """return the list of subnet in the parent subnet"""
         params = {
             'limit': page,

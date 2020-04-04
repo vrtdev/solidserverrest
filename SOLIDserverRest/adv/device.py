@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 15:48:51 alex>
+# Time-stamp: <2020-03-29 18:22:32 alex>
 #
 
 """
@@ -8,13 +8,18 @@ SOLIDserver device manager
 
 """
 
-# import logging
+import ipaddress
 
-from SOLIDserverRest.Exception import SDSError
+# import logging
+import pprint
+
+from SOLIDserverRest.Exception import SDSError, SDSInitError
 from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
+from SOLIDserverRest.Exception import SDSEmptyError
 
 from .class_params import ClassParams
 
+__all__ = ["Device"]
 
 class Device(ClassParams):
     """ class to manipulate the SOLIDserver device """
@@ -36,6 +41,8 @@ class Device(ClassParams):
 
         self.set_sds(sds)
         self.set_name(name)
+        self.aifs_simple = []
+        self.ainterfaces = []
 
         if class_params is not None:
             self.set_class_params(class_params)
@@ -65,6 +72,9 @@ class Device(ClassParams):
             'iface_used_percent': None,
             'iface_free': None
         }
+
+        self.aifs_simple = []
+        self.ainterfaces = []
 
     # -------------------------------------
     def set_param(self, param=None, value=None, exclude=None, name=None):
@@ -206,6 +216,41 @@ class Device(ClassParams):
             self.update_class_params(rjson['hostdev_class_parameters'])
 
     # -------------------------------------
+    def fetch_interfaces(self):
+        """ fetch interfaces if any"""
+
+        if self.sds is None:
+            raise SDSDeviceError(message="not connected")
+
+        if self.myid == -1:
+            raise SDSDeviceError(message="device refresh needed")
+
+        params = {
+        }
+        
+        params['WHERE'] = "hostdev_id='{}'".format(self.myid)
+
+        rjson = self.sds.query("host_iface_list",
+                               params=params)
+
+        if 'errmsg' in rjson:
+            raise SDSDeviceError(message="interface list error, "
+                                 + rjson['errmsg'])
+
+        self.aifs_simple = []
+        for interface in rjson:
+            self.aifs_simple.append({
+                'if': interface['hostiface_name'],
+                'id': int(interface['hostiface_id'])
+            })
+
+    # -------------------------------------
+    def link_interface(self, interface):
+        """link back an interface object to the device"""
+        if interface not in self.ainterfaces:
+            self.ainterfaces.append(interface)
+
+    # -------------------------------------
     def __str__(self):  # pragma: no cover
         """return the string notation of the device object"""
 
@@ -219,6 +264,15 @@ class Device(ClassParams):
         return_val += self.str_params(exclude=['hostdev_id',
                                                'hostdev_name'])
 
+        if self.aifs_simple:
+            return_val += " interfaces=["
+            sep = ""
+            for intf in self.aifs_simple:
+                return_val += sep + intf['if']
+            return_val += "]"
+
         return_val += str(super(Device, self).__str__())
 
         return return_val
+
+
