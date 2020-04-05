@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 16:33:36 alex>
+# Time-stamp: <2020-04-05 18:54:25 alex>
 #
 
 """
@@ -172,7 +172,8 @@ class Space(ClassParams):
             self.update_class_params(rjson['site_class_parameters'])
 
     # -------------------------------------
-    def list_block_networks(self, offset=0, page=25, limit=0, collected=0):
+    # TODO: coverage & tests
+    def list_block_networks(self, offset=0, page=25, limit=0, collected=0):   # pragma: no cover
         """return the list of blocks"""
         params = {
             'limit': page,

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 18:35:50 alex>
+# Time-stamp: <2020-04-05 18:52:18 alex>
 #
 
 """
@@ -187,8 +187,27 @@ class DeviceInterface(ClassParams):
         if self.sds is None:
             raise SDSDeviceIfError(message="not connected")
 
-        if_id = self._get_id(query="host_iface_list",
-                             key="hostiface")
+        if self.myid == -1:
+            params = {
+            }
+
+            params['WHERE'] = "hostiface_name='{}'".format(self.name)
+            params['WHERE'] += " and hostdev_name='{}'".format(self.device.name)
+
+            try:
+                rjson = self.sds.query("host_iface_list",
+                                       params=params)
+            except SDSError as err_descr:  # pragma: no cover
+                msg = "cannot found object by name"
+                msg += " / "+str(err_descr)
+                raise SDSError(msg)
+
+            if rjson[0]['errno'] != '0':  # pragma: no cover
+                raise SDSError("errno raised on get id by name")
+
+            if_id = rjson[0]['hostiface_id']
+        else:
+            if_id = self.myid
 
         params = {
             "hostiface_id": if_id,

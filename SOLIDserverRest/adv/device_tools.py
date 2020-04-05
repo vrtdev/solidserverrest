@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-04 20:58:01 alex>
+# Time-stamp: <2020-04-05 18:30:58 alex>
 #
 
 """
@@ -28,8 +28,6 @@ def apply_filter_metadata(filter, dev_raw):
     """apply metadata value filter"""
 
     k = "tag_hostdev_{}".format(filter['name'])
-    if not k in dev_raw:
-        return False
 
     return dev_raw[k] == str(filter['val'])
 
@@ -41,7 +39,7 @@ def apply_filter_of_class(filter, dev_raw):
 # ------------------------------------------
 def apply_filter_in_subnet(filter, dev_raw):
     """apply ip address filter"""
-    ipv4_re = '(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
+    ipv4_re = r'(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
     result = True
 
     if not '_ipnet' in filter:
@@ -72,6 +70,19 @@ def apply_filter_in_subnet(filter, dev_raw):
 
 
 # ------------------------------------------
+def apply_filter_space(filter, dev_raw):
+    """apply space on ip address filter"""
+    space_re = r'&([^,;]+)[,;]'
+
+    spaces = re.findall(space_re, dev_raw['hostdev_ip_addr'])
+    for space in spaces:
+        if space == filter['val']:
+            return True
+
+    return False
+
+
+# ------------------------------------------
 def apply_list_filters(filters, dev_raw):
     """apply the list filters to the device and return True if all match"""
     result = True
@@ -86,11 +97,16 @@ def apply_list_filters(filters, dev_raw):
 
         if filter['type'] == "of_class":
             result = apply_filter_of_class(filter, dev_raw)
-            if result == False:
+            if result == False:  # pragma: no cover
                 return False
 
         if filter['type'] == "metadata":
             result = apply_filter_metadata(filter, dev_raw)
+            if result == False:  # pragma: no cover
+                return False
+
+        if filter['type'] == "space":
+            result = apply_filter_space(filter, dev_raw)
             if result == False:
                 return False
 
@@ -185,6 +201,7 @@ def list_devices(sds=None,
             {'type':'in_subnet', 'val': '10.149.0.0/16'},
             {'type':'of_class', 'val': 'AWS-EC2'},
             {'type':'metadata', 'name': 'cores', 'val': '1'},
+            {'type':'space', 'val': 'ex-space-01'},
     """
     
     offset = 0

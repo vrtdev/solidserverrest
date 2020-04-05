@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 18:22:32 alex>
+# Time-stamp: <2020-04-05 18:44:25 alex>
 #
 
 """
@@ -219,10 +219,10 @@ class Device(ClassParams):
     def fetch_interfaces(self):
         """ fetch interfaces if any"""
 
-        if self.sds is None:
+        if self.sds is None:  # pragma: no cover
             raise SDSDeviceError(message="not connected")
 
-        if self.myid == -1:
+        if self.myid == -1:  # pragma: no cover
             raise SDSDeviceError(message="device refresh needed")
 
         params = {
@@ -233,7 +233,7 @@ class Device(ClassParams):
         rjson = self.sds.query("host_iface_list",
                                params=params)
 
-        if 'errmsg' in rjson:
+        if 'errmsg' in rjson:  # pragma: no cover
             raise SDSDeviceError(message="interface list error, "
                                  + rjson['errmsg'])
 
