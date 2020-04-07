@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 18:44:25 alex>
+# Time-stamp: <2020-04-07 21:42:34 alex>
 #
 
 """
@@ -8,18 +8,17 @@ SOLIDserver device manager
 
 """
 
-import ipaddress
-
+# import ipaddress
 # import logging
-import pprint
+# import pprint
 
-from SOLIDserverRest.Exception import SDSError, SDSInitError
+from SOLIDserverRest.Exception import SDSError
 from SOLIDserverRest.Exception import SDSDeviceError, SDSDeviceNotFoundError
-from SOLIDserverRest.Exception import SDSEmptyError
 
 from .class_params import ClassParams
 
 __all__ = ["Device"]
+
 
 class Device(ClassParams):
     """ class to manipulate the SOLIDserver device """
@@ -227,7 +226,7 @@ class Device(ClassParams):
 
         params = {
         }
-        
+
         params['WHERE'] = "hostdev_id='{}'".format(self.myid)
 
         rjson = self.sds.query("host_iface_list",
@@ -274,5 +273,3 @@ class Device(ClassParams):
         return_val += str(super(Device, self).__str__())
 
         return return_val
-
-

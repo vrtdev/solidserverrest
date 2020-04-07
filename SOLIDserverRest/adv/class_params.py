@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 18:21:11 alex>
+# Time-stamp: <2020-04-05 19:13:03 alex>
 #
 # only for python v3
 
@@ -113,7 +113,7 @@ class ClassParams(Base):
         if self.class_name:
             key = "{}_class_name".format(keyprefix)
             params[key] = self.class_name
-            
+
         if params is None:
             return None
 

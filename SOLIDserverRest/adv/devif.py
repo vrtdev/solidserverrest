@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 18:52:18 alex>
+# Time-stamp: <2020-04-07 21:48:44 alex>
 #
 
 """
@@ -192,7 +192,8 @@ class DeviceInterface(ClassParams):
             }
 
             params['WHERE'] = "hostiface_name='{}'".format(self.name)
-            params['WHERE'] += " and hostdev_name='{}'".format(self.device.name)
+            params['WHERE'] += " and hostdev_name"
+            params['WHERE'] += "='{}'".format(self.device.name)
 
             try:
                 rjson = self.sds.query("host_iface_list",
@@ -264,7 +265,11 @@ class DeviceInterface(ClassParams):
             self.update_class_params(rjson['hostiface_class_parameters'])
 
         if 'hostiface_ip_formated' in rjson:
-            ip_raw = re.search('^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)) .*$', rjson['hostiface_ip_formated'])
+            # regexpip = re.compile('
+            ip_raw = re.search(r'^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.)'
+                               '{3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
+                               ' .*$',
+                               rjson['hostiface_ip_formated'])
 
             if ip_raw:
                 self.ipv4 = ip_raw.group(1)
