@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:38:20 alex>
+# Time-stamp: <2020-03-29 15:37:02 alex>
 #
 
 """test network
@@ -16,7 +16,9 @@
 * test_net_create_block_collision
 * test_net_update_block
 * test_net_create_block_with_classparams
+* test_net_block_net_subnets
 * test_net_block_net_subnets_wo_parent
+* test_net_find_free
 
 """
 
@@ -24,6 +26,7 @@ import logging
 import sys
 import uuid
 import datetime
+import ipaddress
 
 from SOLIDserverRest.Exception import SDSInitError, SDSRequestError
 from SOLIDserverRest.Exception import SDSAuthError, SDSError
@@ -32,6 +35,7 @@ from SOLIDserverRest.Exception import SDSNetworkError, SDSNetworkNotFoundError
 
 from .context import sdsadv
 from .context import _connect_to_sds
+from .adv_basic import _create_net
 
 # -------------------------------------------------------
 def test_net_new_network():
@@ -422,6 +426,7 @@ def test_net_block_net_subnets():
 
     space.delete()
 
+
 # -------------------------------------------------------
 def test_net_block_net_subnets_wo_parent():
     """create a subnet in a not defined parent"""
@@ -453,6 +458,130 @@ def test_net_block_net_subnets_wo_parent():
         assert None, "should not be able to link to unk parent"
     except SDSNetworkError:
         None
+
+    space.delete()
+
+
+# -------------------------------------------------------
+def test_net_find_free():
+    """find a free subnet"""
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    # creates a space
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+    # space = sdsadv.Space(sds=sds, name='test')
+    # space.refresh()
+
+    # create a network object
+    net01 = _create_net(sds, space, 
+                        # name=str(uuid.uuid4()),
+                        name="test",
+                        net='172.16.0.0', prefix=16, 
+                        is_block=True)
+
+    possible_net=net01.find_free(24)
+
+    # check array is not empty
+    if len(possible_net) == 0:
+        assert None, "free subnets should not be empty"
+
+    # check wether nets are in the appropriate subnet
+    supernet = ipaddress.ip_network('{}/{}'.format('172.16.0.0', 16)).network_address
+    for pnet in possible_net:
+        pnet_add = ipaddress.ip_network('{}/{}'.format(pnet, 16), False).network_address
+        if supernet != pnet_add:
+            assert None, "proposed subnet not valid for pnet"
+
+    # error coverage
+    possible_net=net01.find_free(15)
+    if possible_net:
+        assert None, "free list should be empty"
+
+    space.delete()
+
+
+# -------------------------------------------------------
+def test_net_list():
+    """list subnets"""
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    # creates a space
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+    #space = sdsadv.Space(sds=sds, name='test')
+    #space.refresh()
+
+    # create a network object
+    net01 = _create_net(sds, space, 
+                        # name=str(uuid.uuid4()),
+                        name="test",
+                        net='172.16.0.0', prefix=16, 
+                        is_block=True)
+
+
+    supernet = ipaddress.ip_network('{}/{}'.format('172.16.0.0', 16))
+
+    # i = 1
+    for n in supernet.subnets(prefixlen_diff=4):
+        net = _create_net(sds, space, 
+                          name=str(uuid.uuid4()),
+                          # name = "net-{}".format(i),
+                          net=n.network_address,
+                          prefix=n.prefixlen, 
+                          is_block=False,
+                          is_terminal=False,
+                          parent=net01)
+        #i += 1
+
+    anet = net01.get_subnet_list()
+    if len(anet) != 16:
+        assert None, "bad net list size 16 != {}".format(len(anet))
+    if anet[1]['start_hostaddr'] != '172.16.16.0':
+        assert None, "bad net list content"
+
+    # pagination
+    anet = net01.get_subnet_list(limit=4)
+    if len(anet) != 4:
+        logging.info(anet)
+        assert None, "bad net list size 4 != {}".format(len(anet))
+    if anet[1]['start_hostaddr'] != '172.16.16.0':
+        assert None, "bad net list content"
+
+    anet = net01.get_subnet_list(limit=4, offset=4)
+    if len(anet) != 4:
+        assert None, "bad net list size 4 != {}".format(len(anet))
+    if anet[0]['start_hostaddr'] != '172.16.64.0':
+        logging.info(anet)
+        assert None, "bad net list content"
+
+
+    anet = net01.get_subnet_list(limit=8, page=4)
+    if len(anet) != 8:
+        logging.info(anet)
+        assert None, "bad net list size 8 != {}".format(len(anet))
+
+    anet = net01.get_subnet_list(limit=8, page=3, offset=1)
+    if len(anet) != 8:
+        assert None, "bad net list size 8 != {}".format(len(anet))
+    if anet[0]['start_hostaddr'] != '172.16.16.0':
+        assert None, "bad net list content"
+
+    anet = net01.get_subnet_list(limit=8, page=4, offset=9)
+    if len(anet) != 7:
+        assert None, "bad net list size 7 != {}".format(len(anet))
+    if anet[0]['start_hostaddr'] != '172.16.144.0':
+        assert None, "bad net list content"
+
+
+    # coverage
+    anet = net01.get_subnet_list(terminal=1)
+    if anet:
+        assert None, "bad net list, no terminal"
 
     space.delete()
 

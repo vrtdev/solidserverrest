@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-01 17:55:42 alex>
+# Time-stamp: <2020-04-05 18:43:03 alex>
 #
 
 """test for device manager interfaces
@@ -33,15 +33,7 @@ from SOLIDserverRest.Exception import SDSDeviceIfNotFoundError
 
 from .context import sdsadv
 from .context import _connect_to_sds
-
-
-# -------------------------------------------------------
-def create_rnd_mac():
-    return "00:25:9D:%02x:%02x:%02x" % (
-        random.randint(0, 255),
-        random.randint(0, 255),
-        random.randint(0, 255),
-    )
+from .adv_basic import *
 
 
 # -------------------------------------------------------
@@ -234,7 +226,7 @@ def test_devif_create_ipmac():
 
     if_name = 'tdd-'+str(uuid.uuid4())
     device_name = 'tdd-'+str(uuid.uuid4())
-    mac = create_rnd_mac()
+    mac = _create_rnd_mac()
     ip_v4 = create_rnd_ipv4()
     ip_v4 = '192.168.16.171'
     ip_v6 = create_rnd_ipv6()
@@ -356,6 +348,8 @@ def test_devif_update():
     except SDSDeviceIfError:
         None
 
+    ifs = dev.fetch_interfaces()
+
     devif.delete()
     dev.delete()
     space.delete()
@@ -370,7 +364,7 @@ def _test_devif_add_if():
     space = sdsadv.Space(sds, name=str(uuid.uuid4()))
     space.create()
 
-    mac = create_rnd_mac()
+    mac = _create_rnd_mac()
     ip_v4 = create_rnd_ipv4_hex()
     ip_v6 = create_rnd_ipv6_hex()
 
