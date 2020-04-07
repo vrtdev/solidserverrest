@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-01 16:51:26 alex>
+# Time-stamp: <2020-03-29 17:38:05 alex>
 #
 
 """
@@ -15,3 +15,5 @@ from .device import Device
 from .devif import DeviceInterface
 from .network import Network
 from .ipaddress import IpAddress
+
+from .device_tools import list_devices
