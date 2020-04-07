@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-10-06 17:16:39 alex>
+# Time-stamp: <2020-03-29 16:02:44 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -90,7 +90,9 @@ def test_create_sds_set_baduser():
     sds.set_credentials(user=USER, pwd="error")
     try:
         sds.connect()
-    except SDSAuthError as e:
+    except SDSAuthError:
+        return
+    except SDSRequestError:
         return
 
     assert None, "should have raised an error on bad credentials"
@@ -136,7 +138,7 @@ def test_basic_auth_with_cert():
     sds.set_credentials(user=USER, pwd=PWD)
     try:
         sds.connect(method="basicauth", cert_file_path="ca.crt")
-    except SDSRequestError:
+    except SDSRequestError as e:
         logging.debug(e)
         assert None, "certifiate validation error"
     except SDSInitError as e:
@@ -152,6 +154,7 @@ def test_native_auth():
     sds.set_credentials(user=USER, pwd=PWD)
     sds.connect(method="native")
     logging.debug(sds)
+
 
 #----
 def test_query_timeout():

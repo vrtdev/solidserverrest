@@ -16,7 +16,7 @@ def _connect_to_sds():
     sds.set_credentials(user=USER, pwd=PWD)
 
     try:
-        sds.connect(method="basicauth")
+        sds.connect(method="basicauth", cert_file_path="ca.crt")
     except SDSError as e:
         logging.debug(e)
         assert None, "connection error, probable certificate issue"
