@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-01 16:55:47 alex>
+# Time-stamp: <2020-03-29 15:34:48 alex>
 #
 # only for python v3
 
@@ -190,7 +190,7 @@ class SDS(ClassParams):
                                         option=option,
                                         timeout=_timeout)
 
-            if answer_req.status_code == 401:
+            if answer_req.status_code == 401:   # pragma: no cover
                 raise SDSAuthError(message="authentication error")
 
             if answer_req.status_code == 204:
@@ -203,7 +203,7 @@ class SDS(ClassParams):
                 logging.error("no json in return")
                 return None
 
-        except SDSAuthError as error:
+        except SDSAuthError as error:   # pragma: no cover
             raise SDSAuthError("{}".format(error))
 
     # ---------------------------

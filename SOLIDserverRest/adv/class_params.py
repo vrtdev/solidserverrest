@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-27 16:04:25 alex>
+# Time-stamp: <2020-04-05 19:13:03 alex>
 #
 # only for python v3
 
@@ -30,6 +30,8 @@ class ClassParams(Base):
 
         self.dclasses = {}
         self.__class_params = {}
+
+        self.class_name = None
 
     # ---------------------------
     @classmethod
@@ -108,6 +110,10 @@ class ClassParams(Base):
         if keyprefix is None:
             return None
 
+        if self.class_name:
+            key = "{}_class_name".format(keyprefix)
+            params[key] = self.class_name
+
         if params is None:
             return None
 
@@ -141,6 +147,11 @@ class ClassParams(Base):
             self.__class_params.update(params)
 
         return True
+
+    # -------------------------------------
+    def set_class_name(self, name):
+        """ set the class name for the object """
+        self.class_name = name
 
     # -------------------------------------
     def __str__(self):  # pragma: no cover
