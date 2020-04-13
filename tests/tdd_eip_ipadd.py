@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 14:36:10 alex>
+# Time-stamp: <2020-04-13 15:05:53 alex>
 #
 
 """test ip address
@@ -186,11 +186,7 @@ def test_ipadd_new_in_block_and_update():
     add.set_mac('010203040506')
     add.update()
 
-    try:
-        add.set_name(None)
-        assert None, "bad name format"
-    except SDSError:
-        None
+    add.set_name(None)
 
     add.set_name('ip_name')
     add.update()

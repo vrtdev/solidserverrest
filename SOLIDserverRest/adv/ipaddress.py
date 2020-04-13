@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 18:01:43 alex>
+# Time-stamp: <2020-04-13 15:28:05 alex>
 #
 # pylint: disable=R0801
 
@@ -25,7 +25,7 @@ class IpAddress(ClassParams):
     """ class to manipulate the SOLIDserver ip address """
 
     # -------------------------------------
-    def __init__(self, sds=None,
+    def __init__(self, sds=None,  # pylint: disable=too-many-arguments
                  space=None,
                  ipv4=None,
                  name=None,
@@ -35,14 +35,13 @@ class IpAddress(ClassParams):
         - space: space object for this network
         """
 
-        super(IpAddress, self).__init__()
+        super(IpAddress, self).__init__(sds, name)
 
         self.clean_params()
-
         self.set_sds(sds)
 
         self.space = space
-        self.name = name
+        # self.name = name
         self.mac = None
 
         if ipv4 is not None:

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 15:37:02 alex>
+# Time-stamp: <2020-04-13 15:08:05 alex>
 #
 
 """test network
@@ -194,7 +194,7 @@ def test_net_refresh_non_exist():
                              space=space,
                              name=net_name)
 
-    network.set_address_prefix('172.16.0.0', 16)
+    network.set_address_prefix('172.16.254.0', 24)
 
     try:
         network.refresh()

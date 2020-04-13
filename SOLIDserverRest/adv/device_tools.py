@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-07 21:52:17 alex>
+# Time-stamp: <2020-04-13 14:51:37 alex>
 #
 
 """
@@ -92,8 +92,6 @@ def apply_list_filters(filters, dev_raw):
     """apply the list filters to the device and return True if all match"""
     result = True
 
-    # print("check device {}".format(dev_raw['hostdev_name']))
-
     for filt in filters:
         if filt['type'] == "in_subnet":
             result = apply_filter_in_subnet(filt, dev_raw)
@@ -119,13 +117,58 @@ def apply_list_filters(filters, dev_raw):
 
 
 # ------------------------------------------
+def _handle_filters(filters, _metadata_tags, _params):
+    if filters is None:  # pragma: no cover
+        filters = []
+
+    # apply filters in the original query when possible
+    for filt in filters:
+        if filt['type'] == "of_class":
+            _class_filter = "hostdev_class_name='{}'".format(filt['val'])
+            if 'WHERE' in _params:
+                _params['WHERE'] += " and " + _class_filter
+            else:
+                _params['WHERE'] = _class_filter
+
+        if filt['type'] == "metadata" and filt['val'] not in _metadata_tags:
+            _metadata_filter = "hostdev.{}".format(filt['name'])
+            if 'TAGS' in _params:
+                _params['TAGS'] += "&"+_metadata_filter
+            else:
+                _params['TAGS'] = _metadata_filter
+
+            _metadata_filter = "tag_hostdev_{}='{}'".format(filt['name'],
+                                                            str(filt['val']))
+            if 'WHERE' in _params:
+                _params['WHERE'] += " and " + _metadata_filter
+            else:
+                _params['WHERE'] = _metadata_filter
+
+            _metadata_tags.append(filt['name'])
+
+
+# ------------------------------------------
+def _handle_metadata(_metadata_tags, _metadatas, _params):
+    # expose metadata using TAGS
+    if _metadatas:
+        for _md in _metadatas:
+            if _md not in _metadata_tags:
+                _metadata_filter = "hostdev.{}".format(_md)
+                if 'TAGS' in _params:
+                    _params['TAGS'] += "&"+_metadata_filter
+                else:
+                    _params['TAGS'] = _metadata_filter
+
+
+# ------------------------------------------
 def list_devices_page(sds=None,
                       filters=None,
+                      metadatas=None,
                       offset=0, page=25):
     """list devices from the space"""
-    # print("list_devices_page", offset, page)
+    metadata_tags = []
 
-    if sds is None:
+    if sds is None:  # pragma: no cover
         raise SDSInitError("list device requires connection")
 
     params = {
@@ -133,33 +176,8 @@ def list_devices_page(sds=None,
         'offset': offset
     }
 
-    if filters is None:
-        filters = []
-
-    # check if we have a of_class filter
-    for filt in filters:
-        if 'type' not in filt:
-            raise SDSDeviceError(message="list filter without type")
-        if filt['type'] == "of_class":
-            _class_filter = "hostdev_class_name='{}'".format(filt['val'])
-            if 'WHERE' in params:
-                params['WHERE'] += " and " + _class_filter
-            else:
-                params['WHERE'] = _class_filter
-
-        if filt['type'] == "metadata":
-            _metadata_filter = "hostdev.{}".format(filt['name'])
-            if 'TAGS' in params:
-                params['TAGS'] += "&"+_metadata_filter
-            else:
-                params['TAGS'] = _metadata_filter
-
-            _metadata_filter = "tag_hostdev_{}='{}'".format(filt['name'],
-                                                            str(filt['val']))
-            if 'WHERE' in params:
-                params['WHERE'] += " and " + _metadata_filter
-            else:
-                params['WHERE'] = _metadata_filter
+    _handle_filters(filters, metadata_tags, params)
+    _handle_metadata(metadata_tags, metadatas, params)
 
     try:
         rjson = sds.query("host_device_list",
@@ -173,29 +191,27 @@ def list_devices_page(sds=None,
 
     adevs = []
     for dev in rjson:
+        res = None
+
         # check the filters
-
-        # dev_detail = Device(sds, name=dev['hostdev_name'])
-        # try:
-        #     dev_detail.refresh()
-        # except SDSDeviceError:
-        #     continue
-        # print(dev_detail)
-        # exit()
-
         if apply_list_filters(filters, dev):
             res = {
                 'name': dev['hostdev_name'],
             }
             if '_ipadd' in dev:
                 res['extracted_ips'] = dev['_ipadd']
-            else:
+            else:  # pragma: no cover
                 res['hostdev_ip_formated'] = dev['hostdev_ip_formated']
 
-            adevs.append(res)
+        # expose metadata if any
+        if res and metadatas:
+            for _md in metadatas:
+                tag = "tag_hostdev_{}".format(_md)
+                if tag in dev and dev[tag] != '':
+                    res[_md] = dev[tag]
 
-        # ici - supprimer le refresh device et le reporter
-        # sur les tests le nécessitant
+        if res:
+            adevs.append(res)
 
     return adevs
 
@@ -203,6 +219,7 @@ def list_devices_page(sds=None,
 # ------------------------------------------
 def list_devices(sds=None,
                  filters=None,
+                 metadatas=None,
                  limit=10):
     """ limit: max number of device to return, 0 for all
         filters: returned device should match all filters
@@ -217,8 +234,27 @@ def list_devices(sds=None,
     page = 500
     alldevs = []
 
+    if sds is None:
+        raise SDSInitError(message="no sds object in list_devices")
+
+    if filters is None:  # pragma: no cover
+        filters = []
+
+    # if no filter on IP address, add one
+    ip_filt = False
+    for filt in filters:
+        if 'type' not in filt:
+            raise SDSDeviceError(message="list filter without type")
+        if filt['type'] == "in_subnet":
+            ip_filt = True
+
+    if not ip_filt:
+        filters.append({'type': 'in_subnet', 'val': '0.0.0.0/0'})
+
     while limit == 0 or collected < limit:
-        adevs = list_devices_page(sds, filters,
+        adevs = list_devices_page(sds,
+                                  filters,
+                                  metadatas,
                                   offset=offset,
                                   page=page)
 

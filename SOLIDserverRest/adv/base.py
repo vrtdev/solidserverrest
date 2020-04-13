@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-03 17:00:54 alex>
+# Time-stamp: <2020-04-13 15:27:47 alex>
 #
 # only for python v3
 
@@ -22,15 +22,18 @@ class Base:
     """ standard class for all objects in SDS """
     # ---------------------------
 
-    def __init__(self):
+    def __init__(self, sds=None, name=None):
         """init the base object:
         """
 
         # if true, modification on object are pushed to SDS
         self.in_sync = False
-        self.sds = None
+
+        self.sds = sds
+        self.set_sds(sds)
         self.myid = -1
-        self.name = None
+        self.name = name
+        self.set_name(name)
         self.params = {}
 
     # -------------------------------------
@@ -50,6 +53,10 @@ class Base:
     # ---------------------------
     def set_name(self, name=None):
         """set the name for this object"""
+        if name is None:
+            self.name = None
+            return
+
         if isinstance(name, str):
             self.name = name
         else:
@@ -79,6 +86,11 @@ class Base:
         params = {
             "WHERE": "{}_name='{}'".format(key, name),
         }
+
+        # pylint: disable=E1101
+        if hasattr(self, 'space'):
+            if self.space:
+                params['WHERE'] += " and site_id={}".format(self.space.myid)
 
         # logging.info(query)
         # logging.info(params)

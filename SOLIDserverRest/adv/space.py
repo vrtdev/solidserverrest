@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-07 21:51:56 alex>
+# Time-stamp: <2020-04-13 15:28:58 alex>
 #
 
 """
@@ -32,16 +32,18 @@ class Space(ClassParams):
     """ class to manipulate the SOLIDserver spaces """
 
     # -------------------------------------
-    def __init__(self, sds=None, name="Local", class_params=None):
+    def __init__(self, sds=None,
+                 name="Local",
+                 class_params=None):
         """init the space object:
         - sds: object SOLIDserver, could be set afterwards
         - name: space name, default Local
         """
 
-        super(Space, self).__init__()
+        super(Space, self).__init__(sds, name)
 
-        self.name = name
-        self.sds = sds
+        # self.name = name
+        # self.sds = sds
 
         self.params = {
             'site_is_template': None,
@@ -173,7 +175,6 @@ class Space(ClassParams):
             self.update_class_params(rjson['site_class_parameters'])
 
     # -------------------------------------
-    # TODO coverage & tests
     # def list_block_networks(self, offset=0, page=25, limit=0, collected=0):
     #     """return the list of blocks"""
     #     params = {
