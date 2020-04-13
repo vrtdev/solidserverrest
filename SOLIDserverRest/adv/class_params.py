@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 19:13:03 alex>
+# Time-stamp: <2020-04-13 16:10:32 alex>
 #
 # only for python v3
 
@@ -20,10 +20,10 @@ __all__ = ["ClassParams"]
 class ClassParams(Base):
     """ standard class for all objects in SDS with class parameters """
     # ---------------------------
-    def __init__(self):
+    def __init__(self, sds=None, name=None):
         """init the object:
         """
-        super(ClassParams, self).__init__()
+        super(ClassParams, self).__init__(sds, name)
 
         self.fct_url_encode = urllib.parse.urlencode
         self.fct_b64_encode = base64.b64encode

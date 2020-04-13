@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 18:48:39 alex>
+# Time-stamp: <2020-04-13 16:11:40 alex>
 #
 
 """test file for the device manager
@@ -19,6 +19,7 @@
 * test_device_delete_ukn
 * test_device_async
 * test_device_delete_empty
+* test_device_list
 
 """
 
@@ -338,6 +339,170 @@ def test_device_delete_empty():
 
 
 # -------------------------------------------------------
+def _subtest_device_list_01(sds, space_name):
+    """ search space + net01 """
+    logging.info("search space + net01 (expected 2 results)")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'in_subnet', 'val': '172.16.1.0/24'},
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+
+    if len(adevs) != 2:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+# -------------------------------------------------------
+def _subtest_device_list_02(sds, space_name):
+    """  search space + net02 """
+    logging.info("search space + net02 (expected 4 result)")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'in_subnet', 'val': '172.16.2.0/24'},
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+    if len(adevs) != 4:
+        logging.info(adevs)
+        assert None, "invalid result"
+
+# -------------------------------------------------------
+def _subtest_device_list_03(sds, space_name):
+    """ search space + metadata """
+    logging.info("search space + metadata (expected 1 result)")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'metadata', 'name': 'key01', 'val': '1'},
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+    if len(adevs) != 1:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+# -------------------------------------------------------
+def _subtest_device_list_04(sds, space_name):
+    """ search space + metadata """
+    logging.info("search space + metadata (expected 0 result)")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'metadata', 'name': 'key01', 'val': '2'},
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+    if len(adevs) != 0:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+
+# -------------------------------------------------------
+def _subtest_device_list_05(sds, space_name):
+    """ search space with limit """
+    logging.info("search space with limit")
+    adevs = sdsadv.list_devices(sds, limit=2,
+                                filters=[
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+    if len(adevs) != 2:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+# -------------------------------------------------------
+def _subtest_device_list_06(sds):
+    """ search w/o space """
+    logging.info("search w/o space")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+    if len(adevs) != 6:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+
+# -------------------------------------------------------
+def _subtest_device_list_07(sds):
+    """ search with unknown space """
+    logging.info("search with unknown space")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'of_class', 'val': 'tdd'},
+                                    {'type':'space', 'val': 'unknown'},
+                                ])
+    if len(adevs) != 0:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+
+# -------------------------------------------------------
+def _subtest_device_list_08(sds, space_name):
+    """ search space + 2 metadata """
+    logging.info("search space + 2 metadata (expected 0 result)")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'metadata', 'name': 'key01', 'val': '1'},
+                                    {'type':'metadata', 'name': 'key02', 'val': '1'},
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'of_class', 'val': 'tdd'},
+                                ])
+    if len(adevs) != 0:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+# -------------------------------------------------------
+def _subtest_device_list_09(sds, space_name):
+    """ expose metadata """
+    logging.info("expose metadata")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'metadata', 'name': 'key01', 'val': '1'},
+                                ],
+                                metadatas=['key01'])
+    if len(adevs) != 1:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+    if 'key01' not in adevs[0]:
+        assert None, "missing metadata"
+
+
+# -------------------------------------------------------
+def _subtest_device_list_10(sds, space_name):
+    """ expose multiple metadata """
+    logging.info("expose multiple metadata")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'space', 'val': space_name},
+                                    {'type':'metadata', 'name': 'key01', 'val': '1'},
+                                ],
+                                metadatas=['key02', 'key01'])
+    if len(adevs) != 1:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+    if 'key01' not in adevs[0]:
+        assert None, "missing metadata"
+
+
+# -------------------------------------------------------
+def _subtest_device_list_11(sds, space_name):
+    """ expose metadata and no filter """
+    logging.info("expose metadata w/o filter")
+    adevs = sdsadv.list_devices(sds, limit=0,
+                                filters=[
+                                    {'type':'space', 'val': space_name},
+                                ],
+                                metadatas=['key02', 'key01'])
+
+    if len(adevs) != 6:
+        logging.info(len(adevs))
+        assert None, "invalid result"
+
+
+# -------------------------------------------------------
 def test_device_list():
     """list devices in the SDS with filters"""
 
@@ -448,92 +613,17 @@ def test_device_list():
     except SDSDeviceError:
         None
 
-    logging.info("search space + net01 (expected 2 results)")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'in_subnet', 'val': '172.16.1.0/24'},
-                                    {'type':'space', 'val': space_name},
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-
-    if len(adevs) != 2:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
-    logging.info("search space + net02 (expected 4 result)")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'in_subnet', 'val': '172.16.2.0/24'},
-                                    {'type':'space', 'val': space_name},
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-    if len(adevs) != 4:
-        logging.info(adevs)
-        assert None, "invalid result"
-
-    logging.info("search space + metadata (expected 1 result)")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'metadata', 'name': 'key01', 'val': '1'},
-                                    {'type':'space', 'val': space_name},
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-    if len(adevs) != 1:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
-    logging.info("search space + metadata (expected 0 result)")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'metadata', 'name': 'key01', 'val': '2'},
-                                    {'type':'space', 'val': space_name},
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-    if len(adevs) != 0:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
-    logging.info("search space with limit")
-    adevs = sdsadv.list_devices(sds, limit=2,
-                                filters=[
-                                    {'type':'space', 'val': space_name},
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-    if len(adevs) != 2:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
-    logging.info("search w/o space")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-    if len(adevs) != 6:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
-    logging.info("search with unknown space")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'of_class', 'val': 'tdd'},
-                                    {'type':'space', 'val': 'unknown'},
-                                ])
-    if len(adevs) != 0:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
-    logging.info("search space + 2 metadata (expected 0 result)")
-    adevs = sdsadv.list_devices(sds, limit=0,
-                                filters=[
-                                    {'type':'metadata', 'name': 'key01', 'val': '1'},
-                                    {'type':'metadata', 'name': 'key02', 'val': '1'},
-                                    {'type':'space', 'val': space_name},
-                                    {'type':'of_class', 'val': 'tdd'},
-                                ])
-    if len(adevs) != 0:
-        logging.info(len(adevs))
-        assert None, "invalid result"
-
+    _subtest_device_list_01(sds, space_name)
+    _subtest_device_list_02(sds, space_name)
+    _subtest_device_list_03(sds, space_name)
+    _subtest_device_list_04(sds, space_name)
+    _subtest_device_list_05(sds, space_name)
+    _subtest_device_list_06(sds)
+    _subtest_device_list_07(sds)
+    _subtest_device_list_08(sds, space_name)
+    _subtest_device_list_09(sds, space_name)
+    _subtest_device_list_10(sds, space_name)
+    _subtest_device_list_11(sds, space_name)
 
     dev01.delete()
     dev02.delete()

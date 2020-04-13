@@ -40,20 +40,17 @@ except SDSError as e:
 space = sdsadv.Space(sds=sds, name="StrangeWorld")
 space.refresh()
 
-adevs = sdsadv.list_devices(sds, limit=0,
+adevs = sdsadv.list_devices(sds, limit=10,
                             filters=[
-                                {'type':'in_subnet', 'val': '10.156.48.0/24'},
-                                {'type':'in_subnet', 'val': '10.149.0.0/16'},
+                                # { 'type':'in_subnet', 'val': '10.156.48.0/24'},
+                                # {'type':'in_subnet', 'val': '10.149.0.0/16'},
                                 # {'type':'of_class', 'val': 'AWS-EC2'},
                                 # {'type':'metadata', 'name': 'cores', 'val': '1'},
                                 # {'type':'metadata', 'name': 'monitoring', 'val': 'on'},
-                                {'type':'space', 'val': 'ex-space-01'},
-
-                                # {'type':'metadata', 'name': 'key01', 'val': '1'},
                                 # {'type':'space', 'val': 'ex-space-01'},
-                                # {'type':'of_class', 'val': 'tdd'},
-
-                            ])
+                            ],
+                            metadatas=['monitoring'] 
+                            )
 
 print("found ", len(adevs))
 pprint.pprint(adevs[:5])
