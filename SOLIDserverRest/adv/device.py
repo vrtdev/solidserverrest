@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-07 21:42:34 alex>
+# Time-stamp: <2020-04-13 16:10:23 alex>
 #
 
 """
@@ -24,7 +24,10 @@ class Device(ClassParams):
     """ class to manipulate the SOLIDserver device """
 
     # -------------------------------------
-    def __init__(self, sds=None, name=None, class_params=None):
+    def __init__(self,
+                 sds=None,
+                 name=None,
+                 class_params=None):
         """init a device object:
         - sds: object SOLIDserver, could be set afterwards
         - name: name of the device
@@ -33,7 +36,7 @@ class Device(ClassParams):
         if name is None:
             raise SDSDeviceError("no name provided at device init")
 
-        super(Device, self).__init__()
+        super(Device, self).__init__(sds, name)
 
         # params mapping the object in SDS
         self.clean_params()

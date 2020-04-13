@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 16:59:00 alex>
+# Time-stamp: <2020-04-13 16:08:20 alex>
 #
 # pylint: disable=R0801
 
@@ -26,7 +26,7 @@ class Network(ClassParams):
     """ class to manipulate the SOLIDserver network """
 
     # -------------------------------------
-    def __init__(self, sds=None,
+    def __init__(self, sds=None,  # pylint: disable=too-many-arguments
                  space=None,
                  name=None,
                  class_params=None):
@@ -36,13 +36,13 @@ class Network(ClassParams):
         - name: name of the subnet
         """
 
-        super(Network, self).__init__()
+        super(Network, self).__init__(sds, name)
 
         # params mapping the object in SDS
         self.clean_params()
 
         self.set_sds(sds)
-        self.set_name(name)
+        # self.set_name(name)
 
         self.description = None
         self.space = space
@@ -189,8 +189,13 @@ class Network(ClassParams):
         return aip
 
     # -------------------------------------
-    def get_subnet_list(self, depth=1, terminal=None,
-                        offset=0, page=25, limit=50, collected=0):
+    def get_subnet_list(self,    # pylint: disable=too-many-arguments
+                        depth=1,
+                        terminal=None,
+                        offset=0,
+                        page=25,
+                        limit=50,
+                        collected=0):
         """return the list of subnet in the parent subnet"""
         params = {
             'limit': page,
@@ -365,6 +370,7 @@ class Network(ClassParams):
             "subnet_id": subnet_id,
         }
 
+        # logging.info(params)
         try:
             rjson = self.sds.query("ip_subnet_info",
                                    params=params)

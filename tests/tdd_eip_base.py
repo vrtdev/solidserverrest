@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-09-27 16:07:01 alex>
+# Time-stamp: <2020-04-13 15:21:44 alex>
 #
 
 """test file for the eip advance suite package, base class object"""
@@ -23,6 +23,18 @@ def test_create_base():
     bobject = sdsadv.Base()
     strb = str(bobject)
     logging.debug(strb)
+
+
+# ------ SDS base object ---------------------
+def test_create_base_name():
+    """create a basic object with name"""
+    bobject = sdsadv.Base(name="test")
+    strb = str(bobject)
+    bobject.set_name(None)
+    try:
+        bobject.set_name({"a":1})
+    except SDSError:
+        None
 
 # ------ SDS base object with class params ---
 def test_create_base_cp():
@@ -156,3 +168,4 @@ def test_base_update_cp():
         assert None, "update class with dict failed"
     if params['e'] != 5:
         assert None, "update class with string failed"
+
