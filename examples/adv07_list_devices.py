@@ -48,13 +48,8 @@ adevs = sdsadv.list_devices(sds, limit=10,
                                 # {'type':'metadata', 'name': 'cores', 'val': '1'},
                                 # {'type':'metadata', 'name': 'monitoring', 'val': 'on'},
                                 # {'type':'space', 'val': 'ex-space-01'},
-
-                                # {'type':'metadata', 'name': 'key01', 'val': '1'},
-                                # {'type':'space', 'val': 'ex-space-01'},
-                                # {'type':'of_class', 'val': 'tdd'},
                             ],
                             metadatas=['monitoring'] 
-                            # metadatas=['env']
                             )
 
 print("found ", len(adevs))

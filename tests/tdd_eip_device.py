@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 14:32:57 alex>
+# Time-stamp: <2020-04-13 16:11:40 alex>
 #
 
 """test file for the device manager
@@ -624,8 +624,6 @@ def test_device_list():
     _subtest_device_list_09(sds, space_name)
     _subtest_device_list_10(sds, space_name)
     _subtest_device_list_11(sds, space_name)
-
-
 
     dev01.delete()
     dev02.delete()
