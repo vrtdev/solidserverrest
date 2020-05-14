@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:10:23 alex>
+# Time-stamp: <2020-05-14 21:45:27 alex>
 #
 
 """
@@ -93,7 +93,8 @@ class Device(ClassParams):
             raise SDSDeviceError(message="not connected")
 
         params = {
-            'hostdev_name': self.name
+            'hostdev_name': self.name,
+            **self.additional_params
         }
 
         if 'hostdev_class_name' in self.params:
@@ -127,6 +128,7 @@ class Device(ClassParams):
             'hostdev_id': self._get_id(query="host_device_list",
                                        key="hostdev"),
             'hostdev_name': self.name,
+            **self.additional_params
         }
 
         if 'hostdev_class_name' in self.params:
@@ -156,7 +158,8 @@ class Device(ClassParams):
             raise SDSDeviceNotFoundError("on delete")
 
         params = {
-            'hostdev_id': self.params['hostdev_id']
+            'hostdev_id': self.params['hostdev_id'],
+            **self.additional_params
         }
 
         rjson = self.sds.query("host_device_delete",
@@ -179,6 +182,7 @@ class Device(ClassParams):
 
         params = {
             "hostdev_id": device_id,
+            **self.additional_params
         }
 
         try:
@@ -228,6 +232,7 @@ class Device(ClassParams):
             raise SDSDeviceError(message="device refresh needed")
 
         params = {
+            **self.additional_params,
         }
 
         params['WHERE'] = "hostdev_id='{}'".format(self.myid)
