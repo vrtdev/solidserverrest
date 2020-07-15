@@ -77,6 +77,7 @@ class SOLIDserverRest:
         self.fct_url_encode = None
         self.fct_b64_encode = None
         self.ssl_verify = True
+        self.proxies = None
 
         # set specific features for python v2 (<=2020, not supported after)
         if sys.version_info[0] == 2:   # pragma: no cover
@@ -169,6 +170,12 @@ class SOLIDserverRest:
             raise SDSError("requested bool on set_ssl_verify")
 
     # -------------------------------------
+    def set_proxy(self, proxy):
+        """allows to enable or disable use of a SOCKS proxy"""
+        proxy = 'socks5h://{}'.format(proxy)
+        self.proxies = {'http': proxy, 'https': proxy}
+
+    # -------------------------------------
     def _query_method(self, service, option, params):
         if params != '':
             params = "?"+self.fct_url_encode(params)
@@ -240,6 +247,7 @@ class SOLIDserverRest:
                 method,
                 url,
                 headers=self.headers,
+                proxies=self.proxies,
                 verify=self.ssl_verify,
                 timeout=timeout,
                 auth=self.auth)
@@ -255,6 +263,11 @@ class SOLIDserverRest:
     def get_headers(self):
         """ returns the headers attached to this connection """
         return self.headers
+
+    # -------------------------------------
+    def get_proxies(self):
+        """ returns the proxies attached to this connection """
+        return self.proxies
 
     # -------------------------------------
     def get_status(self):
@@ -282,6 +295,7 @@ class SOLIDserverRest:
         self.user = None
         self.session = None
         self.ssl_verify = True
+        self.proxies = None
 
     # -------------------------------------
     def __str__(self):   # pragma: no cover
