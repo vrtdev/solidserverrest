@@ -1,5 +1,5 @@
 requests~=2.24
-requests[socks]~=1.7
+PySocks~=1.7
 urllib3~=1.25
 idna~=2.9
 chardet~=3.0

@@ -280,20 +280,6 @@ def test_ssl_verify_bad_param():
 
     assert None, "bool check to ssl_verify"
 
-def test_socks():
-    testR = SOLIDserverRest(SERVER)
-    testR.set_proxy('127.0.0.1:9001')
-    testR.set_certificate_file("ca.crt")
-    testR.use_basicauth_sds(user=USER, password=PWD)
-    testR.set_ssl_verify(True)
-
-    if testR.get_proxies() is None:
-        assert None, "no proxies found"
-    
-    rest_answer = testR.query("ip_site_list")
-    if rest_answer.status_code != 200:
-        assert None, "cannot find space list, connection not working"
-
 if __name__ == '__main__':
     # test_get_string()
     test_auto_dico_native_srv()
