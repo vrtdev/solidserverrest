@@ -22,10 +22,16 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         ],
+    install_requires=['requests~=2.24.0',
+                      'requests[socks]~=1.7',
+                      'urllib3~=1.25',
+                      'idna~=2.9',
+                      'chardet~=3.0',
+                      'pyopenssl~=19.0'],
     license='BSD 2',
     packages=['SOLIDserverRest', 'SOLIDserverRest.adv'],
     zip_safe=False,
-    python_requires=">=3.0",
+    python_requires=">=3.6",
     py_modules=['check_python_versions'],
     entry_points={
         'console_scripts': [
