@@ -1,5 +1,6 @@
-requests==2.23.0
-urllib3==1.25.8
-idna==2.9
-chardet==3.0.4
-pyopenssl==19.0.0
+requests~=2.24
+PySocks~=1.7
+urllib3~=1.25
+idna~=2.9
+chardet~=3.0
+pyopenssl~=19.0
