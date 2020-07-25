@@ -78,6 +78,9 @@ SERVICE_MAPPER = {
     'dns_rr_delete': 'dns_rr_delete',
 
     'dns_server_list': 'dns_server_list',
+    'dns_server_info': 'dns_server_info',
+    'dns_server_add': 'dns_add',
+    'dns_server_delete': 'dns_delete',
 
     'app_application_list': 'app_application_list',
     'app_application_create': 'app_application_add',
