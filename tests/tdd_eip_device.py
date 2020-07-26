@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:11:40 alex>
+# Time-stamp: <2020-07-26 16:11:40 alex>
 #
 
 """test file for the device manager
@@ -42,7 +42,7 @@ from .adv_basic import *
 def test_device_new_object():
     """create a device object"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     dev = sdsadv.Device(name=device_name)
 
@@ -54,7 +54,7 @@ def test_device_new_object():
 def test_device_refresh_not_connected():
     """refresh an object not connected"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     dev = sdsadv.Device(name=device_name)
     try:
@@ -79,7 +79,7 @@ def test_device_new_object_wo_name():
 def test_device_create():
     """create a device in SDS"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
@@ -93,7 +93,7 @@ def test_device_create():
 def test_device_with_classparams():
     """create a device in SDS with meta-data, refresh and delete"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
@@ -122,7 +122,7 @@ def test_device_with_classparams():
 def test_device_delete_not_connected():
     """delete a device while not connected to SDS"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     dev = sdsadv.Device(name=device_name)
     try:
@@ -136,7 +136,7 @@ def test_device_delete_not_connected():
 def test_device_update_not_connected():
     """update a device while not connected to SDS"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     dev = sdsadv.Device(name=device_name)
     try:
@@ -150,7 +150,7 @@ def test_device_update_not_connected():
 def test_device_refresh():
     """create a device in SDS and refresh"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
@@ -168,7 +168,7 @@ def test_device_refresh():
 def test_device_refresh_ukn():
     """refresh on ukn device"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
@@ -185,7 +185,7 @@ def test_device_refresh_ukn():
 def test_device_refresh_destroyed():
     """refresh on destroyed device"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
     dev = sdsadv.Device(name=device_name, sds=sds)
@@ -220,7 +220,7 @@ def test_device_create_not_connected():
 def test_device_create_twice():
     """create 2 same devices in SDS"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
@@ -245,7 +245,7 @@ def test_device_create_twice():
 def test_device_delete_ukn():
     """delete non existant device"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
@@ -268,7 +268,7 @@ def test_device_delete_ukn():
 def test_device_async():
     """async modification are not pushed"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
     sds = _connect_to_sds()
     dev01 = sdsadv.Device(name=device_name, sds=sds)
 
@@ -325,7 +325,7 @@ def test_device_async():
 def test_device_delete_empty():
     """create a device and delete it without in SDS"""
 
-    device_name = str(uuid.uuid4())
+    device_name = "tdd-"+str(uuid.uuid4())
 
     sds = _connect_to_sds()
 
