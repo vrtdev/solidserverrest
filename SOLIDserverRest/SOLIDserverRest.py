@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2019-09-22 15:38:59 alex>
+# Time-stamp: <2020-07-26 16:25:25 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -12,6 +12,8 @@
 
 """
 Efficient IP low level SOLIDServer API binding
+
+TODO: add tests for proxy
 """
 
 import sys
@@ -170,7 +172,7 @@ class SOLIDserverRest:
             raise SDSError("requested bool on set_ssl_verify")
 
     # -------------------------------------
-    def set_proxy(self, proxy):
+    def set_proxy(self, proxy):   # pragma: no cover
         """allows to enable or disable use of a SOCKS proxy"""
         proxy = 'socks5h://{}'.format(proxy)
         self.proxies = {'http': proxy, 'https': proxy}
@@ -265,7 +267,7 @@ class SOLIDserverRest:
         return self.headers
 
     # -------------------------------------
-    def get_proxies(self):
+    def get_proxies(self):   # pragma: no cover
         """ returns the proxies attached to this connection """
         return self.proxies
 

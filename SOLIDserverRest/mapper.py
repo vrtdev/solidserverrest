@@ -80,6 +80,7 @@ SERVICE_MAPPER = {
     'dns_server_list': 'dns_server_list',
     'dns_server_info': 'dns_server_info',
     'dns_server_add': 'dns_add',
+    'dns_server_update': 'dns_add',
     'dns_server_delete': 'dns_delete',
 
     'app_application_list': 'app_application_list',

@@ -8,15 +8,17 @@
 Exceptions for the SOLIDServer modules
 """
 
-import logging
+# import logging
 
 __all__ = [
+    "SDSError",
+
     "SDSAuthError",
     "SDSEmptyError",
     "SDSInitError",
     "SDSRequestError",
     "SDSServiceError",
-    
+
     "SDSSpaceError",
 
     "SDSDeviceError", "SDSDeviceNotFoundError",
@@ -181,4 +183,3 @@ class SDSDNSCredentialsError(SDSDNSError):   # pragma: no cover
     def __init__(self, message=""):
         message = "DNS server credentials: {}".format(message)
         super(SDSDNSCredentialsError, self).__init__(message)
-
