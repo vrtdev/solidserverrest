@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-07-26 16:53:37 alex>
+# Time-stamp: <2020-07-28 21:02:14 alex>
 #
 
 """
@@ -185,7 +185,7 @@ class DNS(ClassParams):
         self.prepare_class_params('dns', params)
 
         try:
-            rjson = self.sds.query("dns_server_add",
+            rjson = self.sds.query("dns_server_create",
                                    params=params)
         except SDSError:   # pragma: no cover
             raise SDSDNSError(message="create DNS server")
