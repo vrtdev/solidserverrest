@@ -118,7 +118,7 @@ SERVICE_MAPPER.update({
     'dns_zone_list': 'dns_zone_list',
     'dns_zone_info': 'dns_zone_info',
     'dns_zone_count': 'dns_zone_count',
-    
+
     'dns_zone_param_create': 'dns_zone_param_add',
     'dns_zone_param_update': 'dns_zone_param_add',
     'dns_zone_param_delete': 'dns_zone_param_delete',
