@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 15:27:47 alex>
+# Time-stamp: <2020-05-14 21:46:44 alex>
 #
 # only for python v3
 
@@ -35,6 +35,7 @@ class Base:
         self.name = name
         self.set_name(name)
         self.params = {}
+        self.additional_params = {}
 
     # -------------------------------------
     def clean_params(self):
@@ -85,6 +86,7 @@ class Base:
 
         params = {
             "WHERE": "{}_name='{}'".format(key, name),
+            "limit": 1,
         }
 
         # pylint: disable=E1101
@@ -152,6 +154,16 @@ class Base:
 
         if self.in_sync:
             self.update()
+
+    # -------------------------------------
+    def set_additional_params(self, **kwargs):
+        """set any kind of additionnal parameter, may need to filter entries"""
+        self.additional_params = kwargs
+
+    # -------------------------------------
+    def clean_additional_params(self):
+        """clean additionnal parameters on this object"""
+        self.additional_params = {}
 
     # -------------------------------------
     def update(self):

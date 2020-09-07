@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:10:11 alex>
+# Time-stamp: <2020-05-14 21:52:24 alex>
 #
 
 """
@@ -65,7 +65,7 @@ def apply_filter_in_subnet(filt, dev_raw):
     for host_if_ip in ip_raw:
         ipadd = ipaddress.ip_address(host_if_ip)
 
-        if ipadd in ipnet:
+        if ipadd in ipnet:  # pylint: disable=R1723
             result = True
             break
         else:

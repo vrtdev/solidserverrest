@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:08:20 alex>
+# Time-stamp: <2020-05-14 21:41:54 alex>
 #
 # pylint: disable=R0801
 
@@ -137,7 +137,8 @@ class Network(ClassParams):
             'site_id': self.space.params['site_id'],
             'prefix': prefix,
             'max_find': max_find,
-            'begin_addr': self.subnet_addr
+            'begin_addr': self.subnet_addr,
+            **self.additional_params
         }
 
         params['WHERE'] = 'block_id={}'.format(self.myid)
@@ -169,7 +170,8 @@ class Network(ClassParams):
         """
         params = {
             'max_find': max_find,
-            'subnet_id': self.myid
+            'subnet_id': self.myid,
+            **self.additional_params
         }
 
         try:
@@ -199,7 +201,8 @@ class Network(ClassParams):
         """return the list of subnet in the parent subnet"""
         params = {
             'limit': page,
-            'offset': offset
+            'offset': offset,
+            **self.additional_params,
         }
 
         if limit > 0:
@@ -275,6 +278,7 @@ class Network(ClassParams):
             'subnet_prefix': self.subnet_prefix,
             'subnet_name': self.name,
             'site_id': self.space.params['site_id'],
+            **self.additional_params
         }
 
         if self.is_block:
@@ -318,6 +322,7 @@ class Network(ClassParams):
             'subnet_id': self._get_id(query="ip_subnet_list",
                                       key="subnet"),
             'subnet_name': self.name,
+            **self.additional_params
         }
 
         self.prepare_class_params('network', params)
@@ -343,7 +348,8 @@ class Network(ClassParams):
             raise SDSNetworkNotFoundError("on delete")
 
         params = {
-            'subnet_id': self.params['subnet_id']
+            'subnet_id': self.params['subnet_id'],
+            **self.additional_params
         }
 
         self.sds.query("ip_subnet_delete",
@@ -368,6 +374,7 @@ class Network(ClassParams):
 
         params = {
             "subnet_id": subnet_id,
+            **self.additional_params
         }
 
         # logging.info(params)

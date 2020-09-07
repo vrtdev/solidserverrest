@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:08:36 alex>
+# Time-stamp: <2020-05-14 21:32:09 alex>
 #
 # pylint: disable=R0801
 
@@ -93,6 +93,7 @@ class IpAddress(ClassParams):
         params = {
             'hostaddr': self.ipv4,
             'site_id': self.space.params['site_id'],
+            **self.additional_params
         }
 
         if self.name is not None:
@@ -123,6 +124,8 @@ class IpAddress(ClassParams):
 
         params = {
             "WHERE": "hostaddr='{}'".format(ipaddr),
+            "limit": 1,
+            **self.additional_params
         }
 
         try:
@@ -154,6 +157,7 @@ class IpAddress(ClassParams):
 
         params = {
             "ip_id": ip_id,
+            **self.additional_params
         }
 
         rjson = self.sds.query("ip_address_info",
@@ -199,7 +203,8 @@ class IpAddress(ClassParams):
             raise SDSIpAddressNotFoundError("on delete")
 
         params = {
-            'ip_id': self.myid
+            'ip_id': self.myid,
+            **self.additional_params
         }
 
         self.sds.query("ip_address_delete",
@@ -215,7 +220,8 @@ class IpAddress(ClassParams):
             raise SDSIpAddressError(message="not connected")
 
         params = {
-            'ip_id': self.myid
+            'ip_id': self.myid,
+            **self.additional_params
         }
 
         if self.mac is not None:

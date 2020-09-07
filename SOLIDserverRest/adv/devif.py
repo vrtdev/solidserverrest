@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-07 21:48:44 alex>
+# Time-stamp: <2020-05-14 21:44:19 alex>
 #
 
 """
@@ -100,6 +100,7 @@ class DeviceInterface(ClassParams):
             'hostiface_name': self.name,
             'hostdev_id': self.device.myid,
             'hostiface_type': self.type,
+            **self.additional_params
         }
 
         if self.ipv4 is not None:
@@ -143,6 +144,7 @@ class DeviceInterface(ClassParams):
                                          key="hostiface"),
             'hostiface_name': self.name,
             'modify_time': int(time.time()),
+            **self.additional_params
         }
 
         if self.ipv4 is not None:
@@ -169,7 +171,8 @@ class DeviceInterface(ClassParams):
             raise SDSDeviceIfNotFoundError("on delete")
 
         params = {
-            'hostiface_id': self.myid
+            'hostiface_id': self.myid,
+            **self.additional_params
         }
 
         rjson = self.sds.query("host_iface_delete",
@@ -189,6 +192,7 @@ class DeviceInterface(ClassParams):
 
         if self.myid == -1:
             params = {
+                **self.additional_params
             }
 
             params['WHERE'] = "hostiface_name='{}'".format(self.name)
@@ -212,6 +216,7 @@ class DeviceInterface(ClassParams):
 
         params = {
             "hostiface_id": if_id,
+            **self.additional_params
         }
 
         try:

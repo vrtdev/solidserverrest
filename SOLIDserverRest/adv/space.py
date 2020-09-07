@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:07:53 alex>
+# Time-stamp: <2020-05-14 21:43:05 alex>
 #
 
 """
@@ -73,7 +73,8 @@ class Space(ClassParams):
             raise SDSSpaceError(message="already existant space")
 
         params = {
-            'site_name': self.name
+            'site_name': self.name,
+            **self.additional_params
         }
 
         self.prepare_class_params('site', params)
@@ -105,6 +106,7 @@ class Space(ClassParams):
             rjson = self.sds.query("ip_site_delete",
                                    params={
                                        'site_id': space_id,
+                                       **self.additional_params
                                    })
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSSpaceError(message="space delete error, "
@@ -121,6 +123,7 @@ class Space(ClassParams):
                                    params={
                                        "WHERE": "site_name='{}'".
                                                 format(name),
+                                       **self.additional_params
                                    })
         except SDSEmptyError:
             return None
@@ -147,6 +150,7 @@ class Space(ClassParams):
         rjson = self.sds.query("ip_site_info",
                                params={
                                    "site_id": space_id,
+                                   **self.additional_params
                                })
 
         if not rjson:   # pragma: no cover
