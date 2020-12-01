@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-05 18:43:03 alex>
+# Time-stamp: <2020-12-01 21:06:02 alex>
 #
 
 """test for device manager interfaces
@@ -221,14 +221,11 @@ def test_devif_create_ipmac():
     space = sdsadv.Space(sds=sds, name=space_name)
     space.create()
 
-    # space = sdsadv.Space(sds=sds, name='Local')
-    # space.refresh()
-
     if_name = 'tdd-'+str(uuid.uuid4())
     device_name = 'tdd-'+str(uuid.uuid4())
     mac = _create_rnd_mac()
     ip_v4 = create_rnd_ipv4()
-    ip_v4 = '192.168.16.171'
+    # ip_v4 = '192.168.16.171'
     ip_v6 = create_rnd_ipv6()
 
     dev = sdsadv.Device(sds=sds, name=device_name)
@@ -249,7 +246,7 @@ def test_devif_create_ipmac():
 
     obj_string = str(devif)
     # logging.info(obj_string)
-
+    
     add.delete()
     devif.delete()
     dev.delete()

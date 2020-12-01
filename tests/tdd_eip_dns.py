@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-07-26 16:09:12 alex>
+# Time-stamp: <2020-12-01 21:14:33 alex>
 #
 
 """test file for DNS
@@ -22,6 +22,11 @@
 * test_dns_refresh_not_connected
 * test_dns_create_forward
 * test_dns_create_recursion
+
+start DNS in docker for test:
+ sudo iptables -P FORWARD ACCEPT
+ sudo sysctl net.ipv4.conf.all.forwarding=1
+ docker run --rm -d eip-package-dns
 
 """
 

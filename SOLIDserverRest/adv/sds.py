@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:08:02 alex>
+# Time-stamp: <2020-12-01 20:51:42 alex>
 #
 # only for python v3
 
@@ -107,7 +107,8 @@ class SDS(ClassParams):
         self.version = self.get_version()
 
         if self.version is None:   # pragma: no cover
-            raise SDSInitError(message="version of SOLIDserver not found")
+            self.version = "ukn"
+            # need to check if a simple call to a space api is working
 
     # ---------------------------
     def disconnect(self):
