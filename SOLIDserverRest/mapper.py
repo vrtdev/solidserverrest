@@ -267,6 +267,30 @@ SERVICE_MAPPER.update({
     'host_link_info':    'link_hostiface_list',
 })
 
+SERVICE_MAPPER.update({
+    # Vlan Manager
+    'vlm_domain_create':  'vlm_domain_add',
+    'vlm_domain_update':  'vlm_domain_add',
+    'vlm_domain_delete':  'vlm_domain_delete',
+    'vlm_domain_count':   'vlmdomain_count',
+    'vlm_domain_list':    'vlmdomain_list',
+    'vlm_domain_info':    'vlmdomain_info',
+
+    'vlm_range_create':  'vlm_range_add',
+    'vlm_range_update':  'vlm_range_add',
+    'vlm_range_delete':  'vlm_range_delete',
+    'vlm_range_count':   'vlmrange_count',
+    'vlm_range_list':    'vlmrange_list',
+    'vlm_range_info':    'vlmrange_info',
+
+    'vlm_vlan_create':  'vlm_vlan_add',
+    'vlm_vlan_update':  'vlm_vlan_add',
+    'vlm_vlan_delete':  'vlm_vlan_delete',
+    'vlm_vlan_count':   'vlmvlan_count',
+    'vlm_vlan_list':    'vlmvlan_list',
+    'vlm_vlan_info':    'vlmvlan_info',
+})
+
 METHOD_MAPPER = {
     'add': 'POST',
     'update': 'PUT',

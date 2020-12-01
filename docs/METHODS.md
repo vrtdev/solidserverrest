@@ -106,3 +106,28 @@ Each available method rely on the following naming convention for intuitive usag
 * **app_healthcheck_count': 'app_healthcheck_count'** => add a health check to a node
 * **app_healthcheck_info': 'app_healthcheck_info'** => get information about a node health check
 * **app_healthcheck_list': 'app_healthcheck_list'** => list the health checks attached to a node
+
+## VLan Manager
+### Domain
+* **vlm_domain_add** => add a vlan domain
+* **vlm_domain_update** => update a vlan domain
+* **vlm_domain_list** => list all the vlan domains
+* **vlm_domain_count** => count the vlan domains
+* **vlm_domain_info** => get information about a vlan domain
+* **vlm_domain_delete** => delete a vlan domain
+
+### Range
+* **vlm_range_add** => add a vlan range
+* **vlm_range_update** => update a vlan range
+* **vlm_range_list** => list all the vlan ranges
+* **vlm_range_count** => count the vlan ranges
+* **vlm_range_info** => get information about a vlan range
+* **vlm_range_delete** => delete a vlan range
+
+### VLan
+* **vlm_vlan_add** => add vlan
+* **vlm_vlan_update** => update a vlan
+* **vlm_vlan_list** => list all the vlan
+* **vlm_vlan_count** => count the vlan
+* **vlm_vlan_info** => get information about a vlan
+* **vlm_vlan_delete** => delete a vlan
