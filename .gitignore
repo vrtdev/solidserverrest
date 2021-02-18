@@ -26,7 +26,4 @@ htmlcov/**
 pytdd.conf
 .sds_cli.txt
 
-**/build/**
-build/**
-build/
 build

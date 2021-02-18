@@ -182,6 +182,9 @@ SERVICE_MAPPER.update({
 
 SERVICE_MAPPER.update({
     # dhcp
+    'dhcp_server_create': 'dhcp_add',
+    'dhcp_server_update': 'dhcp_add',
+    'dhcp_server_delete': 'dhcp_delete',
     'dhcp_server_info': 'dhcp_server_info',
     'dhcp_server_count': 'dhcp_server_count',
     'dhcp_server_list': 'dhcp_server_list',
@@ -212,10 +215,25 @@ SERVICE_MAPPER.update({
     'dhcp_static_info': 'dhcp_static_info',
     'dhcp_static_count': 'dhcp_static_count',
     'dhcp_static_delete': 'dhcp_static_delete',
+
+    'dhcp_group_create': 'dhcp_group_add',
+    'dhcp_group_update': 'dhcp_group_add',
+    'dhcp_group_list': 'dhcp_group_list',
+    'dhcp_group_info': 'dhcp_group_info',
+    'dhcp_group_count': 'dhcp_group_count',
+    'dhcp_group_delete': 'dhcp_group_delete',
+
+    'dhcp_shared_net_create': 'dhcp_sn_add',
+    'dhcp_shared_net_list':   'dhcp_shared_network_list',
+    'dhcp_shared_net_info':   'dhcp_shared_network_info',
+    'dhcp_shared_net_count':  'dhcp_shared_network_count'
 })
 
 SERVICE_MAPPER.update({
     # dhcp6
+    'dhcp_server6_create': 'dhcp6_add',
+    'dhcp_server6_update': 'dhcp6_add',
+    'dhcp_server6_delete': 'dhcp6_delete',
     'dhcp_server6_info': 'dhcp6_server6_info',
     'dhcp_server6_count': 'dhcp6_server6_count',
     'dhcp_server6_list': 'dhcp6_server6_list',
