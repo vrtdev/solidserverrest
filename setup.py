@@ -10,13 +10,13 @@ with open(os.path.join(here, 'README.md')) as f:
 
 setup(
     name='SOLIDserverRest',
-    version='2.1.5',
-    author='Gregory CUGAT',
+    version='2.1.6',
+    author='Gregory CUGAT / Alex Chauvin',
     url='https://gitlab.com/efficientip/solidserverrest',
     description='The SOLIDserverRest is a library to drive EfficientIP API',
     long_description_content_type="text/markdown",
     long_description=long_description,
-    author_email='gregory.cugat@efficientip.com',
+    author_email='gregory.cugat@efficientip.com, ach@efficientip.com',
     classifiers=[
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3.6',
