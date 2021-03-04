@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-03-04 17:49:20 alex>
+# Time-stamp: <2021-03-04 18:26:15 alex>
 #
 
 """
@@ -72,7 +72,7 @@ class Space(ClassParams):
         try:
             space_id = self._get_id_by_name('ip_site_list', 'site', self.name)
         except SDSError:
-            None # pylint: disable=W0104
+            None  # pylint: disable=W0104
 
         # space_id = self._get_siteid_by_name(self.name)
         if space_id is not None:
