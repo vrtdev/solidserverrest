@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-03-29 16:02:44 alex>
+# Time-stamp: <2021-03-04 16:45:47 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -55,7 +55,7 @@ def test_create_sds_bad_ip():
     assert None, "should have raised an error on bad IP address"
 
 def test_create_sds_bad_not_responsive_ip():
-    """create a connection to a SOLIDserver with a bad ip address format"""
+    """create a connection to a SOLIDserver with non responsive IP"""
     sds = sdsadv.SDS()
     sds.set_server_ip('192.168.56.1')
     sds.set_credentials(user=USER, pwd=PWD)
@@ -203,3 +203,29 @@ def test_disconnect():
         assert None, "query on disconnected SDS" 
     except SDSEmptyError:
         None
+
+
+def test_connect_using_fqdn():
+    """create a connection to a SOLIDserver named with FQDN and with basic auth"""
+    sds = sdsadv.SDS()
+    sds.set_server_name(SERVER_NAME)
+    sds.set_credentials(user=USER, pwd=PWD)
+    sds.connect()
+    sds.connect() # for cache on the version
+    class_string = str(sds)
+    logging.debug(class_string)
+    sds = None
+        
+
+def test_connect_using_bad_fqdn():
+    """create a connection to a SOLIDserver named with a bad FQDN"""
+    sds = sdsadv.SDS()
+    try:
+        sds.set_server_name("foo.home")
+        sds.set_credentials(user=USER, pwd=PWD)
+        sds.connect()
+        assert None, "SDS resolution should fail"
+    except SDSInitError:
+        None
+
+    sds = None
