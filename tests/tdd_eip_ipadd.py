@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:02:52 alex>
+# Time-stamp: <2020-05-14 21:47:05 alex>
 #
 
 """test ip address
@@ -436,4 +436,26 @@ def test_ipadd_free_empty():
     add1.delete()
     add2.delete()
     network.delete()
+    space.delete()
+
+
+def test_ipadd_refresh_with_additionnal_params():
+    """ """
+
+    # connect to the SDS
+    sds = _connect_to_sds()
+
+    # creates a space
+    space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
+    space.create()
+
+    add01 = sdsadv.IpAddress(sds=sds,
+                             space=space,
+                             ipv4='192.168.16.10')
+
+    add01.set_additional_params(limit=10)
+    add01.create()
+    add01.clean_additional_params()
+
+    add01.delete()
     space.delete()

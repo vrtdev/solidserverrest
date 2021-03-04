@@ -25,3 +25,5 @@ report.txt
 htmlcov/**
 pytdd.conf
 .sds_cli.txt
+
+build

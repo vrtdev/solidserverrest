@@ -10,3 +10,10 @@ PARAMETERS = {
 	'description':'test site'
 }
 
+DNS_SRV01_NAME = 'tdd-01.test'
+DNS_SRV02_NAME = 'tdd-02.test'
+DNS_SRV03_NAME = 'tdd-03.test'
+
+DNS_SRV01_IP = '172.17.0.2'
+DNS_SRV02_IP = '172.17.0.3'
+DNS_SRV03_IP = '172.17.0.4'

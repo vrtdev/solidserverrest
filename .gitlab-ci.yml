@@ -4,9 +4,6 @@ stages:
    - test38
    - coverage
 
-#variables:
-#   CODECOV_TOKEN: "c963ecec-e627-4bc4-8ac0-fa6569cb312f"
-
 cache:
    paths:
       - .coverage-py36
@@ -15,7 +12,8 @@ cache:
 
 before_script:
    - ls -la
-   - apk add --no-cache --virtual .build-deps python-dev gcc linux-headers libc-dev libffi-dev openssl-dev git
+   - apk add --no-cache --virtual .build-deps gcc linux-headers libc-dev libffi-dev openssl-dev git rust cargo
+   - python -m pip install -U pip
    - pip install -r requirements.txt
 
 test-36:
