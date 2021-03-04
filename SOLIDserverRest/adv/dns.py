@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-07-28 21:02:14 alex>
+# Time-stamp: <2021-03-04 17:05:07 alex>
 #
 
 """
@@ -109,7 +109,7 @@ class DNS(ClassParams):
             return None
 
         if rjson[0]['errno'] != '0':   # pragma: no cover
-            raise SDSDNSError("errno raised")
+            raise SDSDNSError("dns_id errno raised")
 
         return rjson[0]['dns_id']
 

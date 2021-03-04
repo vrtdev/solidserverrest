@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-12-01 20:51:42 alex>
+# Time-stamp: <2021-03-04 16:47:20 alex>
 #
 # only for python v3
 
@@ -10,6 +10,7 @@ SOLIDserver management server access
 
 import logging
 import ipaddress
+import socket
 
 from json.decoder import JSONDecodeError
 
@@ -60,6 +61,18 @@ class SDS(ClassParams):
                                format(error))
 
         self.sds_ip = ip_address
+
+    # ---------------------------
+    def set_server_name(self, fqdn):
+        """set the SOLIDserver FQDN for the connection"""
+        # check that the IP exists
+        try:
+            _ = socket.gethostbyname(fqdn)
+        except socket.gaierror as error:
+            raise SDSInitError(message="FQDN of the SDS: {}".
+                               format(error))
+
+        self.sds_ip = fqdn
 
     # ---------------------------
     def set_credentials(self, user=None, pwd=None):

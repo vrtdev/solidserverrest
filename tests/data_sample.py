@@ -3,6 +3,7 @@
 ##########################################################
 
 SERVER = '192.168.16.117'
+SERVER_NAME = 'sds117.home'
 USER = 'api'
 PWD = 'apipwd'
 PARAMETERS = {
