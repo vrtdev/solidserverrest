@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:43:05 alex>
+# Time-stamp: <2021-03-04 17:49:20 alex>
 #
 
 """
@@ -68,7 +68,13 @@ class Space(ClassParams):
         if self.sds is None:
             raise SDSSpaceError(message="not connected")
 
-        space_id = self._get_siteid_by_name(self.name)
+        space_id = None
+        try:
+            space_id = self._get_id_by_name('ip_site_list', 'site', self.name)
+        except SDSError:
+            None # pylint: disable=W0104
+
+        # space_id = self._get_siteid_by_name(self.name)
         if space_id is not None:
             raise SDSSpaceError(message="already existant space")
 
@@ -100,7 +106,8 @@ class Space(ClassParams):
         if self.sds is None:
             raise SDSSpaceError(message="not connected")
 
-        space_id = self._get_siteid_by_name(self.name)
+        # space_id = self._get_siteid_by_name(self.name)
+        space_id = self._get_id_by_name('ip_site_list', 'site', self.name)
 
         try:
             rjson = self.sds.query("ip_site_delete",
@@ -115,32 +122,13 @@ class Space(ClassParams):
             raise SDSSpaceError(message="space delete error")
 
     # -------------------------------------
-    def _get_siteid_by_name(self, name):
-        """get the space ID from its name, return None if non existant"""
-
-        try:
-            rjson = self.sds.query("ip_site_list",
-                                   params={
-                                       "WHERE": "site_name='{}'".
-                                                format(name),
-                                       **self.additional_params
-                                   })
-        except SDSEmptyError:
-            return None
-
-        if rjson[0]['errno'] != '0':   # pragma: no cover
-            raise SDSError("errno raised")
-
-        return rjson[0]['site_id']
-
-    # -------------------------------------
     def refresh(self):
         """refresh content of the object from the SDS"""
         if self.sds is None:
             raise SDSInitError(message="not connected")
 
         if self.params['site_id'] is None:
-            space_id = self._get_siteid_by_name(self.name)
+            space_id = self._get_id_by_name('ip_site_list', 'site', self.name)
         else:
             space_id = self.params['site_id']
 
