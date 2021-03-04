@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2019-11-01 11:28:22 alex>
+# Time-stamp: <2021-03-04 17:15:02 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -65,7 +65,7 @@ def test_space_refresh_not_found():
     space = sdsadv.Space(sds=sds, name="not_known")
     try:
         space.refresh()
-    except SDSEmptyError:
+    except SDSError:
         return
 
     assert None, "should not be able to refresh unknown space"
