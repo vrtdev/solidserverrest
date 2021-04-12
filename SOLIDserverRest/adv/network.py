@@ -12,7 +12,7 @@ SOLIDserver network manager
 
 import math
 
-# import logging
+# loggingimport logging
 # import pprint
 
 from SOLIDserverRest.Exception import SDSError, SDSEmptyError
@@ -36,10 +36,13 @@ class Network(ClassParams):
         - name: name of the subnet
         """
 
-        super(Network, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         # params mapping the object in SDS
         self.clean_params()
+
+        # reset the name since suppressed by the clean proc
+        self.name = name
 
         self.set_sds(sds)
         # self.set_name(name)
@@ -59,7 +62,7 @@ class Network(ClassParams):
     def clean_params(self):
         """ clean the object params """
 
-        super(Network, self).clean_params()
+        super().clean_params()
 
         self.subnet_addr = None
         self.subnet_prefix = None
@@ -123,10 +126,10 @@ class Network(ClassParams):
             self.set_class_params({'__eip_description': self.description})
             return
 
-        super(Network, self).set_param(param,
-                                       value,
-                                       exclude=['subnet_id'],
-                                       name='subnet_name')
+        super().set_param(param,
+                          value,
+                          exclude=['subnet_id'],
+                          name='subnet_name')
 
     # -------------------------------------
     def find_free(self, prefix, max_find=4):
@@ -202,7 +205,8 @@ class Network(ClassParams):
         params = {
             'limit': page,
             'offset': offset,
-            **self.additional_params,
+            'ORDERBY': 'start_ip_addr',
+            ** self.additional_params,
         }
 
         if limit > 0:
@@ -370,7 +374,7 @@ class Network(ClassParams):
         except SDSError as err_descr:
             msg = "cannot get network id"
             msg += " / "+str(err_descr)
-            raise SDSNetworkError(msg)
+            raise SDSNetworkError(msg) from err_descr
 
         params = {
             "subnet_id": subnet_id,
@@ -384,7 +388,7 @@ class Network(ClassParams):
         except SDSError as err_descr:
             msg = "cannot get network info on id={}".format(subnet_id)
             msg += " / "+str(err_descr)
-            raise SDSNetworkError(msg)
+            raise SDSNetworkError(msg) from err_descr
 
         rjson = rjson[0]
         # logging.info(rjson)
@@ -453,6 +457,6 @@ class Network(ClassParams):
         return_val += self.str_params(exclude=['subnet_id',
                                                'subnet_name'])
 
-        return_val += str(super(Network, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

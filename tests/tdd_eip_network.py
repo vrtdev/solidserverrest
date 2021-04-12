@@ -38,6 +38,8 @@ from .context import _connect_to_sds
 from .adv_basic import _create_net
 
 # -------------------------------------------------------
+
+
 def test_net_new_network():
     """create a network object"""
 
@@ -48,7 +50,7 @@ def test_net_new_network():
 
     obj_string = str(network)
     logging.debug(obj_string)
-    
+
     network = None
 
 
@@ -353,7 +355,7 @@ def test_net_create_block_with_classparams():
         'key1': 'ok',
         'key2': 12,
         'date': datetime.datetime.now()
-    } 
+    }
 
     network = sdsadv.Network(sds=sds,
                              space=space,
@@ -377,7 +379,12 @@ def test_net_create_block_with_classparams():
         logging.error(check_net01)
         logging.error(check_net02)
         assert None, "2 networks are different"
-    
+
+    # check network name
+    if network02.name != net_name:
+        logging.error(check_net02)
+        assert None, "network name altered"
+
     network.delete()
     space.delete()
 
@@ -395,16 +402,16 @@ def test_net_block_net_subnets():
 
     # create a network object
     net01 = sdsadv.Network(sds=sds,
-                             space=space,
-                             name=str(uuid.uuid4()))
+                           space=space,
+                           name=str(uuid.uuid4()))
 
     net01.set_address_prefix('172.16.0.0', 16)
     net01.set_is_block(True)
     net01.create()
 
     net02 = sdsadv.Network(sds=sds,
-                               space=space,
-                               name=str(uuid.uuid4()))
+                           space=space,
+                           name=str(uuid.uuid4()))
 
     net02.set_address_prefix('172.16.0.0', 24)
     net02.set_parent(net01)
@@ -412,14 +419,14 @@ def test_net_block_net_subnets():
     net02.create()
 
     net03 = sdsadv.Network(sds=sds,
-                               space=space,
-                               name=str(uuid.uuid4()))
+                           space=space,
+                           name=str(uuid.uuid4()))
 
     net03.set_address_prefix('172.16.0.0', 25)
     net03.set_parent(net02)
     net03.set_is_terminal(True)
     net03.create()
-    
+
     net03.delete()
     net02.delete()
     net01.delete()
@@ -440,16 +447,15 @@ def test_net_block_net_subnets_wo_parent():
 
     # create a network object
     net01 = sdsadv.Network(sds=sds,
-                             space=space,
-                             name=str(uuid.uuid4()))
+                           space=space,
+                           name=str(uuid.uuid4()))
 
     net01.set_address_prefix('172.16.0.0', 16)
     net01.set_is_block(True)
 
-
     net02 = sdsadv.Network(sds=sds,
-                               space=space,
-                               name=str(uuid.uuid4()))
+                           space=space,
+                           name=str(uuid.uuid4()))
 
     net02.set_address_prefix('172.16.0.0', 24)
 
@@ -476,13 +482,13 @@ def test_net_find_free():
     # space.refresh()
 
     # create a network object
-    net01 = _create_net(sds, space, 
+    net01 = _create_net(sds, space,
                         # name=str(uuid.uuid4()),
                         name="test",
-                        net='172.16.0.0', prefix=16, 
+                        net='172.16.0.0', prefix=16,
                         is_block=True)
 
-    possible_net=net01.find_free(24)
+    possible_net = net01.find_free(24)
 
     # check array is not empty
     if len(possible_net) == 0:
@@ -496,7 +502,7 @@ def test_net_find_free():
             assert None, "proposed subnet not valid for pnet"
 
     # error coverage
-    possible_net=net01.find_free(15)
+    possible_net = net01.find_free(15)
     if possible_net:
         assert None, "free list should be empty"
 
@@ -513,70 +519,80 @@ def test_net_list():
     # creates a space
     space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
     space.create()
-    #space = sdsadv.Space(sds=sds, name='test')
-    #space.refresh()
+    # space = sdsadv.Space(sds=sds, name='test')
+    # space.refresh()
 
     # create a network object
-    net01 = _create_net(sds, space, 
+    net01 = _create_net(sds, space,
                         # name=str(uuid.uuid4()),
                         name="test",
-                        net='172.16.0.0', prefix=16, 
+                        net='172.16.0.0', prefix=16,
                         is_block=True)
-
 
     supernet = ipaddress.ip_network('{}/{}'.format('172.16.0.0', 16))
 
     # i = 1
     for n in supernet.subnets(prefixlen_diff=4):
-        net = _create_net(sds, space, 
+        net = _create_net(sds, space,
                           name=str(uuid.uuid4()),
                           # name = "net-{}".format(i),
                           net=n.network_address,
-                          prefix=n.prefixlen, 
+                          prefix=n.prefixlen,
                           is_block=False,
                           is_terminal=False,
                           parent=net01)
-        #i += 1
+        # i += 1
 
     anet = net01.get_subnet_list()
+    anet = sorted(anet, key=lambda k: ipaddress.ip_address(k['start_hostaddr']).packed)
     if len(anet) != 16:
         assert None, "bad net list size 16 != {}".format(len(anet))
     if anet[1]['start_hostaddr'] != '172.16.16.0':
-        assert None, "bad net list content"
+        logging.info(anet[1])
+        assert(None, "bad net list content,"
+                     "expecting 1=172.16.16.0, got {}".format(anet[1]['start_hostaddr']))
 
     # pagination
     anet = net01.get_subnet_list(limit=4)
+    anet = sorted(anet, key=lambda k: ipaddress.ip_address(k['start_hostaddr']).packed)
     if len(anet) != 4:
         logging.info(anet)
         assert None, "bad net list size 4 != {}".format(len(anet))
     if anet[1]['start_hostaddr'] != '172.16.16.0':
-        assert None, "bad net list content"
+        logging.info(anet[1])
+        assert(None, "bad net list content, first page, "
+                     "expecting 172.16.16.0 and got {}".format(anet[1]['start_hostaddr']))
 
     anet = net01.get_subnet_list(limit=4, offset=4)
+    anet = sorted(anet, key=lambda k: ipaddress.ip_address(k['start_hostaddr']).packed)
     if len(anet) != 4:
         assert None, "bad net list size 4 != {}".format(len(anet))
     if anet[0]['start_hostaddr'] != '172.16.64.0':
-        logging.info(anet)
-        assert None, "bad net list content"
-
+        logging.info(anet[0])
+        assert(None, "bad net list content, second page, "
+                     "expecting 172.16.64.0 and got {}".format(anet[0]['start_hostaddr']))
 
     anet = net01.get_subnet_list(limit=8, page=4)
+    anet = sorted(anet, key=lambda k: ipaddress.ip_address(k['start_hostaddr']).packed)
     if len(anet) != 8:
         logging.info(anet)
         assert None, "bad net list size 8 != {}".format(len(anet))
 
     anet = net01.get_subnet_list(limit=8, page=3, offset=1)
+    anet = sorted(anet, key=lambda k: ipaddress.ip_address(k['start_hostaddr']).packed)
     if len(anet) != 8:
         assert None, "bad net list size 8 != {}".format(len(anet))
     if anet[0]['start_hostaddr'] != '172.16.16.0':
+        logging.info(anet)
         assert None, "bad net list content"
 
     anet = net01.get_subnet_list(limit=8, page=4, offset=9)
+    anet = sorted(anet, key=lambda k: ipaddress.ip_address(k['start_hostaddr']).packed)
     if len(anet) != 7:
         assert None, "bad net list size 7 != {}".format(len(anet))
     if anet[0]['start_hostaddr'] != '172.16.144.0':
+        logging.info(anet)
         assert None, "bad net list content"
-
 
     # coverage
     anet = net01.get_subnet_list(terminal=1)
@@ -586,6 +602,8 @@ def test_net_list():
     space.delete()
 
 # -------------------------------------------------------
+
+
 def _test_none():
     """test only"""
 
@@ -601,8 +619,8 @@ def _test_none():
     # create block
     net_name = "test_block"
     block = sdsadv.Network(sds=sds,
-                             space=space,
-                             name=net_name)
+                           space=space,
+                           name=net_name)
 
     block.set_address_prefix('172.16.0.0', 16)
     block.set_is_block(True)

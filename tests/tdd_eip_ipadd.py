@@ -361,14 +361,14 @@ def test_ipadd_free():
     space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
     space.create()
 
-    network = _create_net(sds, space, 
+    network = _create_net(sds, space,
                           name=str(uuid.uuid4()),
-                          net='192.168.0.0', prefix=16, 
+                          net='192.168.0.0', prefix=16,
                           is_block=True)
 
-    net01 = _create_net(sds, space, 
+    net01 = _create_net(sds, space,
                         name=str(uuid.uuid4()),
-                        net='192.168.0.0', prefix=24, 
+                        net='192.168.0.0', prefix=24,
                         is_block=False,
                         is_terminal=True,
                         parent=network)
@@ -391,8 +391,8 @@ def test_ipadd_free():
     add.delete()
     network.delete()
     space.delete()
-    
-    
+
+
 def test_ipadd_free_empty():
     """check if an ip address is free in a full net"""
 
@@ -402,14 +402,14 @@ def test_ipadd_free_empty():
     space = sdsadv.Space(sds=sds, name=str(uuid.uuid4()))
     space.create()
 
-    network = _create_net(sds, space, 
+    network = _create_net(sds, space,
                           name=str(uuid.uuid4()),
-                          net='192.168.0.0', prefix=29, 
+                          net='192.168.0.0', prefix=29,
                           is_block=True)
 
-    net01 = _create_net(sds, space, 
+    net01 = _create_net(sds, space,
                         name=str(uuid.uuid4()),
-                        net='192.168.0.0', prefix=30, 
+                        net='192.168.0.0', prefix=30,
                         is_block=False,
                         is_terminal=True,
                         parent=network)
@@ -431,7 +431,6 @@ def test_ipadd_free_empty():
     afreeip = net01.find_free_ip()
     if afreeip:
         assert None, "free pool should be empty"
-
 
     add1.delete()
     add2.delete()
