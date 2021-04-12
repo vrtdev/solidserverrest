@@ -2,13 +2,13 @@
 # -*-coding:Utf-8 -*
 ##########################################################
 
-SERVER = '192.168.16.117'
-SERVER_NAME = 'sds117.home'
-USER = 'api'
-PWD = 'apipwd'
+SERVER = '192.168.24.253'
+SERVER_NAME = 'lab02.efficientip.demo'
+USER = 'alex'
+PWD = 'admin'
 PARAMETERS = {
-	'site_name': 'site_pyton_lib_test',
-	'description':'test site'
+    'site_name': 'site_pyton_lib_test',
+    'description': 'test site'
 }
 
 DNS_SRV01_NAME = 'tdd-01.test'
