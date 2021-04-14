@@ -12,13 +12,15 @@ SOLIDserver network manager
 
 import math
 
-# loggingimport logging
-# import pprint
-
-from SOLIDserverRest.Exception import SDSError, SDSEmptyError
-from SOLIDserverRest.Exception import SDSNetworkError, SDSNetworkNotFoundError
+from packaging.version import Version, parse
+from SOLIDserverRest.Exception import (SDSEmptyError, SDSError,
+                                       SDSNetworkError,
+                                       SDSNetworkNotFoundError)
 
 from .class_params import ClassParams
+
+# loggingimport logging
+# import pprint
 
 
 # pylint: disable=R0902
@@ -393,24 +395,26 @@ class Network(ClassParams):
         rjson = rjson[0]
         # logging.info(rjson)
 
-        for label in ['subnet_id',
-                      'subnet_name',
-                      'start_hostaddr',
-                      'end_hostaddr',
-                      'subnet_size',
-                      'subnet_level',
-                      'parent_subnet_id',
-                      'is_terminal',
-                      'subnet_allocated_size',
-                      'subnet_allocated_percent',
-                      'subnet_used_size',
-                      'subnet_used_percent',
-                      'subnet_ip_used_size',
-                      'subnet_ip_used_percent',
-                      'subnet_ip_free_size',
-                      'is_in_orphan',
-                      'lock_network_broadcast',
-                      'tree_level']:
+        labels = ['subnet_id',
+                  'subnet_name',
+                  'subnet_size',
+                  'subnet_level',
+                  'parent_subnet_id',
+                  'is_terminal',
+                  'subnet_allocated_size',
+                  'subnet_allocated_percent',
+                  'subnet_used_size',
+                  'subnet_used_percent',
+                  'subnet_ip_used_size',
+                  'subnet_ip_used_percent',
+                  'subnet_ip_free_size',
+                  'is_in_orphan',
+                  'lock_network_broadcast',
+                  'tree_level']
+        if parse(self.sds.get_version()) >= Version("7.0.0"):
+            labels.extend(['start_hostaddr', 'end_hostaddr'])
+
+        for label in labels:
             if label not in rjson:  # pragma: no cover
                 msg = "parameter {} not found in network".format(label)
                 raise SDSNetworkError(msg)
