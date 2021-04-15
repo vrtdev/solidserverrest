@@ -87,12 +87,29 @@ class Base:
         params = {
             "WHERE": "{}_name='{}'".format(key, name),
             "limit": 1,
+            **self.additional_params
         }
 
         # pylint: disable=E1101
         if hasattr(self, 'space'):
             if self.space:
                 params['WHERE'] += " and site_id={}".format(self.space.myid)
+
+        # specific for networks
+        if hasattr(self, 'subnet_addr'):
+            if self.subnet_addr:
+                params['WHERE'] += " and start_hostaddr="
+                params['WHERE'] += "'{}'".format(self.subnet_addr)
+
+        if hasattr(self, 'parent_network'):
+            if self.parent_network:
+                params['WHERE'] += " and parent_subnet_id="
+                params['WHERE'] += "'{}'".format(self.parent_network.myid)
+            elif 'parent_subnet_id' in self.params:
+                if self.params['parent_subnet_id']:
+                    _psid = self.params['parent_subnet_id']
+                    params['WHERE'] += " and parent_subnet_id="
+                    params['WHERE'] += "'{}'".format(_psid)
 
         # logging.info(query)
         # logging.info(params)
@@ -103,7 +120,7 @@ class Base:
         except SDSError as err_descr:
             msg = "cannot found object by name {}={}".format(key, name)
             msg += " / "+str(err_descr)
-            raise SDSError(msg)
+            raise SDSError(msg) from err_descr
 
         if rjson[0]['errno'] != '0':  # pragma: no cover
             raise SDSError("errno raised on get id by name")
@@ -158,7 +175,10 @@ class Base:
     # -------------------------------------
     def set_additional_params(self, **kwargs):
         """set any kind of additionnal parameter, may need to filter entries"""
-        self.additional_params = kwargs
+        if self.additional_params == {}:
+            self.additional_params = kwargs
+        else:
+            self.additional_params.update(kwargs)
 
     # -------------------------------------
     def clean_additional_params(self):

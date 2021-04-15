@@ -10,9 +10,11 @@ SOLIDserver network manager
 
 """
 
+# pylint: disable=too-many-branches
+
 import math
 
-# loggingimport logging
+# import logging
 # import pprint
 
 from SOLIDserverRest.Exception import SDSError, SDSEmptyError
@@ -74,6 +76,7 @@ class Network(ClassParams):
 
         self.params = {
             'subnet_id': None,
+            'parent_subnet_id': None
         }
 
     # -------------------------------------
@@ -213,7 +216,12 @@ class Network(ClassParams):
             if page > limit:
                 params['limit'] = limit
 
-        params['WHERE'] = "site_id='{}'".format(self.space.params['site_id'])
+        if 'WHERE' not in params:
+            params['WHERE'] = ""
+        else:
+            params['WHERE'] += " and "
+
+        params['WHERE'] += "site_id='{}'".format(self.space.params['site_id'])
 
         if depth == 1:
             params['WHERE'] += "and parent_subnet_id='{}'".format(self.myid)
@@ -301,8 +309,6 @@ class Network(ClassParams):
 
         self.prepare_class_params('network', params)
 
-        # logging.info(params)
-
         rjson = self.sds.query("ip_subnet_create",
                                params=params)
 
@@ -381,7 +387,6 @@ class Network(ClassParams):
             **self.additional_params
         }
 
-        # logging.info(params)
         try:
             rjson = self.sds.query("ip_subnet_info",
                                    params=params)
@@ -426,6 +431,9 @@ class Network(ClassParams):
             else:
                 self.is_block = False
 
+        if 'start_hostaddr' in rjson:
+            self.subnet_addr = rjson['start_hostaddr']
+
         # should be this variable (see API doc), but not working...
         if 'network_class_parameters' in rjson:   # pragma: no cover
             self.update_class_params(rjson['network_class_parameters'])
@@ -456,6 +464,9 @@ class Network(ClassParams):
 
         return_val += self.str_params(exclude=['subnet_id',
                                                'subnet_name'])
+
+        if self.parent_network:
+            return_val += " parent={}".format(self.parent_network.myid)
 
         return_val += str(super().__str__())
 
