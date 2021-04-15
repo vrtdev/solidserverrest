@@ -1,3 +1,10 @@
+# 2.1.8
+  * fix API call with release of SDS < 7
+	* add network find new capacities and example
+
+# 2.1.7
+  * fix network name issue
+
 # 2.1.6
 	* fix 14: can connect using name with adv lib
 	* refactor get space id
