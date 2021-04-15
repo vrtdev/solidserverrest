@@ -10,13 +10,15 @@ SOLIDserver ip address manager
 
 """
 
+import binascii
 import ipaddress
 # import logging
 import re
+import socket
 
-from SOLIDserverRest.Exception import SDSError
-from SOLIDserverRest.Exception import SDSIpAddressError
-from SOLIDserverRest.Exception import SDSIpAddressNotFoundError
+from packaging.version import Version, parse
+from SOLIDserverRest.Exception import (SDSError, SDSIpAddressError,
+                                       SDSIpAddressNotFoundError)
 
 from .class_params import ClassParams
 
@@ -45,6 +47,7 @@ class IpAddress(ClassParams):
         self.mac = None
 
         if ipv4 is not None:
+
             self.ipv4 = self.check_ipv4_format(ipv4)
             if self.ipv4 is None:
                 raise SDSIpAddressError("bad ipv4 format")
@@ -123,10 +126,14 @@ class IpAddress(ClassParams):
         """get the ID from its ip addr, return None if non existant"""
 
         params = {
-            "WHERE": "hostaddr='{}'".format(ipaddr),
             "limit": 1,
             **self.additional_params
         }
+        if parse(self.sds.get_version()) >= Version("7.0.0"):
+            params.update({"WHERE": "hostaddr='{}'".format(ipaddr)})
+        else:
+            params.update({"WHERE": "ip_addr='{}'".format(
+                binascii.hexlify(socket.inet_aton(ipaddr)).decode('ascii'))})
 
         try:
             rjson = self.sds.query('ip_address_list',
@@ -166,16 +173,19 @@ class IpAddress(ClassParams):
         rjson = rjson[0]
         # logging.info(rjson)
 
-        for label in ['ip_id',
-                      'name',
-                      'mac_addr',
-                      'subnet_id',
-                      'subnet_size',
-                      'subnet_is_terminal',
-                      'parent_subnet_start_hostaddr',
-                      'parent_subnet_end_hostaddr',
-                      'subnet_start_ip_addr',
-                      'subnet_end_ip_addr']:
+        labels = ['ip_id',
+                  'name',
+                  'mac_addr',
+                  'subnet_id',
+                  'subnet_size',
+                  'subnet_is_terminal',
+                  'subnet_start_ip_addr',
+                  'subnet_end_ip_addr']
+        if parse(self.sds.get_version()) >= Version("7.0.0"):
+            labels.extend(['parent_subnet_start_hostaddr',
+                           'parent_subnet_end_hostaddr'])
+
+        for label in labels:
             if label not in rjson:  # pragma: no cover
                 msg = "parameter {} not found in ip address".format(label)
                 raise SDSIpAddressError(msg)
