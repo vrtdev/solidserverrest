@@ -23,7 +23,7 @@ class ClassParams(Base):
     def __init__(self, sds=None, name=None):
         """init the object:
         """
-        super(ClassParams, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         self.fct_url_encode = urllib.parse.urlencode
         self.fct_b64_encode = base64.b64encode
@@ -101,6 +101,7 @@ class ClassParams(Base):
             return None
 
         self.__class_params.update(params)
+        # logging.info(self.__class_params)
 
         return True
 
@@ -125,6 +126,8 @@ class ClassParams(Base):
 
         key = "{}_class_parameters".format(keyprefix)
         params[key] = self.encode_class_params(self.__class_params)
+
+        # logging.info(params)
 
         return True
 
@@ -167,6 +170,6 @@ class ClassParams(Base):
 
         return_val += "]"
 
-        return_val += str(super(ClassParams, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val
