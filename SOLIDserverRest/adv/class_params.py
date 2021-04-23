@@ -20,6 +20,7 @@ __all__ = ["ClassParams"]
 class ClassParams(Base):
     """ standard class for all objects in SDS with class parameters """
     # ---------------------------
+
     def __init__(self, sds=None, name=None):
         """init the object:
         """
@@ -164,7 +165,7 @@ class ClassParams(Base):
         return_val = " cparams=["
 
         sep = ""
-        for key, value in self.__class_params.items():
+        for key, value in sorted(self.__class_params.items()):
             return_val += "{}{}={}".format(sep, key, value)
             sep = ", "
 
