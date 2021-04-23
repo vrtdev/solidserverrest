@@ -221,12 +221,7 @@ SERVICE_MAPPER.update({
     'dhcp_group_list': 'dhcp_group_list',
     'dhcp_group_info': 'dhcp_group_info',
     'dhcp_group_count': 'dhcp_group_count',
-    'dhcp_group_delete': 'dhcp_group_delete',
-
-    'dhcp_shared_net_create': 'dhcp_sn_add',
-    'dhcp_shared_net_list':   'dhcp_shared_network_list',
-    'dhcp_shared_net_info':   'dhcp_shared_network_info',
-    'dhcp_shared_net_count':  'dhcp_shared_network_count'
+    'dhcp_group_delete': 'dhcp_group_delete'
 })
 
 SERVICE_MAPPER.update({

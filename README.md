@@ -13,7 +13,7 @@ It allows managing all IPAM objects through CRUD operations.
 
 * ***Free software***: BSD2 License
 
-This 'SOLIDserverRest' is compatible with [SOLIDserver](https://www.efficientip.com/products/solidserver/) version 6.0.1P3 and higher.
+This 'SOLIDserverRest' is compatible with [SOLIDserver](https://www.efficientip.com/products/solidserver/) version 7 and ownward.
 
 # Install
 Install 'SOLIDserverRest' using pip in your virtualenv:
@@ -34,7 +34,7 @@ con = SOLIDserverRest("fqdn_host.org")
 ```
 
 ### 2. Specify connection method
-You can use native connection mode using SOLIDserver default method which provide 
+You can use native connection mode using SOLIDserver default method which provide
 authentication through headers in the requests with information
 encoded in base64
 
@@ -98,6 +98,11 @@ Methods are organized to match the ontology used in SOLIDServer, you will find:
 * Pools (v4 and v6)
 * Addresses (v4 and v6)
 * Aliases (v4 and v6)
+* DNS servers, views, zones, RR, acl, key
+* application manager
+* DHCP server, scope, shared net, range, static, group
+* device manager
+* VLAN manager
 
 More information about supported methods in the [specific document](docs/METHODS.md)
 
