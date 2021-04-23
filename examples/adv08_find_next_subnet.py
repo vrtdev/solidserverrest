@@ -12,10 +12,11 @@ import random
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..')))
 
-from SOLIDserverRest import *
-from SOLIDserverRest import adv as sdsadv
+from SOLIDserverRest import *   # nopep8
+from SOLIDserverRest import adv as sdsadv   # nopep8
 
 logging.basicConfig(format='[%(filename)s:%(lineno)d] %(levelname)s: %(message)s',
                     level=logging.INFO)
@@ -31,7 +32,8 @@ SPACE = "t0"
 
 def create_nets(data, sds, space, net=None):
     for _net in data:
-        logging.info('{} {}/{}'.format(_net['name'], _net['address'], _net['prefix']))
+        logging.info(
+            '{} {}/{}'.format(_net['name'], _net['address'], _net['prefix']))
 
         _netobject = sdsadv.Network(sds=sds,
                                     space=space,
@@ -74,7 +76,7 @@ def create_nets(data, sds, space, net=None):
 def init(sds, space):
     """init the space data if needed"""
     data = [{
-        'type': "block", 'address': "10.0.0.0", 'prefix': 8, 'name': "top",
+        'type': "block", 'address': "10.0.0.0", 'prefix': 16, 'name': "top",
         'data': [
             {
                 'type': "subnet", 'terminal': 0, 'address': "10.0.16.0", 'prefix': 20, 'name': "a2",
@@ -119,7 +121,17 @@ def init(sds, space):
                 ]
             }
         ]
-    }]
+    },
+        {
+        'type': "block", 'address': "10.1.0.0", 'prefix': 16, 'name': "foo",
+        'data': [
+            {
+                'type':  "subnet", 'terminal':  0, 'address':  "10.1.32.0", 'prefix':  22, 'name':  "bar",
+                'meta': [{'key': "block_type", 'val': "db"}]
+            }
+        ]
+    }
+    ]
 
     create_nets(data, sds, space)
 
@@ -142,7 +154,7 @@ logging.info("get the space named {}".format(SPACE))
 space = sdsadv.Space(sds=sds, name=SPACE)
 space.refresh()
 
-init(sds, space)
+# init(sds, space)
 
 logging.info("get the block named top")
 
