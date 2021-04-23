@@ -21,7 +21,7 @@ from SOLIDserverRest.Exception import (SDSEmptyError, SDSError,
 
 from .class_params import ClassParams
 
-# loggingimport logging
+# import logging
 # import pprint
 
 
@@ -158,8 +158,8 @@ class Network(ClassParams):
             return None
 
         if 'errmsg' in rjson:  # pragma: no cover
-            raise SDSNetworkError(message="find free net, "
-                                  + rjson['errmsg'])
+            raise SDSNetworkError(message="find free net, " +
+                                  rjson['errmsg'])
 
         aip = []
         for net in rjson:
@@ -189,8 +189,8 @@ class Network(ClassParams):
             return None
 
         if 'errmsg' in rjson:  # pragma: no cover
-            raise SDSNetworkError(message="find free ip, "
-                                  + rjson['errmsg'])
+            raise SDSNetworkError(message="find free ip, " +
+                                  rjson['errmsg'])
 
         aip = []
         for net in rjson:
@@ -200,7 +200,7 @@ class Network(ClassParams):
 
     # -------------------------------------
     def get_subnet_list(self,    # pylint: disable=too-many-arguments
-                        depth=1,
+                        depth=1,  # only one level
                         terminal=None,
                         offset=0,
                         page=25,
@@ -225,6 +225,10 @@ class Network(ClassParams):
 
         params['WHERE'] += "site_id='{}'".format(self.space.params['site_id'])
 
+        # look only under the block
+        params['WHERE'] += " and subnet_path like '%#{}#%'".format(
+            str(self.myid))
+
         if depth == 1:
             params['WHERE'] += "and parent_subnet_id='{}'".format(self.myid)
 
@@ -239,14 +243,14 @@ class Network(ClassParams):
             return None
 
         if 'errmsg' in rjson:  # pragma: no cover
-            raise SDSNetworkError(message="net list, "
-                                  + rjson['errmsg'])
+            raise SDSNetworkError(message="net list, " +
+                                  rjson['errmsg'])
 
         anets = []
         for net in rjson:
             anets.append({
                 'start_hostaddr': net['start_hostaddr'],
-                'subnet_size': 32-int(math.log(int(net['subnet_size']), 2)),
+                'subnet_size': 32 - int(math.log(int(net['subnet_size']), 2)),
                 'subnet_name': net['subnet_name']
             })
 
@@ -254,11 +258,11 @@ class Network(ClassParams):
         if len(rjson) == page:
             if limit == 0 or collected < limit:
                 newnets = self.get_subnet_list(depth, terminal,
-                                               offset+page,
+                                               offset + page,
                                                page=page,
                                                limit=limit,
-                                               collected=(len(anets)
-                                                          + collected))
+                                               collected=(len(anets) +
+                                                          collected))
                 if newnets is not None:
                     anets += newnets
 
@@ -315,8 +319,8 @@ class Network(ClassParams):
                                params=params)
 
         if 'errmsg' in rjson:
-            raise SDSNetworkError(message="creation, "
-                                  + rjson['errmsg'])
+            raise SDSNetworkError(message="creation, " +
+                                  rjson['errmsg'])
 
         self.params['subnet_id'] = int(rjson[0]['ret_oid'])
         self.myid = int(self.params['subnet_id'])
@@ -345,8 +349,8 @@ class Network(ClassParams):
                                params=params)
 
         if 'errmsg' in rjson:  # pragma: no cover
-            raise SDSNetworkError(message="network update error, "
-                                  + rjson['errmsg'])
+            raise SDSNetworkError(message="network update error, " +
+                                  rjson['errmsg'])
 
         self.refresh()
 
@@ -381,7 +385,7 @@ class Network(ClassParams):
                                      key="subnet")
         except SDSError as err_descr:
             msg = "cannot get network id"
-            msg += " / "+str(err_descr)
+            msg += " / " + str(err_descr)
             raise SDSNetworkError(msg) from err_descr
 
         params = {
@@ -394,7 +398,7 @@ class Network(ClassParams):
                                    params=params)
         except SDSError as err_descr:
             msg = "cannot get network info on id={}".format(subnet_id)
-            msg += " / "+str(err_descr)
+            msg += " / " + str(err_descr)
             raise SDSNetworkError(msg) from err_descr
 
         rjson = rjson[0]
