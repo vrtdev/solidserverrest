@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:11:14 alex>
+# Time-stamp: <2021-05-12 09:18:42 alex>
 #
 
 """test network
@@ -88,6 +88,16 @@ def test_net_create_network_no_mandatory():
     except SDSNetworkError:
         None
 
+    # bad space
+
+    try:
+        network = sdsadv.Network(sds=sds,
+                                 space="test",
+                                 name=net_name)
+        assert None, "create network with bad space"
+    except SDSNetworkError:
+        None
+        
     # no address
     network = sdsadv.Network(sds=sds,
                              space=space,
@@ -240,7 +250,7 @@ def test_net_create_block_wo_sds():
     """try to update a block without SDS connection"""
 
     # create a network object
-    network = sdsadv.Network(space="test",
+    network = sdsadv.Network(space=None,
                              name="test")
 
     try:
@@ -255,7 +265,7 @@ def test_net_refresh_block_wo_sds():
     """try to refresh a block without SDS connection"""
 
     # create a network object
-    network = sdsadv.Network(space="test",
+    network = sdsadv.Network(space=None,
                              name="test")
 
     try:

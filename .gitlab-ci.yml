@@ -29,6 +29,7 @@ test-36:
      - dev
      - advanced-lib
      - /^fix.*/
+     - /^\d+-.*/
 
 test-37:
   stage: test37
