@@ -1,3 +1,7 @@
+# 2.1.10
+  * fix 16: add hostname as class param on IP
+  * add check on space type in IP and network creation
+
 # 2.1.9
   * class params str() sort the metadata
   * fix network search to limit to same hierarchy
