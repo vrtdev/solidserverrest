@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:32:09 alex>
+# Time-stamp: <2021-05-12 09:44:19 alex>
 #
 # pylint: disable=R0801
 
@@ -21,6 +21,7 @@ from SOLIDserverRest.Exception import (SDSError, SDSIpAddressError,
                                        SDSIpAddressNotFoundError)
 
 from .class_params import ClassParams
+from .space import Space
 
 
 class IpAddress(ClassParams):
@@ -39,15 +40,20 @@ class IpAddress(ClassParams):
 
         super(IpAddress, self).__init__(sds, name)
 
+        if name:
+            self.set_class_params({'hostname': name})
+
         self.clean_params()
         self.set_sds(sds)
+
+        if space and not isinstance(space, Space):
+            raise SDSIpAddressError("no valid space provided")
 
         self.space = space
         # self.name = name
         self.mac = None
 
         if ipv4 is not None:
-
             self.ipv4 = self.check_ipv4_format(ipv4)
             if self.ipv4 is None:
                 raise SDSIpAddressError("bad ipv4 format")
@@ -131,7 +137,7 @@ class IpAddress(ClassParams):
         }
         if parse(self.sds.get_version()) >= Version("7.0.0"):
             params.update({"WHERE": "hostaddr='{}'".format(ipaddr)})
-        else:
+        else:  # pragma: no cover
             params.update({"WHERE": "ip_addr='{}'".format(
                 binascii.hexlify(socket.inet_aton(ipaddr)).decode('ascii'))})
 
@@ -257,6 +263,12 @@ class IpAddress(ClassParams):
                                          value,
                                          exclude=['ip_id'],
                                          name='name')
+
+    # -------------------------------------
+    def set_name(self, name=None):
+        """set the name of the ip address"""
+        super(IpAddress, self).set_name(name)
+        self.set_class_params({'hostname': name})
 
     # -------------------------------------
     def set_ipv4(self, addr):

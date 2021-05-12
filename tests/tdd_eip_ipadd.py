@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:47:05 alex>
+# Time-stamp: <2021-05-12 09:11:01 alex>
 #
 
 """test ip address
@@ -46,6 +46,18 @@ def test_ipadd_new_address_obj():
 
     obj_string = str(add)
     logging.debug(obj_string)
+
+
+def test_ipadd_new_address_obj_bad_space():
+    """create an ip address object in a bad space"""
+
+    try:
+        add = sdsadv.IpAddress(sds=None,
+                               space="test",
+                               ipv4='192.168.16.10')
+        assert None, "bad space provided"
+    except SDSIpAddressError:
+        None
 
 
 def test_ipadd_new_address_obj_badip():
@@ -181,6 +193,7 @@ def test_ipadd_new_in_block_and_update():
     add = sdsadv.IpAddress(sds=sds,
                            space=space,
                            ipv4='192.168.16.10')
+    add.set_mac('010203040500')
     add.create()
 
     add.set_mac('010203040506')

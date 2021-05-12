@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:41:54 alex>
+# Time-stamp: <2021-05-12 09:43:16 alex>
 #
 # pylint: disable=R0801
 
@@ -20,6 +20,7 @@ from SOLIDserverRest.Exception import (SDSEmptyError, SDSError,
                                        SDSNetworkNotFoundError)
 
 from .class_params import ClassParams
+from .space import Space
 
 # import logging
 # import pprint
@@ -52,7 +53,11 @@ class Network(ClassParams):
         # self.set_name(name)
 
         self.description = None
+
+        if space and not isinstance(space, Space):
+            raise SDSNetworkError("no valid space provided")
         self.space = space
+
         self.subnet_addr = None
         self.subnet_prefix = None
         self.is_block = False
