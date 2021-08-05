@@ -51,6 +51,8 @@ class SDS(ClassParams):
         self.sds = None
         self.timeout = 1
 
+        self.proxy_socks = None
+
     # ---------------------------
     def set_server_ip(self, ip_address):
         """set the SOLIDserver IP address for the connection"""
@@ -73,6 +75,12 @@ class SDS(ClassParams):
                                format(error))
 
         self.sds_ip = fqdn
+
+    # ---------------------------
+    def set_proxy_socks(self, proxy=None):
+        """set the SOLIDserver connection through a socks proxy"""
+        if proxy:
+            self.proxy_socks = proxy
 
     # ---------------------------
     def set_credentials(self, user=None, pwd=None):
@@ -116,6 +124,9 @@ class SDS(ClassParams):
 
         if timeout != self.timeout:
             self.timeout = timeout
+
+        if self.proxy_socks:
+            self.sds.set_proxy(self.proxy_socks)
 
         self.version = self.get_version()
 
@@ -224,12 +235,15 @@ class SDS(ClassParams):
     def __str__(self):
         """return the string notation of the server object"""
         connected = "not connected"
-        if self.version is not None:
+        if self.version:
             connected = "connected version={} auth={}".format(self.version,
                                                               self.auth_method)
+        proxy = ""
+        if self.proxy_socks:
+            proxy = " socks5h://{}".format(self.proxy_socks)
 
-        return "sds ip={} cred={}:{} {} [{}]".format(self.sds_ip,
-                                                     self.user,
-                                                     self.pwd,
-                                                     connected,
-                                                     self.sds)
+        return "sds ip={}{} cred={} {} [{}]".format(self.sds_ip,
+                                                    proxy,
+                                                    self.user,
+                                                    connected,
+                                                    self.sds)
