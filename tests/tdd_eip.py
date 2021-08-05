@@ -28,22 +28,27 @@ else:
 from .context import sdsadv
 
 # ------ SDS connection ---------------------
+
+
 def test_create_sds_basic():
     """create a basic connection to a SOLIDserver"""
     sds = sdsadv.SDS()
     class_string = str(sds)
     logging.debug(class_string)
 
+
 def test_create_sds_basic_initip():
     """create a basic connection to a SOLIDserver"""
     sds = sdsadv.SDS(ip_address=SERVER)
     logging.debug(sds)
+
 
 def test_create_sds_valid_ip():
     """create a connection to a SOLIDserver with an active server"""
     sds = sdsadv.SDS()
     sds.set_server_ip(SERVER)
     logging.debug(sds)
+
 
 def test_create_sds_bad_ip():
     """create a connection to a SOLIDserver with a bad ip address format"""
@@ -53,6 +58,7 @@ def test_create_sds_bad_ip():
     except SDSInitError:
         return
     assert None, "should have raised an error on bad IP address"
+
 
 def test_create_sds_bad_not_responsive_ip():
     """create a connection to a SOLIDserver with non responsive IP"""
@@ -64,10 +70,12 @@ def test_create_sds_bad_not_responsive_ip():
     except SDSError:
         None
 
+
 def test_create_sds_withuser():
     """create a basic connection to a SOLIDserver"""
     sds = sdsadv.SDS(user=USER, pwd=PWD)
     logging.debug(sds)
+
 
 def test_create_sds_set_user():
     """create a connection to a SOLIDserver with an active server with user"""
@@ -83,6 +91,7 @@ def test_create_sds_set_user():
     sds.set_credentials(user=USER, pwd=PWD)
     logging.debug(sds)
 
+
 def test_create_sds_set_baduser():
     """create a connection to a SOLIDserver with an active server with wrong user"""
     sds = sdsadv.SDS()
@@ -97,6 +106,7 @@ def test_create_sds_set_baduser():
 
     assert None, "should have raised an error on bad credentials"
 
+
 def test_create_sds_connect_wo_user():
     """create a connection to a SOLIDserver without user"""
     sds = sdsadv.SDS()
@@ -107,6 +117,7 @@ def test_create_sds_connect_wo_user():
         return
 
     assert None, "should have raised an error on no credentials"
+
 
 def test_create_sds_connect_wo_ip():
     """create a connection to a SOLIDserver without ip"""
@@ -119,13 +130,36 @@ def test_create_sds_connect_wo_ip():
 
     assert None, "should have raised an error on no ip"
 
+
+def test_create_proxy_socks():
+    """create a SOLIDserver through a proxy"""
+    sds = sdsadv.SDS()
+    sds.set_server_ip(SERVER)
+    sds.set_credentials(user=USER, pwd=PWD)
+    sds.set_proxy_socks("127.0.0.1:9011")
+    sds = None
+
+
+def _test_proxy_socks():
+    """create a connection to a SOLIDserver through a proxy"""
+    sds = sdsadv.SDS()
+    sds.set_server_ip(SERVER)
+    sds.set_credentials(user=USER, pwd=PWD)
+    sds.set_proxy_socks("192.168.24.170:9011")
+    sds.connect()
+    # sds.connect()  # for cache on the version
+    #class_string = str(sds)
+    # logging.debug(class_string)
+    sds = None
+
+
 def test_basic_auth():
     """create a connection to a SOLIDserver with basic auth"""
     sds = sdsadv.SDS()
     sds.set_server_ip(SERVER)
     sds.set_credentials(user=USER, pwd=PWD)
     sds.connect()
-    sds.connect() # for cache on the version
+    sds.connect()  # for cache on the version
     class_string = str(sds)
     logging.debug(class_string)
     sds = None
@@ -147,6 +181,7 @@ def test_basic_auth_with_cert():
 
     logging.debug(sds)
 
+
 def test_native_auth():
     """create a connection to a SOLIDserver with native auth"""
     sds = sdsadv.SDS()
@@ -156,7 +191,7 @@ def test_native_auth():
     logging.debug(sds)
 
 
-#----
+# ----
 def test_query_timeout():
     sds = sdsadv.SDS()
     sds.set_server_ip(SERVER)
@@ -164,6 +199,7 @@ def test_query_timeout():
     sds.connect(method="native")
 
     sds.query("ip_site_count", timeout=2)
+
 
 def test_disconnect():
     """create a connection to a SOLIDserver and suppress it"""
@@ -175,12 +211,12 @@ def test_disconnect():
     try:
         version = sds.get_version()
     except SDSEmptyError:
-        assert None, "get version on connected SDS" 
+        assert None, "get version on connected SDS"
 
     try:
         stats = sds.get_load()
     except SDSEmptyError:
-        assert None, "get load stats on connected SDS" 
+        assert None, "get load stats on connected SDS"
 
     sds.query("ip_site_count", timeout=2)
 
@@ -188,19 +224,19 @@ def test_disconnect():
 
     try:
         version = sds.get_version()
-        assert None, "get version on disconnected SDS" 
+        assert None, "get version on disconnected SDS"
     except SDSEmptyError:
         None
 
     try:
         stats = sds.get_load()
-        assert None, "get load stats on disconnected SDS" 
+        assert None, "get load stats on disconnected SDS"
     except SDSEmptyError:
         None
 
     try:
         sds.query("ip_site_count", timeout=2)
-        assert None, "query on disconnected SDS" 
+        assert None, "query on disconnected SDS"
     except SDSEmptyError:
         None
 
@@ -211,11 +247,11 @@ def test_connect_using_fqdn():
     sds.set_server_name(SERVER_NAME)
     sds.set_credentials(user=USER, pwd=PWD)
     sds.connect()
-    sds.connect() # for cache on the version
+    sds.connect()  # for cache on the version
     class_string = str(sds)
     logging.debug(class_string)
     sds = None
-        
+
 
 def test_connect_using_bad_fqdn():
     """create a connection to a SOLIDserver named with a bad FQDN"""
