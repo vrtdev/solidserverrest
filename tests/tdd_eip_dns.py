@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-12-01 21:14:33 alex>
+# Time-stamp: <2021-08-24 14:40:15 alex>
 #
 
 """test file for DNS
@@ -22,11 +22,12 @@
 * test_dns_refresh_not_connected
 * test_dns_create_forward
 * test_dns_create_recursion
+* test_dns_smart_create_single
 
 start DNS in docker for test:
  sudo iptables -P FORWARD ACCEPT
  sudo sysctl net.ipv4.conf.all.forwarding=1
- docker run --rm -d eip-package-dns
+ docker run --rm -d docker-eip-dns_eipdns
 
 """
 
@@ -146,7 +147,7 @@ def test_dns_create_err_credentials():
 def test_dns_refresh_ukn():
     """refresh an inexistant dns server"""
 
-    dns_name = DNS_SRV01_NAME
+    dns_name = "{}.tdd".format(uuid.uuid4())
 
     sds = _connect_to_sds()
     dns = sdsadv.DNS(name=dns_name, sds=sds)
@@ -419,5 +420,21 @@ def test_dns_create_recursion():
     if dns2.params['dns_recursion'] != "yes":
         logging.info(dns2)
         assert None, "recursion not set"
+
+    dns.delete()
+
+# -------------------------------------------------------
+def test_dns_smart_create_single():
+    """create a smartarchitecture dns server"""
+
+    dns_name = "tdd-{}.labo".format(uuid.uuid4())
+
+    sds = _connect_to_sds()
+    dns = sdsadv.DNS(name=dns_name, sds=sds)
+    dns.set_type('vdns', 'single')
+    try:
+        dns.create()
+    except SDSError:
+        assert None, "cannot create DNS"
 
     dns.delete()

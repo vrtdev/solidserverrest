@@ -1,11 +1,11 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-03-04 17:05:07 alex>
+# Time-stamp: <2021-08-24 15:44:58 alex>
 #
 
 """
-SOLIDserver DNS management
+SOLIDserver DNS server management
 
 """
 
@@ -13,11 +13,11 @@ import ipaddress
 import logging
 import time
 
-from SOLIDserverRest.Exception import SDSInitError, SDSError
-from SOLIDserverRest.Exception import SDSEmptyError
-from SOLIDserverRest.Exception import SDSDNSError
-from SOLIDserverRest.Exception import SDSDNSAlreadyExistingError
-from SOLIDserverRest.Exception import SDSDNSCredentialsError
+from SOLIDserverRest.Exception import (SDSInitError,
+                                       SDSError,
+                                       SDSDNSError,
+                                       SDSDNSAlreadyExistingError,
+                                       SDSDNSCredentialsError)
 
 from .class_params import ClassParams
 
@@ -46,7 +46,6 @@ class DNS(ClassParams):
             'dns_allow_recursion': None,
             'dns_allow_transfer': None,
             'dns_also_notify': None,
-            'dns_ans_key': None,
             'dns_class_name': '',
             'dns_comment': None,
             'dns_forward': '',
@@ -83,8 +82,8 @@ class DNS(ClassParams):
             'multistatus': None,
             'querylog_state': None,
             'total_vdns_members': None,
-            # 'vdns_arch': None,
-            # 'vdns_members_name': None,
+            'vdns_arch': None,
+            'vdns_members_name': None,
             'vdns_parent_arch': None,
             'vdns_parent_id': None,
             'vdns_parent_name': None,
@@ -95,20 +94,21 @@ class DNS(ClassParams):
             self.set_class_params(class_params)
 
     # -------------------------------------
-    def _get_dnsid_by_name(self, name):
-        """get the DNS server ID from its name, return None if non existant"""
+    def _get_dnsid_by_name(self, dnsname):
+        """get the DNS server ID from its name,
+           return None if non existant"""
 
         try:
             rjson = self.sds.query("dns_server_list",
                                    params={
                                        "WHERE": "dns_name='{}'".
-                                                format(name),
+                                                format(dnsname),
                                        **self.additional_params
                                    })
-        except SDSEmptyError:
+        except SDSError:
             return None
 
-        if rjson[0]['errno'] != '0':   # pragma: no cover
+        if rjson[0]['errno'] != '0':
             raise SDSDNSError("dns_id errno raised")
 
         return rjson[0]['dns_id']
@@ -122,12 +122,23 @@ class DNS(ClassParams):
             raise SDSDNSError(message='bad IPv4 address for DNS server')
 
     # -------------------------------------
-    def set_type(self, newtype=None):
+    def set_type(self, newtype=None, vdns_arch=None):
         '''set type of the DNS server'''
         if newtype not in ['ipm', 'msdaemon', 'ans', 'aws', 'other', 'vdns']:
             raise SDSDNSError(message='bad DNS type')
 
         self.params['dns_type'] = newtype
+
+        if newtype == 'vdns':
+            if not vdns_arch:
+                raise SDSDNSError(message='SMARTarchitecture needs type')
+            if vdns_arch not in ['masterslave',
+                                 'stealth',
+                                 'multimaster',
+                                 'single',
+                                 'farm']:
+                raise SDSDNSError(message='bad SMARRTarchitecture type')
+            self.params['vdns_arch'] = vdns_arch
 
     # -------------------------------------
     def set_ipm_credentials(self, user, passwd):
@@ -164,21 +175,26 @@ class DNS(ClassParams):
             raise SDSDNSError(message="DNS server"
                               + " with bad type, use set_type")
 
-        if self.ipv4_addr is None:
-            raise SDSDNSError(message="DNS server"
-                              + " without IP address, use set_ipv4")
-
         params = {
             'dns_name': self.name,
-            'hostaddr': self.ipv4_addr,
             'dns_type': self.params['dns_type'],
             **self.additional_params
         }
 
-        if self.params['dns_type'] == 'ipm':
-            params['ipmdns_https_login'] = self.params['ipmdns_https_login']
-            params['ipmdns_https_password'] = self.params[
-                'ipmdns_https_password']
+        if self.params['dns_type'] != 'vdns':
+            if self.ipv4_addr is None:
+                raise SDSDNSError(message="DNS server"
+                                  + " without IP address, use set_ipv4")
+            params['hostaddr'] = self.ipv4_addr
+
+            if self.params['dns_type'] == 'ipm':
+                params['ipmdns_https_login'] = self.params[
+                    'ipmdns_https_login']
+                params['ipmdns_https_password'] = self.params[
+                    'ipmdns_https_password']
+
+        else:
+            params['vdns_arch'] = self.params['vdns_arch']
 
         self._update_params(params)
 
@@ -227,8 +243,10 @@ class DNS(ClassParams):
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSDNSError(message="DNS server delete error, "
                                   + rjson['errmsg'])
-        except SDSError:   # pragma: no cover
+        except:
             raise SDSDNSError(message="DNS server delete error")
+
+        self.myid = -1
 
     # -------------------------------------
     def _wait_for_synch(self, dns_id=None):
@@ -281,50 +299,55 @@ class DNS(ClassParams):
 
         rjson = rjson[0]
 
-        for label in ['dns_id',
-                      'dns_role',
-                      'dns_ans_key',
-                      'aws_keyid',
-                      'ipmdns_is_package',
-                      'ipmdns_type',
-                      'isolated',
-                      'dns_notify',
-                      'dns_also_notify',
-                      'dns_allow_query_cache',
-                      'dns_allow_query',
-                      'dns_allow_transfer',
-                      'dns_allow_recursion',
-                      'dns_recursion',
-                      'dns_forwarders',
-                      'dns_forward',
-                      'vdns_parent_id',
-                      'dns_state',
-                      'querylog_state',
-                      'dns_synching',
-                      'dns_name',
-                      'dns_comment',
-                      'dns_type',
-                      'dns_class_name',
-                      'dns_version',
-                      'dns_key_name',
-                      'dns_key_value',
-                      'dns_key_proto',
-                      'dns_hybrid',
-                      'gss_keytab_id',
-                      'gss_enabled',
-                      'dnsblast_enabled',
-                      'dnsblast_status',
-                      'dnssec_validation',
-                      'dnsgslb_supported',
-                      'dnsguardian_supported',
-                      'multistatus']:
+        for label in [
+                'aws_keyid',
+                'dns_allow_query',
+                'dns_allow_query_cache',
+                'dns_allow_recursion',
+                'dns_allow_transfer',
+                'dns_also_notify',
+                'dns_class_name',
+                'dns_comment',
+                'dns_forward',
+                'dns_forwarders',
+                'dns_hybrid',
+                'dns_id',
+                'dns_key_name',
+                'dns_key_proto',
+                'dns_key_value',
+                'dns_name',
+                'dns_notify',
+                'dns_recursion',
+                'dns_role',
+                'dns_state',
+                'dns_synching',
+                'dns_type',
+                'dns_version',
+                'dnsblast_enabled',
+                'dnsblast_status',
+                'dnsgslb_supported',
+                'dnsguardian_supported',
+                'dnssec_validation',
+                'gss_enabled',
+                'gss_keytab_id',
+                'ipmdns_is_package',
+                'ipmdns_type',
+                'isolated',
+                'multistatus',
+                'querylog_state',
+                'vdns_arch',
+                'vdns_members_name',
+                'vdns_parent_name',
+                'vdns_parent_id',
+        ]:
             if label not in rjson:   # pragma: no cover
                 raise SDSDNSError("parameter"
                                   + " {}".format(label)
                                   + " not found in DNS server")
             self.params[label] = rjson[label]
 
-        self.ipv4_addr = ipaddress.IPv4Address(int(rjson['ip_addr'], 16))
+        if self.params['dns_type'] != 'vdns':
+            self.ipv4_addr = ipaddress.IPv4Address(int(rjson['ip_addr'], 16))
 
         self.myid = int(self.params['dns_id'])
 
