@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-24 15:46:24 alex>
+# Time-stamp: <2021-08-24 16:01:07 alex>
 #
 
 """
@@ -205,7 +205,7 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSDNSError(message="DNS zone delete error, "
                                   + rjson['errmsg'])
-        except:
+        except SDSError:
             raise SDSDNSError(message="DNS zone delete error")
 
         if sync:

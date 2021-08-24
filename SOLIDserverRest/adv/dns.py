@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-24 15:44:58 alex>
+# Time-stamp: <2021-08-24 16:00:39 alex>
 #
 
 """
@@ -243,7 +243,7 @@ class DNS(ClassParams):
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSDNSError(message="DNS server delete error, "
                                   + rjson['errmsg'])
-        except:
+        except SDSError:
             raise SDSDNSError(message="DNS server delete error")
 
         self.myid = -1
