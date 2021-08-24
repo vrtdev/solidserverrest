@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-12-01 21:06:02 alex>
+# Time-stamp: <2021-06-07 17:47:46 alex>
 #
 
 """test for device manager interfaces
@@ -34,26 +34,6 @@ from SOLIDserverRest.Exception import SDSDeviceIfNotFoundError
 from .context import sdsadv
 from .context import _connect_to_sds
 from .adv_basic import *
-
-
-# -------------------------------------------------------
-def create_rnd_ipv4():
-    return '.'.join('%s' % random.randint(0, 255) for i in range(4))
-
-
-# -------------------------------------------------------
-def create_rnd_ipv4_hex():
-    return ''.join('%x' % random.randint(0, 255) for i in range(4))
-
-
-# -------------------------------------------------------
-def create_rnd_ipv6():
-    return ':'.join('{:x}'.format(random.randint(0, 2**16 - 1)) for i in range(8))
-
-
-# -------------------------------------------------------
-def create_rnd_ipv6_hex():
-    return ''.join('{:x}'.format(random.randint(0, 2**16 - 1)) for i in range(8))
 
 
 # -------------------------------------------------------

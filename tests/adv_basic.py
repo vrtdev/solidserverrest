@@ -14,7 +14,11 @@ except:
 
 __all__ = ["_create_net",
            "_create_rnd_mac",
-           "_create_ip_add"]
+           "_create_ip_add",
+           "create_rnd_ipv4",
+           "create_rnd_ipv4_hex",
+           "create_rnd_ipv6",
+           "create_rnd_ipv6_hex"]
 
 
 # -------------------------------------------------------
@@ -64,4 +68,24 @@ def _create_rnd_mac():
         random.randint(0, 255),
         random.randint(0, 255),
     )
+
+
+# -------------------------------------------------------
+def create_rnd_ipv4():
+    return '.'.join('%s' % random.randint(0, 255) for i in range(4))
+
+
+# -------------------------------------------------------
+def create_rnd_ipv4_hex():
+    return ''.join('%x' % random.randint(0, 255) for i in range(4))
+
+
+# -------------------------------------------------------
+def create_rnd_ipv6():
+    return ':'.join('{:x}'.format(random.randint(0, 2**16 - 1)) for i in range(8))
+
+
+# -------------------------------------------------------
+def create_rnd_ipv6_hex():
+    return ''.join('{:x}'.format(random.randint(0, 2**16 - 1)) for i in range(8))
 
