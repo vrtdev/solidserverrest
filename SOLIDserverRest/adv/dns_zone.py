@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-24 16:01:07 alex>
+# Time-stamp: <2021-08-25 15:36:19 alex>
 #
 
 """
@@ -20,6 +20,7 @@ from SOLIDserverRest.Exception import (SDSInitError,
 
 from .class_params import ClassParams
 from .dns import DNS
+from .sds import SDS
 
 
 class DNS_zone(ClassParams):  # pylint: disable=C0103
@@ -54,6 +55,9 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
                                     cloud)
         - zone_resolution: ?
         """
+
+        if sds and not isinstance(sds, SDS):
+            raise SDSInitError(message="sds param is not of type SDS")
 
         super(DNS_zone, self).__init__(sds, name)
 
@@ -123,6 +127,10 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
                                    params=params)
         except SDSError:   # pragma: no cover
             raise SDSDNSError(message="create DNS zone")
+
+        if 'errno' in rjson:
+            raise SDSDNSError(message="create DNS zone"
+                              " {}".format(rjson['errmsg']))
 
         rjson = rjson[0]
         if 'ret_oid' in rjson:
@@ -240,26 +248,27 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
         rjson = rjson[0]
 
         for label in [
-                'dnszone_name',
-                'dnszone_type',
-                'num_keys',
                 'dns_state',
-                'dnszone_allow_update',
+                'dnszone_ad_integrated',
                 'dnszone_allow_query',
                 'dnszone_allow_transfer',
-                'dnszone_forwarders',
-                'dnszone_forward',
-                'dnszone_notify',
+                'dnszone_allow_update',
                 'dnszone_also_notify',
-                'dnszone_name_utf',
-                'dnszone_ad_integrated',
-                'dnszone_rev_sort_zone',
-                'dnszone_masters',
-                'dnszone_is_reverse',
                 'dnszone_class_name',
-                'ds',
+                'dnszone_forward',
+                'dnszone_forwarders',
+                'dnszone_is_reverse',
+                'dnszone_is_rpz',
+                'dnszone_masters',
+                'dnszone_name',
+                'dnszone_name_utf',
+                'dnszone_notify',
                 'dnszone_order',
-                'dnszone_is_rpz']:
+                'dnszone_rev_sort_zone',
+                'dnszone_type',
+                'ds',
+                'num_keys',
+        ]:
             if label not in rjson:   # pragma: no cover
                 raise SDSDNSError("parameter"
                                   + " {}".format(label)

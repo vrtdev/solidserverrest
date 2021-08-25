@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-06-03 13:21:17 alex>
+# Time-stamp: <2021-08-24 16:39:48 alex>
 #
 
 """
@@ -17,5 +17,6 @@ from .network import Network
 from .ipaddress import IpAddress
 from .dns import DNS
 from .dns_zone import DNS_zone
+from .dns_record import DNS_record
 
 from .device_tools import list_devices

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:46:44 alex>
+# Time-stamp: <2021-08-25 15:17:23 alex>
 #
 # only for python v3
 
@@ -36,6 +36,7 @@ class Base:
         self.set_name(name)
         self.params = {}
         self.additional_params = {}
+        self.additional_where_params = {}
 
     # -------------------------------------
     def clean_params(self):
@@ -81,7 +82,7 @@ class Base:
         return " sync: {}".format(self.in_sync)
 
     # -------------------------------------
-    def _get_id_by_name(self, query, key, name):
+    def _get_id_by_name(self, query, key, name, key_id=None):
         """get the ID from its name, return None if non existant"""
 
         params = {
@@ -89,6 +90,13 @@ class Base:
             "limit": 1,
             **self.additional_params
         }
+
+        # logging.info(self.additional_where_params)
+        for _key, _value in self.additional_where_params.items():
+            if isinstance(_value, str):
+                params['WHERE'] += " and {}='{}'".format(_key, _value)
+            elif isinstance(_value, int):
+                params['WHERE'] += " and {}={}".format(_key, _value)
 
         # pylint: disable=E1101
         if hasattr(self, 'space'):
@@ -118,12 +126,15 @@ class Base:
             rjson = self.sds.query(query,
                                    params=params)
         except SDSError as err_descr:
-            msg = "cannot found object by name {}={}".format(key, name)
+            msg = "cannot found object by name {}_name={}".format(key, name)
             msg += " / "+str(err_descr)
             raise SDSError(msg) from err_descr
 
         if rjson[0]['errno'] != '0':  # pragma: no cover
             raise SDSError("errno raised on get id by name")
+
+        if key_id:
+            return rjson[0]['{}_id'.format(key_id)]
 
         return rjson[0]['{}_id'.format(key)]
 
@@ -184,6 +195,19 @@ class Base:
     def clean_additional_params(self):
         """clean additionnal parameters on this object"""
         self.additional_params = {}
+
+    # -------------------------------------
+    def set_additional_where_params(self, **kwargs):
+        """set any kind of additionnal parameter for where queries"""
+        if self.additional_where_params == {}:
+            self.additional_where_params = kwargs
+        else:
+            self.additional_where_params.update(kwargs)
+
+    # -------------------------------------
+    def clean_additional_where_params(self):
+        """clean additionnal parameters on this object"""
+        self.additional_where_params = {}
 
     # -------------------------------------
     def update(self):
