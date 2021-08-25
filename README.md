@@ -1,10 +1,7 @@
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-blue.svg)](https://opensource.org/licenses/BSD-2-Clause)
 
-[![Python 3](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/python-3-shield.svg)](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/)
-[![Updates](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/shield.svg)](https://pyup.io/repos/github/gregocgt/SOLIDserverRest/)
 [![pipeline status](https://gitlab.com/efficientip/solidserverrest/badges/master/pipeline.svg)](https://gitlab.com/efficientip/solidserverrest/commits/master)
 [![coverage report](https://gitlab.com/efficientip/solidserverrest/badges/master/coverage.svg)](https://codecov.io/gl/efficientip/solidserverrest)
-[![Documentation Status](https://readthedocs.org/projects/solidserverrest/badge/?version=latest)](https://solidserverrest.readthedocs.io/en/latest/?badge=latest)
 
 # SOLIDserverRest
 
@@ -23,7 +20,36 @@ Install 'SOLIDserverRest' using pip in your virtualenv:
 ```
 
 # Usage
+
+## Using the SOLIDserverRest advanced object
+
+All commands and object manipulation are going through a SOLIDserver main object, handling the connection to the manager and pushing API calls. The creation of a SOLIDserver object is done like that:
+```
+from SOLIDserverRest import *
+from SOLIDserverRest import adv as sdsadv
+
+SDS_HOST = "192.168.254.254"
+SDS_LOGIN = "foo"
+SDS_PWD = "bar"
+
+sds = sdsadv.SDS(ip_address=SDS_HOST,
+                 user=SDS_LOGIN,
+                 pwd=SDS_PWD)
+try:
+    sds.connect(method="native")
+except SDSError as e:
+    logging.error(e)
+    exit()
+
+print(adv)
+
+```
+
+More examples in the example directory.
+
 ## Using the SOLIDserverRest object
+
+The raw API is mapped using the SOLIDserverRest object which handle the connection, prepare the formating and handle some errors. It can be usefull twhen the advanced library is not yet implementing an object that you require in your code.
 
 ### 1. Declare endpoint API point
 Set the API endpoint you want to talk with through API. Could use an IP address
@@ -105,7 +131,3 @@ Methods are organized to match the ontology used in SOLIDServer, you will find:
 * VLAN manager
 
 More information about supported methods in the [specific document](docs/METHODS.md)
-
-## Supported SOLIDserver modules in methods are:
-* ip (IPAM - IP Address Management)
-* app (Application and GSLB management) - starting with release 7.1 of SOLIDserver

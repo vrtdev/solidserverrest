@@ -1,3 +1,7 @@
+# 2.2.0
+  * add DNS zone object
+  * add DNS record object
+
 # 2.1.10
   * fix 16: add hostname as class param on IP
   * add check on space type in IP and network creation
