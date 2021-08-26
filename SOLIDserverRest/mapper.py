@@ -304,6 +304,15 @@ SERVICE_MAPPER.update({
     'vlm_vlan_info':    'vlmvlan_info',
 })
 
+SERVICE_MAPPER.update({
+    # Guardian params
+    'guardian_param_create':  'guardian_param_add',
+    'guardian_param_update':  'guardian_param_add',
+    'guardian_param_count':   'guardian_param_count',
+    'guardian_param_list':    'guardian_param_list',
+    'guardian_param_info':    'guardian_param_info',
+})
+
 METHOD_MAPPER = {
     'add': 'POST',
     'update': 'PUT',
