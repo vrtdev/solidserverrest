@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-25 15:36:19 alex>
+# Time-stamp: <2021-08-27 09:43:58 alex>
 #
 
 """
@@ -141,25 +141,6 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
             self.refresh()
 
     # -------------------------------------
-    def _get_zoneid_by_name(self, name):
-        """get the DNS zone ID from its name, return None if non existant"""
-
-        try:
-            rjson = self.sds.query("dns_zone_list",
-                                   params={
-                                       "WHERE": "dnszone_name='{}'".
-                                                format(name),
-                                       **self.additional_params
-                                   })
-        except SDSEmptyError:
-            return None
-
-        if rjson[0]['errno'] != '0':
-            raise SDSDNSError("dnszone_id errno raised")
-
-        return rjson[0]['dnszone_id']
-
-    # -------------------------------------
     def _wait_for_synch(self, delete=False):
         """waith for the DNS zone to be in sync"""
         if self.myid is None or self.myid == -1:
@@ -232,7 +213,13 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
             raise SDSDNSError(message="zone not linked to a server")
 
         if self.myid is None or self.myid == -1:
-            zone_id = self._get_zoneid_by_name(self.name)
+            self.set_additional_where_params(dns_id=self.dns_server.myid)
+
+            zone_id = self._get_id_by_name('dns_zone_list',
+                                           'dnszone',
+                                           self.name)
+
+            self.clean_additional_where_params()
         else:
             zone_id = self.myid
 
