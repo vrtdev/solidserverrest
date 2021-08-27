@@ -1,6 +1,13 @@
+# 2.3.0
+  * add update to DNS record object (for ttl and values)
+  * update packages version for security
+
+# 2.2.2
+  * fix: dns zone not restricted to its dns server (in smart)
+
 # 2.2.1
   * add mapper for guardian params
-  
+
 # 2.2.0
   * add DNS zone object
   * add DNS record object

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-25 16:08:30 alex>
+# Time-stamp: <2021-08-27 10:15:26 alex>
 #
 
 """test file for DNS records
@@ -174,6 +174,30 @@ def test_dns_rr_A_smart():
     dns_zone.delete()
     dns_srv.delete()
 
+# -------------------------------------------------------
+def test_dns_rr_A_update_smart():
+    sds = _connect_to_sds()
+
+    dns_srv = _dns_create_smart(sds)
+    dns_zone = _dns_create_zone(sds, dns_srv)
+
+    name = "{}.{}".format(str(uuid.uuid4())[0:8],
+                          dns_zone.name)
+    dns_rr = sdsadv.DNS_record(sds, name)
+    
+    dns_rr.set_zone(dns_zone)
+    dns_rr.set_type('A', ip='127.1.2.3')
+
+    dns_rr.create()
+
+    dns_rr.set_type('A', ip='127.1.2.4')
+    dns_rr.set_ttl(128)
+    dns_rr.update()
+
+    dns_rr.delete()
+    dns_zone.delete()
+    dns_srv.delete()
+    
 # -------------------------------------------------------
 def test_dns_rr_types_smart():
     sds = _connect_to_sds()

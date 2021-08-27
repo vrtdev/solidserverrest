@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-25 16:09:17 alex>
+# Time-stamp: <2021-08-27 10:14:03 alex>
 #
 
 """
@@ -332,6 +332,46 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
 
         self.myid = -1
 
+    # -------------------------------------
+    def update(self):
+        """ update the record in SDS """
+
+        if self.sds is None:
+            return
+
+        if self.zone is None:
+            return
+
+        if not self.rr_type:
+            return
+
+        if '1' not in self.values:
+            return
+
+        params = {
+            'rr_id': self.myid,
+            'rr_ttl': str(self.ttl),
+            'value1': self.values['1'],
+            **self.additional_params
+        }
+
+        for _v in ['2', '3', '4', '5', '6', '7']:
+            if _v in self.values:
+                params['value{}'.format(_v)] = self.values[_v]
+
+        self.prepare_class_params('rr', params)
+
+        # logging.info(params)
+
+        rjson = self.sds.query("dns_rr_update",
+                               params=params)
+
+        if 'errmsg' in rjson:  # pragma: no cover
+            raise SDSIpAddressError(message="rr update error, "
+                                    + rjson['errmsg'])
+
+        self.refresh()
+        
     # -------------------------------------
     def __str__(self):
         """return the string notation of the DNS record object"""
