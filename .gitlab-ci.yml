@@ -79,7 +79,7 @@ coverage:
   - dev
 sast:
   variables:
-    SAST_EXCLUDED_PATHS: tests, examples, cli
+    SAST_EXCLUDED_PATHS: tests, examples, cli, docs
   stage: test
 include:
 - template: Security/SAST.gitlab-ci.yml
