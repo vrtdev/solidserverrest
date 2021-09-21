@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-27 09:43:58 alex>
+# Time-stamp: <2021-09-21 13:42:01 alex>
 #
 
 """
@@ -15,7 +15,6 @@ import time
 
 from SOLIDserverRest.Exception import (SDSInitError,
                                        SDSError,
-                                       SDSEmptyError,
                                        SDSDNSError)
 
 from .class_params import ClassParams

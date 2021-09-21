@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-27 10:14:03 alex>
+# Time-stamp: <2021-09-21 13:41:44 alex>
 #
 
 """
@@ -16,7 +16,8 @@ import ipaddress
 
 from SOLIDserverRest.Exception import (SDSInitError,
                                        SDSError,
-                                       SDSDNSError)
+                                       SDSDNSError,
+                                       SDSIpAddressError)
 
 from .class_params import ClassParams
 from .dns_zone import DNS_zone
@@ -371,7 +372,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
                                     + rjson['errmsg'])
 
         self.refresh()
-        
+
     # -------------------------------------
     def __str__(self):
         """return the string notation of the DNS record object"""

@@ -16,9 +16,9 @@ logging.basicConfig(format=_logFormat, level=logging.INFO)
 from SOLIDserverRest import *
 from SOLIDserverRest.Exception import *
 
-SERVER = '192.168.16.117'
-USER = 'api'
-PWD = 'apipwd'
+SERVER = '192.168.24.230'
+USER = 'ipmadmin'
+PWD = 'admin'
 PARAMETERS = {
     'site_name': 'site_python_lib_test',
     'description':'test site'
@@ -46,7 +46,6 @@ for service in SERVICE_MAPPER:
     # Find requierements for each SERVICE
     try:
         answerR = con.query(service, {}, option=True)
-
         json_content = json.loads(answerR.content)
 
         doc_string += "\n\n## Description"
