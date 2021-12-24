@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-09-21 13:41:44 alex>
+# Time-stamp: <2021-08-27 10:14:03 alex>
 #
 
 """
@@ -17,7 +17,7 @@ import ipaddress
 from SOLIDserverRest.Exception import (SDSInitError,
                                        SDSError,
                                        SDSDNSError,
-                                       SDSIpAddressError)
+                                       SDSEmptyError)
 
 from .class_params import ClassParams
 from .dns_zone import DNS_zone
@@ -207,7 +207,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
         if self.myid is None or self.myid == -1:
             raise SDSDNSError(message="missing DNS record id")
 
-        _wait_delay = 0.1
+        _wait_delay = 0.01
 
         for _ in range(10):
             try:
@@ -215,6 +215,13 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
                                        params={
                                            "rr_id": self.myid,
                                        })
+            except SDSEmptyError:
+                if delete:
+                    return None
+                else:
+                    _wait_delay *= 2
+                    time.sleep(_wait_delay)
+                    continue
             except SDSError:
                 return None
 
@@ -231,10 +238,11 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
                     return None
 
             # logging.info('not yet in synch %s %f', self.name, _wait_delay)
-            time.sleep(_wait_delay)
             _wait_delay *= 2
+            time.sleep(_wait_delay)
 
-        raise SDSDNSError(message="DNS record sync takes too long")
+        raise SDSDNSError(message="DNS record"
+                          " sync takes too long")
 
     # -------------------------------------
     def refresh(self):

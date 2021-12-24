@@ -8,6 +8,7 @@ stages:
 - test36
 - test37
 - test38
+- test39
 - coverage
 - test
 cache:
@@ -15,6 +16,7 @@ cache:
   - ".coverage-py36"
   - ".coverage-py37"
   - ".coverage-py38"
+  - ".coverage-py39"
 before_script:
 - ls -la
 - apk add --no-cache --virtual .build-deps gcc linux-headers libc-dev libffi-dev openssl-dev
@@ -53,7 +55,7 @@ test-38:
   stage: test38
   image: python:3.8-alpine
   dependencies:
-  - test-37
+  - test-36
   script:
   - pip install -r requirements-tests.txt
   - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
@@ -62,16 +64,33 @@ test-38:
   only:
   - master
   - dev
+test-39:
+  stage: test39
+  image: python:3.9-alpine
+  dependencies:
+  - test-36
+  script:
+  - pip install -r requirements-tests.txt
+  - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
+  - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
+  - cp .coverage .coverage-py39
+  only:
+  - master
+  - dev
+  - "/^adv-.*/"
+  - "/^fix.*/"
+  - "/^\\d+-.*/"
 coverage:
   stage: coverage
   image: python:3.8-alpine
   dependencies:
+  - test-39
   - test-38
   - test-37
   - test-36
   script:
   - pip install -r requirements-tests.txt
-  - coverage combine .coverage-py36 .coverage-py37 .coverage-py38
+  - coverage combine .coverage-py36 .coverage-py37 .coverage-py38 .coverage-py39
   - coverage report -m
   - codecov
   only:
