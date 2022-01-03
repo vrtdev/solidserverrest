@@ -108,7 +108,7 @@ class SOLIDserverRest:
         """ propose to use a native EfficientIP SDS connection with Username
         and password encoded in the headers of each requests
         """
-        logging.debug("useNativeSDS %s %s", user, password)
+        logging.debug("useNativeSDS")
 
         # check if SDS connection is established
         if self.host is None:
@@ -129,7 +129,7 @@ class SOLIDserverRest:
     def use_basicauth_sds(self, user, password):
         """ propose to use the basic auth implementation on the SDS
         """
-        logging.debug("useBasicAuthSDS %s %s", user, password)
+        logging.debug("useBasicAuthSDS")
 
         # check if SDS connection is established
         if self.host is None:
