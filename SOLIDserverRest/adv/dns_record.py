@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-27 10:14:03 alex>
+# Time-stamp: <2022-01-04 11:00:41 alex>
 #
 
 """
@@ -17,7 +17,8 @@ import ipaddress
 from SOLIDserverRest.Exception import (SDSInitError,
                                        SDSError,
                                        SDSDNSError,
-                                       SDSEmptyError)
+                                       SDSEmptyError,
+                                       SDSIpAddressError)
 
 from .class_params import ClassParams
 from .dns_zone import DNS_zone
@@ -218,10 +219,10 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
             except SDSEmptyError:
                 if delete:
                     return None
-                else:
-                    _wait_delay *= 2
-                    time.sleep(_wait_delay)
-                    continue
+
+                _wait_delay *= 2
+                time.sleep(_wait_delay)
+                continue
             except SDSError:
                 return None
 

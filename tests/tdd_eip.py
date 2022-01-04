@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-03-04 16:45:47 alex>
+# Time-stamp: <2022-01-04 10:47:37 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -59,6 +59,30 @@ def test_create_sds_bad_ip():
         return
     assert None, "should have raised an error on bad IP address"
 
+
+def test_create_sds_name_as_ip():
+    """create a connection to a SOLIDserver with a name as the ip address"""
+    try:
+        sds = sdsadv.SDS(SERVER_NAME)
+    except SDSInitError:
+        assert None, "name as IP is not resolvable"
+
+    sds.set_credentials(user=USER, pwd=PWD)      
+    sds.connect()
+
+
+def test_create_sds_badname_as_ip():
+    """create a connection to a SOLIDserver with an unknown name as the ip address"""
+    try:
+        sds = sdsadv.SDS("__unknown.priv")
+        sds.set_credentials(user=USER, pwd=PWD)      
+        sds.connect()
+    except SDSInitError:
+        return
+
+    assert None, "should not be able to use this name as address"
+
+    
 
 def test_create_sds_bad_not_responsive_ip():
     """create a connection to a SOLIDserver with non responsive IP"""
