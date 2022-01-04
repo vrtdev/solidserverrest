@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-03-04 16:47:20 alex>
+# Time-stamp: <2022-01-04 10:58:41 alex>
 #
 # only for python v3
 
@@ -36,7 +36,12 @@ class SDS(ClassParams):
 
         self.sds_ip = None
         if ip_address is not None:
-            self.set_server_ip(ip_address)
+            # is the ip_address an IPv4 one?
+            try:
+                ipaddress.IPv4Address(ip_address)
+                self.set_server_ip(ip_address)
+            except ipaddress.AddressValueError:
+                self.set_server_name(ip_address)
 
         self.user = None
         self.pwd = None
