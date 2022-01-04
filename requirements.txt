@@ -1,7 +1,7 @@
-requests~=2.26
+requests~=2.27
 PySocks~=1.7
 urllib3~=1.26
-idna~=3.2
+idna~=3.3
 chardet~=4.0
-pyopenssl~=20.0
-packaging~=21.0
+pyopenssl~=21.0
+packaging~=21.3

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-07-26 16:20:12 alex>
+# Time-stamp: <2022-01-04 11:58:56 alex>
 #
 
 """
@@ -108,6 +108,9 @@ class Device(ClassParams):
         rjson = self.sds.query("host_device_create",
                                params=params)
 
+        if rjson is None:
+            raise SDSDeviceError(message="dev creation error, API call failed")
+        
         if 'errmsg' in rjson:
             raise SDSDeviceError(message="dev creation error, "
                                  + rjson['errmsg'])
