@@ -313,6 +313,16 @@ SERVICE_MAPPER.update({
     'guardian_param_info':    'guardian_param_info',
 })
 
+SERVICE_MAPPER.update({
+    # custom databases
+    'custom_db_data_create':  'custom_db_data_add',
+    'custom_db_data_update':  'custom_db_data_add',
+    'custom_db_data_delete':  'custom_db_data_delete',
+    'custom_db_data_count':   'custom_db_data_count',
+    'custom_db_data_list':    'custom_db_data_list',
+    'custom_db_data_info':    'custom_db_data_info',
+})
+
 METHOD_MAPPER = {
     'add': 'POST',
     'update': 'PUT',
