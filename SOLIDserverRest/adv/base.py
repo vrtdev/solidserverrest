@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 12:20:29 alex>
+# Time-stamp: <2022-01-14 12:42:36 alex>
 #
 # only for python v3
 
@@ -186,7 +186,7 @@ class Base:
     # -------------------------------------
     def set_additional_params(self, **kwargs):
         """set any kind of additionnal parameter, may need to filter entries"""
-        #if self.additional_params == {}:
+        # if self.additional_params == {}:
         if not self.additional_params:
             self.additional_params = kwargs
         else:
@@ -200,7 +200,7 @@ class Base:
     # -------------------------------------
     def set_additional_where_params(self, **kwargs):
         """set any kind of additionnal parameter for where queries"""
-        #if self.additional_where_params == {}:
+        # if self.additional_where_params == {}:
         if not self.additional_where_params:
             self.additional_where_params = kwargs
         else:
