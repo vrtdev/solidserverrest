@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-27 10:15:26 alex>
+# Time-stamp: <2022-01-14 11:21:13 alex>
 #
 
 """test file for DNS records
@@ -91,6 +91,7 @@ def _dns_create_smart(sds, random_name=False):
 
     return dns
 
+
 # -------------------------------------------------------
 def _dns_create_zone(sds, dns=None, random_name=False):
     # coverage
@@ -119,10 +120,12 @@ def _dns_create_zone(sds, dns=None, random_name=False):
 
     return dns_zone
 
+
 # -------------------------------------------------------
 def test_create_dns_rr_object():
     dns_rr = sdsadv.DNS_record()
     dns_rr = sdsadv.DNS_record(class_params = {'key': 'value'})
+
 
 # -------------------------------------------------------
 def test_dns_rr_A_val_smart():

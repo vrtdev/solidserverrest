@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-04 11:00:41 alex>
+# Time-stamp: <2022-01-14 11:26:53 alex>
 #
 
 """
@@ -220,7 +220,6 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
                 if delete:
                     return None
 
-                _wait_delay *= 2
                 time.sleep(_wait_delay)
                 continue
             except SDSError:
