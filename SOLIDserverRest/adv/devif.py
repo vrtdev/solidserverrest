@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 12:35:57 alex>
+# Time-stamp: <2022-01-14 13:49:28 alex>
 #
 
 """
@@ -205,7 +205,7 @@ class DeviceInterface(ClassParams):
             except SDSError as err_descr:  # pragma: no cover
                 msg = "cannot found object by name"
                 msg += " / "+str(err_descr)
-                raise SDSError(msg)
+                raise SDSError(msg) from err_descr
 
             if rjson[0]['errno'] != '0':  # pragma: no cover
                 raise SDSError("errno raised on get id by name")
@@ -225,7 +225,7 @@ class DeviceInterface(ClassParams):
         except SDSError as err_descr:   # pragma: no cover
             msg = f"cannot get device interface info on id={if_id}"
             msg += " / "+str(err_descr)
-            raise SDSDeviceIfError(msg)
+            raise SDSDeviceIfError(msg) from err_descr
 
         rjson = rjson[0]
         # logging.info(rjson)
@@ -292,8 +292,8 @@ class DeviceInterface(ClassParams):
         self.ipv4 = None
         try:
             self.ipv4 = str(ipaddress.IPv4Address(addr))
-        except ValueError:
-            raise SDSDeviceIfError('bad ipv4 format')
+        except ValueError as err:
+            raise SDSDeviceIfError('bad ipv4 format') from err
 
     # ---------------------------
     def set_mac(self, mac):
