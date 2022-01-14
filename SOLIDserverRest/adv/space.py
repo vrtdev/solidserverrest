@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-03-04 18:26:15 alex>
+# Time-stamp: <2022-01-14 11:55:52 alex>
 #
 
 """
@@ -40,7 +40,7 @@ class Space(ClassParams):
         - name: space name, default Local
         """
 
-        super(Space, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         # self.name = name
         # self.sds = sds
@@ -118,8 +118,8 @@ class Space(ClassParams):
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSSpaceError(message="space delete error, "
                                     + rjson['errmsg'])
-        except SDSError:   # pragma: no cover
-            raise SDSSpaceError(message="space delete error")
+        except SDSError as sdse:   # pragma: no cover
+            raise SDSSpaceError(message="space delete error") from sdse
 
     # -------------------------------------
     def refresh(self):
@@ -158,7 +158,7 @@ class Space(ClassParams):
                       'row_enabled',
                       'multistatus']:
             if label not in rjson:   # pragma: no cover
-                raise SDSError("parameter {} not found in space".format(label))
+                raise SDSError(f"parameter {label} not found in space")
             self.params[label] = rjson[label]
 
         self.myid = int(self.params['site_id'])
@@ -218,14 +218,14 @@ class Space(ClassParams):
     # -------------------------------------
     def __str__(self):
         """return the string notation of the space object"""
-        return_val = "*space* name={}".format(self.name)
+        return_val = f"*space* name={self.name}"
 
         if self.myid != -1:
-            return_val += " id={}".format(self.myid)
+            return_val += f" id={self.myid}"
 
         if self.params['parent_site_id'] is not None:
-            return_val += " parent={}".format(self.params['parent_site_id'])
+            return_val += f" parent={self.params['parent_site_id']}"
 
-        return_val += str(super(Space, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

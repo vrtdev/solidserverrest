@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-05-12 09:44:19 alex>
+# Time-stamp: <2022-01-14 12:39:00 alex>
 #
 # pylint: disable=R0801
 
@@ -38,7 +38,7 @@ class IpAddress(ClassParams):
         - space: space object for this network
         """
 
-        super(IpAddress, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         if name:
             self.set_class_params({'hostname': name})
@@ -76,7 +76,7 @@ class IpAddress(ClassParams):
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
-        super(IpAddress, self).clean_params()
+        super().clean_params()
 
         self.ipv4 = None
         self.space = None
@@ -136,7 +136,7 @@ class IpAddress(ClassParams):
             **self.additional_params
         }
         if parse(self.sds.get_version()) >= Version("7.0.0"):
-            params.update({"WHERE": "hostaddr='{}'".format(ipaddr)})
+            params.update({"WHERE": f"hostaddr='{ipaddr}'"})
         else:  # pragma: no cover
             params.update({"WHERE": "ip_addr='{}'".format(
                 binascii.hexlify(socket.inet_aton(ipaddr)).decode('ascii'))})
@@ -145,9 +145,9 @@ class IpAddress(ClassParams):
             rjson = self.sds.query('ip_address_list',
                                    params=params)
         except SDSError as err_descr:
-            msg = "cannot found object by ip addr {}".format(ipaddr)
+            msg = f"cannot found object by ip addr {ipaddr}"
             msg += " / "+str(err_descr)
-            raise SDSIpAddressNotFoundError(msg)
+            raise SDSIpAddressNotFoundError(msg) from err_descr
 
         if rjson[0]['errno'] != '0':  # pragma: no cover
             raise SDSError("errno raised on get id by addr")
@@ -166,7 +166,7 @@ class IpAddress(ClassParams):
         except SDSError as err_descr:
             msg = "cannot get ip addr id"
             msg += " / "+str(err_descr)
-            raise SDSIpAddressNotFoundError(msg)
+            raise SDSIpAddressNotFoundError(msg) from err_descr
 
         params = {
             "ip_id": ip_id,
@@ -193,7 +193,7 @@ class IpAddress(ClassParams):
 
         for label in labels:
             if label not in rjson:  # pragma: no cover
-                msg = "parameter {} not found in ip address".format(label)
+                msg = f"parameter {label} not found in ip address"
                 raise SDSIpAddressError(msg)
             self.params[label] = rjson[label]
 
@@ -259,15 +259,15 @@ class IpAddress(ClassParams):
     # -------------------------------------
     def set_param(self, param=None, value=None, exclude=None, name=None):
         """ set a specific param on the ip address object """
-        super(IpAddress, self).set_param(param,
-                                         value,
-                                         exclude=['ip_id'],
-                                         name='name')
+        super().set_param(param,
+                          value,
+                          exclude=['ip_id'],
+                          name='name')
 
     # -------------------------------------
     def set_name(self, name=None):
         """set the name of the ip address"""
-        super(IpAddress, self).set_name(name)
+        super().set_name(name)
         self.set_class_params({'hostname': name})
 
     # -------------------------------------
@@ -301,17 +301,17 @@ class IpAddress(ClassParams):
         return_val = "*ip address*"
 
         if self.ipv4 is not None:
-            return_val += " {}".format(self.ipv4)
+            return_val += f" {self.ipv4}"
 
         if self.name is not None:
-            return_val += " {}".format(self.name)
+            return_val += f" {self.name}"
 
         if self.mac is not None:
-            return_val += " {}".format(self.mac)
+            return_val += f" {self.mac}"
 
         return_val += self.str_params(exclude=['ip_id',
                                                'name'])
 
-        return_val += str(super(IpAddress, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

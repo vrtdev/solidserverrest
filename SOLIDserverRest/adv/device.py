@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-04 11:58:56 alex>
+# Time-stamp: <2022-01-14 12:25:36 alex>
 #
 
 """
@@ -36,7 +36,7 @@ class Device(ClassParams):
         if name is None:
             raise SDSDeviceError("no name provided at device init")
 
-        super(Device, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         # params mapping the object in SDS
         self.clean_params()
@@ -52,7 +52,7 @@ class Device(ClassParams):
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
-        super(Device, self).clean_params()
+        super().clean_params()
 
         self.params = {
             'hostdev_id': None,
@@ -80,10 +80,10 @@ class Device(ClassParams):
 
     # -------------------------------------
     def set_param(self, param=None, value=None, exclude=None, name=None):
-        super(Device, self).set_param(param,
-                                      value,
-                                      exclude=['hostdev_id'],
-                                      name='hostdev_name')
+        super().set_param(param,
+                          value,
+                          exclude=['hostdev_id'],
+                          name='hostdev_name')
 
     # -------------------------------------
     def create(self):
@@ -110,7 +110,7 @@ class Device(ClassParams):
 
         if rjson is None:
             raise SDSDeviceError(message="dev creation error, API call failed")
-        
+
         if 'errmsg' in rjson:
             raise SDSDeviceError(message="dev creation error, "
                                  + rjson['errmsg'])
@@ -168,8 +168,8 @@ class Device(ClassParams):
         try:
             rjson = self.sds.query("host_device_delete",
                                    params=params)
-        except SDSEmptyError:
-            raise SDSDeviceNotFoundError(message="not found")
+        except SDSEmptyError as error:
+            raise SDSDeviceNotFoundError(message="not found") from error
 
         if 'errmsg' in rjson:  # pragma: no cover
             raise SDSDeviceNotFoundError("on delete "+rjson['errmsg'])
@@ -195,9 +195,9 @@ class Device(ClassParams):
             rjson = self.sds.query("host_device_info",
                                    params=params)
         except SDSError as err_descr:
-            msg = "cannot get device info on id={}".format(device_id)
+            msg = f"cannot get device info on id={device_id}"
             msg += " / "+str(err_descr)
-            raise SDSDeviceError(msg)
+            raise SDSDeviceError(msg) from err_descr
 
         rjson = rjson[0]
 
@@ -220,7 +220,7 @@ class Device(ClassParams):
                       'iface_used_percent',
                       'iface_free']:
             if label not in rjson:  # pragma: no cover
-                msg = "parameter {} not found in device".format(label)
+                msg = f"parameter {label} not found in device"
                 raise SDSDeviceError(msg)
             self.params[label] = rjson[label]
 
@@ -241,7 +241,7 @@ class Device(ClassParams):
             **self.additional_params,
         }
 
-        params['WHERE'] = "hostdev_id='{}'".format(self.myid)
+        params['WHERE'] = f"hostdev_id='{self.myid}'"
 
         rjson = self.sds.query("host_iface_list",
                                params=params)
@@ -267,12 +267,12 @@ class Device(ClassParams):
     def __str__(self):  # pragma: no cover
         """return the string notation of the device object"""
 
-        return_val = "*device* name={}".format(self.name)
+        return_val = f"*device* name={self.name}"
 
         if ('hostdev_site_name' in self.params
                 and self.params['hostdev_site_name'] != ''):
-            return_val += " space={}".format(self.params['hostdev_site_name'])
-            return_val += " [{}]".format(self.params['hostdev_site_id'])
+            return_val += f" space={self.params['hostdev_site_name']}"
+            return_val += f" [{self.params['hostdev_site_id']}]"
 
         return_val += self.str_params(exclude=['hostdev_id',
                                                'hostdev_name'])
@@ -284,6 +284,6 @@ class Device(ClassParams):
                 return_val += sep + intf['if']
             return_val += "]"
 
-        return_val += str(super(Device, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

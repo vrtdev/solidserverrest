@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:44:19 alex>
+# Time-stamp: <2022-01-14 12:35:57 alex>
 #
 
 """
@@ -43,7 +43,7 @@ class DeviceInterface(ClassParams):
         if device.myid == -1:
             raise SDSDeviceIfError("device should be linked in SDS")
 
-        super(DeviceInterface, self).__init__()
+        super().__init__()
 
         # params mapping the object in SDS
         self.clean_params()
@@ -66,7 +66,7 @@ class DeviceInterface(ClassParams):
     # -------------------------------------
     def clean_params(self):
         """ clean the object params """
-        super(DeviceInterface, self).clean_params()
+        super().clean_params()
 
         self.params = {
             'hostiface_id': None,
@@ -84,10 +84,10 @@ class DeviceInterface(ClassParams):
 
     # -------------------------------------
     def set_param(self, param=None, value=None, exclude=None, name=None):
-        super(DeviceInterface, self).set_param(param,
-                                               value,
-                                               exclude=['hostiface_id'],
-                                               name='hostiface_name')
+        super().set_param(param,
+                          value,
+                          exclude=['hostiface_id'],
+                          name='hostiface_name')
 
     # -------------------------------------
     def create(self):
@@ -195,9 +195,9 @@ class DeviceInterface(ClassParams):
                 **self.additional_params
             }
 
-            params['WHERE'] = "hostiface_name='{}'".format(self.name)
+            params['WHERE'] = f"hostiface_name='{self.name}'"
             params['WHERE'] += " and hostdev_name"
-            params['WHERE'] += "='{}'".format(self.device.name)
+            params['WHERE'] += f"='{self.device.name}'"
 
             try:
                 rjson = self.sds.query("host_iface_list",
@@ -223,7 +223,7 @@ class DeviceInterface(ClassParams):
             rjson = self.sds.query("host_iface_info",
                                    params=params)
         except SDSError as err_descr:   # pragma: no cover
-            msg = "cannot get device interface info on id={}".format(if_id)
+            msg = f"cannot get device interface info on id={if_id}"
             msg += " / "+str(err_descr)
             raise SDSDeviceIfError(msg)
 
@@ -253,7 +253,7 @@ class DeviceInterface(ClassParams):
                       'nb_ip'
                       ]:
             if label not in rjson:  # pragma: no cover
-                msg = "parameter {} not found in device".format(label)
+                msg = f"parameter {label} not found in device"
                 raise SDSDeviceIfError(msg)
             self.params[label] = rjson[label]
 
@@ -317,17 +317,17 @@ class DeviceInterface(ClassParams):
     def __str__(self):  # pragma: no cover
         """return the string notation of the device interface object"""
 
-        return_val = "*dev if* name={}".format(self.name)
+        return_val = f"*dev if* name={self.name}"
 
         if self.ipv4 is not None:
-            return_val += " ipv4={}".format(self.ipv4)
+            return_val += f" ipv4={self.ipv4}"
 
         if self.ipv6 is not None:
-            return_val += " ipv6={}".format(self.ipv6)
+            return_val += f" ipv6={self.ipv6}"
 
         return_val += self.str_params(exclude=['hostiface_id',
                                                'hostiface_name'])
 
-        return_val += str(super(DeviceInterface, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

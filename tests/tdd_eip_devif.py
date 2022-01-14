@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-06-07 17:47:46 alex>
+# Time-stamp: <2022-01-14 12:30:22 alex>
 #
 
 """test for device manager interfaces
@@ -110,7 +110,6 @@ def test_devif_create():
     devif.create()
 
     obj_string = str(devif)
-    # logging.info(obj_string)
 
     # coverage no sds
     devif.sds = None
@@ -121,6 +120,8 @@ def test_devif_create():
         None
     devif.sds = sds
 
+    # logging.info(dev)
+    
     # coverage no id
     oldid = devif.myid
     devif.myid = -1

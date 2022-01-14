@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2020-07-26 16:25:25 alex>
+# Time-stamp: <2022-01-14 12:08:34 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -74,7 +74,7 @@ class SOLIDserverRest:
         self.user = None
         self.session = None
         self.default_method = 'rest'
-        self.prefix_url = 'https://{}'.format(host)
+        self.prefix_url = f'https://{host}'
         self.python_version = 0
         self.fct_url_encode = None
         self.fct_b64_encode = None
@@ -149,15 +149,16 @@ class SOLIDserverRest:
     def set_certificate_file(self, file_path):
         """set the certificate that will be used to authenticate the server"""
         try:
-            file_content = open(file_path, 'r').read()
-            crypto.load_certificate(crypto.FILETYPE_PEM,
-                                    file_content)
-        except IOError:
+            # file_content = open(file_path, 'r', encoding="utf-8").read()
+            with open(file_path, 'r', encoding="utf-8") as file_content:
+                crypto.load_certificate(crypto.FILETYPE_PEM,
+                                        file_content.read())
+        except IOError as ioe:
             logging.warning("cannot load CA file")
-            raise SDSInitError("cannot load CA file {}".format(file_path))
+            raise SDSInitError(f"cannot load CA file {file_path}") from ioe
         except crypto.Error as error:
             logging.warning(error)
-            raise SDSInitError("invalid CA file {}".format(file_path))
+            raise SDSInitError(f"invalid CA file {file_path}") from error
 
         self.session.verify = file_path
         self.ssl_verify = True
@@ -174,7 +175,7 @@ class SOLIDserverRest:
     # -------------------------------------
     def set_proxy(self, proxy):   # pragma: no cover
         """allows to enable or disable use of a SOCKS proxy"""
-        proxy = 'socks5h://{}'.format(proxy)
+        proxy = f'socks5h://{proxy}'
         self.proxies = {'http': proxy, 'https': proxy}
 
     # -------------------------------------
@@ -189,7 +190,7 @@ class SOLIDserverRest:
             params = ''
         else:
             for verb in METHOD_MAPPER:
-                _q = ".*_{}$".format(verb)
+                _q = f".*_{verb}$"
                 if re.match(_q, service) is not None:
                     method = METHOD_MAPPER[verb]
                     break
@@ -197,9 +198,9 @@ class SOLIDserverRest:
         if method is not None:
             # flag_add management
             if method == 'POST':
-                params = "{}{}".format(params, '&add_flag=new_only')
+                params = f"{params}&add_flag=new_only"
             elif method == 'PUT':
-                params = "{}{}".format(params, '&add_flag=edit_only')
+                params = f"{params}&add_flag=edit_only"
 
         return (params, method)
 
@@ -213,7 +214,7 @@ class SOLIDserverRest:
         (params, method) = self._query_method(service, option, params)
 
         if method is None:
-            msg = "no method available for request {}".format(service)
+            msg = f"no method available for request {service}"
             logging.warning("no method available for request %s", service)
             raise SDSServiceError(service,
                                   message=msg)
@@ -226,16 +227,12 @@ class SOLIDserverRest:
             logging.warning("unknown service %s", service)
             raise SDSServiceError(service)
 
-        self.last_url = "{}{}".format(svc_mapped, params).strip()
+        self.last_url = f"{svc_mapped}{params}".strip()
 
         if re.match('.*_find_free$', service) is not None:
-            url = "{}/{}/{}".format(self.prefix_url,
-                                    'rpc',
-                                    self.last_url)
+            url = f"{self.prefix_url}/rpc/{self.last_url}"
         else:
-            url = "{}/{}/{}".format(self.prefix_url,
-                                    self.default_method,
-                                    self.last_url)
+            url = f"{self.prefix_url}/{self.default_method}/{self.last_url}"
 
         try:
             logging.debug("m=%s u=%s h=%s v=%s a=%s",
@@ -253,13 +250,15 @@ class SOLIDserverRest:
                 verify=self.ssl_verify,
                 timeout=timeout,
                 auth=self.auth)
-        except requests.exceptions.SSLError:
+        except requests.exceptions.SSLError as error:
             raise SDSRequestError(method,
                                   url,
                                   self.headers,
-                                  message="SSL certificate error")
+                                  message="SSL certificate error") from error
         except BaseException as error:   # pragma: no cover
-            raise SDSRequestError(method, url, self.headers, message=error)
+            raise SDSRequestError(method, url,
+                                  self.headers,
+                                  message=error) from error
 
     # -------------------------------------
     def get_headers(self):

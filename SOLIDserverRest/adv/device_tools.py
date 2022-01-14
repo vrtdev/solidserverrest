@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-05-14 21:52:24 alex>
+# Time-stamp: <2022-01-14 12:33:39 alex>
 #
 
 """
@@ -28,7 +28,7 @@ from SOLIDserverRest.Exception import SDSEmptyError
 def apply_filter_metadata(filt, dev_raw):
     """apply metadata value filter"""
 
-    k = "tag_hostdev_{}".format(filt['name'])
+    k = f"tag_hostdev_{filt['name']}"
 
     return dev_raw[k] == str(filt['val'])
 
@@ -131,7 +131,7 @@ def _handle_filters(filters, _metadata_tags, _params):
                 _params['WHERE'] = _class_filter
 
         if filt['type'] == "metadata" and filt['val'] not in _metadata_tags:
-            _metadata_filter = "hostdev.{}".format(filt['name'])
+            _metadata_filter = f"hostdev.{filt['name']}"
             if 'TAGS' in _params:
                 _params['TAGS'] += "&"+_metadata_filter
             else:
@@ -153,7 +153,7 @@ def _handle_metadata(_metadata_tags, _metadatas, _params):
     if _metadatas:
         for _md in _metadatas:
             if _md not in _metadata_tags:
-                _metadata_filter = "hostdev.{}".format(_md)
+                _metadata_filter = f"hostdev.{_md}"
                 if 'TAGS' in _params:
                     _params['TAGS'] += "&"+_metadata_filter
                 else:
@@ -206,7 +206,7 @@ def list_devices_page(sds=None,
         # expose metadata if any
         if res and metadatas:
             for _md in metadatas:
-                tag = "tag_hostdev_{}".format(_md)
+                tag = f"tag_hostdev_{_md}"
                 if tag in dev and dev[tag] != '':
                     res[_md] = dev[tag]
 

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-07-26 16:11:40 alex>
+# Time-stamp: <2022-01-14 12:25:58 alex>
 #
 
 """test file for the device manager
@@ -109,6 +109,8 @@ def test_device_with_classparams():
     dev01.add_class_params({'c': 'new add'})
     dev01.create()
 
+    logging.info(dev01)
+    
     dev02 = sdsadv.Device(sds=sds, name=device_name)
     dev02.refresh()
 
