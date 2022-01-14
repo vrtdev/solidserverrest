@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 13:54:44 alex>
+# Time-stamp: <2022-01-14 14:23:12 alex>
 #
 # only for python v3
 
@@ -240,9 +240,11 @@ class SDS(ClassParams):
         """return the string notation of the server object"""
         connected = "not connected"
         if self.version:
-            connected = f"connected version={self.version} auth={self.auth_method}"
+            connected = (f"connected version={self.version}"
+                         + f" auth={self.auth_method}")
         proxy = ""
         if self.proxy_socks:
             proxy = f" socks5h://{self.proxy_socks}"
 
-        return "sds ip={self.sds_ip}{proxy} cred={self.user} {connected} [{self.sds}]"
+        return (f"sds ip={self.sds_ip}{proxy}"
+                " cred={self.user} {connected} [{self.sds}]")

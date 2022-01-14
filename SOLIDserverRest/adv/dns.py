@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 13:35:11 alex>
+# Time-stamp: <2022-01-14 14:17:15 alex>
 #
 
 """
@@ -118,7 +118,8 @@ class DNS(ClassParams):
         try:
             self.ipv4_addr = ipaddress.IPv4Address(ipv4)
         except ipaddress.AddressValueError as err:
-            raise SDSDNSError(message='bad IPv4 address for DNS server') from err
+            raise SDSDNSError(message='bad IPv4 address'
+                              ' for DNS server') from err
 
     # -------------------------------------
     def set_type(self, newtype=None, vdns_arch=None):
@@ -243,7 +244,8 @@ class DNS(ClassParams):
                 raise SDSDNSError(message="DNS server delete error, "
                                   + rjson['errmsg'])
         except SDSError as err:
-            raise SDSDNSError(message="DNS server delete error") from err
+            raise SDSDNSError(message="DNS server"
+                              " delete error") from err
 
         self.myid = -1
 
