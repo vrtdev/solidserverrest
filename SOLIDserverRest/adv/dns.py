@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-24 16:00:39 alex>
+# Time-stamp: <2022-01-14 14:17:15 alex>
 #
 
 """
@@ -34,7 +34,7 @@ class DNS(ClassParams):
         - name: dns server name
         """
 
-        super(DNS, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         self.ipv4_addr = None
         self.insync_wait_time = 0.5
@@ -101,8 +101,7 @@ class DNS(ClassParams):
         try:
             rjson = self.sds.query("dns_server_list",
                                    params={
-                                       "WHERE": "dns_name='{}'".
-                                                format(dnsname),
+                                       "WHERE": f"dns_name='{dnsname}'",
                                        **self.additional_params
                                    })
         except SDSError:
@@ -118,8 +117,9 @@ class DNS(ClassParams):
         ''' set ipv4 address of the DNS server'''
         try:
             self.ipv4_addr = ipaddress.IPv4Address(ipv4)
-        except ipaddress.AddressValueError:
-            raise SDSDNSError(message='bad IPv4 address for DNS server')
+        except ipaddress.AddressValueError as err:
+            raise SDSDNSError(message='bad IPv4 address'
+                              ' for DNS server') from err
 
     # -------------------------------------
     def set_type(self, newtype=None, vdns_arch=None):
@@ -203,8 +203,8 @@ class DNS(ClassParams):
         try:
             rjson = self.sds.query("dns_server_create",
                                    params=params)
-        except SDSError:   # pragma: no cover
-            raise SDSDNSError(message="create DNS server")
+        except SDSError as err:   # pragma: no cover
+            raise SDSDNSError(message="create DNS server") from err
 
         if 'errno' in rjson:   # pragma: no cover
             if rjson['errno'] == '14401':
@@ -243,8 +243,9 @@ class DNS(ClassParams):
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSDNSError(message="DNS server delete error, "
                                   + rjson['errmsg'])
-        except SDSError:
-            raise SDSDNSError(message="DNS server delete error")
+        except SDSError as err:
+            raise SDSDNSError(message="DNS server"
+                              " delete error") from err
 
         self.myid = -1
 
@@ -341,8 +342,7 @@ class DNS(ClassParams):
                 'vdns_parent_id',
         ]:
             if label not in rjson:   # pragma: no cover
-                raise SDSDNSError("parameter"
-                                  + " {}".format(label)
+                raise SDSDNSError(f"parameter {label}"
                                   + " not found in DNS server")
             self.params[label] = rjson[label]
 
@@ -417,13 +417,13 @@ class DNS(ClassParams):
     # -------------------------------------
     def __str__(self):
         """return the string notation of the DNS server object"""
-        return_val = "*DNS* name={}".format(self.name)
+        return_val = f"*DNS* name={self.name}"
 
         if self.myid != -1:
-            return_val += " id={}".format(self.myid)
+            return_val += f" id={self.myid}"
 
         if self.ipv4_addr is not None:
-            return_val += " ip={}".format(self.ipv4_addr)
+            return_val += f" ip={self.ipv4_addr}"
 
         if self.params['dns_type'] == 'ipm':
             return_val += " ipm={}".format(str(self.params['ipmdns_type']))
@@ -431,19 +431,19 @@ class DNS(ClassParams):
             return_val += " type={}".format(str(self.params['dns_type']))
 
         if self.params['dns_recursion'] is not None:
-            return_val += " recursion={}".format(self.params['dns_recursion'])
+            return_val += f" recursion={self.params['dns_recursion']}"
 
         if self.params['dns_forward'] in ['first', 'only']:
             return_val += " forward"
-            return_val += "[{}]={}".format(self.params['dns_forward'],
-                                           self.params['dns_forwarders'])
+            return_val += f"[{self.params['dns_forward']}]"
+            return_val += f"={self.params['dns_forwarders']}"
 
-        return_val += " notify={}".format(str(self.params['dns_notify']))
+        return_val += f" notify={self.params['dns_notify']}"
 
         if self.params['dns_class_name'] != '':    # pragma: no cover
             return_val += " class="
-            return_val += "{}".format(self.params['dns_class_name'])
+            return_val += "{self.params['dns_class_name']}"
 
-        return_val += str(super(DNS, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-04 10:58:41 alex>
+# Time-stamp: <2022-01-14 14:23:12 alex>
 #
 # only for python v3
 
@@ -32,7 +32,7 @@ class SDS(ClassParams):
     def __init__(self, ip_address=None, user=None, pwd=None):
         """init the SDS object:
         """
-        super(SDS, self).__init__()
+        super().__init__()
 
         self.sds_ip = None
         if ip_address is not None:
@@ -64,8 +64,8 @@ class SDS(ClassParams):
         try:
             ipaddress.IPv4Address(ip_address)
         except ipaddress.AddressValueError as error:
-            raise SDSInitError(message="IPv4 address of server error: {}".
-                               format(error))
+            raise SDSInitError(message=f"IPv4 address of"
+                               " server error: {error}") from error
 
         self.sds_ip = ip_address
 
@@ -76,8 +76,7 @@ class SDS(ClassParams):
         try:
             _ = socket.gethostbyname(fqdn)
         except socket.gaierror as error:
-            raise SDSInitError(message="FQDN of the SDS: {}".
-                               format(error))
+            raise SDSInitError(message=f"FQDN of the SDS: {error}") from error
 
         self.sds_ip = fqdn
 
@@ -234,21 +233,18 @@ class SDS(ClassParams):
                 return None
 
         except SDSAuthError as error:   # pragma: no cover
-            raise SDSAuthError("{}".format(error))
+            raise SDSAuthError(f"{error}") from error
 
     # ---------------------------
     def __str__(self):
         """return the string notation of the server object"""
         connected = "not connected"
         if self.version:
-            connected = "connected version={} auth={}".format(self.version,
-                                                              self.auth_method)
+            connected = (f"connected version={self.version}"
+                         + f" auth={self.auth_method}")
         proxy = ""
         if self.proxy_socks:
-            proxy = " socks5h://{}".format(self.proxy_socks)
+            proxy = f" socks5h://{self.proxy_socks}"
 
-        return "sds ip={}{} cred={} {} [{}]".format(self.sds_ip,
-                                                    proxy,
-                                                    self.user,
-                                                    connected,
-                                                    self.sds)
+        return (f"sds ip={self.sds_ip}{proxy}"
+                " cred={self.user} {connected} [{self.sds}]")

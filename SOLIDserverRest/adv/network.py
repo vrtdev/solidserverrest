@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-05-12 09:43:16 alex>
+# Time-stamp: <2022-01-14 13:51:41 alex>
 #
 # pylint: disable=R0801
 
@@ -154,7 +154,7 @@ class Network(ClassParams):
             **self.additional_params
         }
 
-        params['WHERE'] = 'block_id={}'.format(self.myid)
+        params['WHERE'] = f'block_id={self.myid}'
 
         try:
             rjson = self.sds.query("ip_subnet_find_free",
@@ -228,18 +228,17 @@ class Network(ClassParams):
         else:
             params['WHERE'] += " and "
 
-        params['WHERE'] += "site_id='{}'".format(self.space.params['site_id'])
+        params['WHERE'] += f"site_id='{self.space.params['site_id']}'"
 
         # look only under the block
-        params['WHERE'] += " and subnet_path like '%#{}#%'".format(
-            str(self.myid))
+        params['WHERE'] += f" and subnet_path like '%#{self.myid}#%'"
 
         if depth == 1:
-            params['WHERE'] += "and parent_subnet_id='{}'".format(self.myid)
+            params['WHERE'] += f"and parent_subnet_id='{self.myid}'"
 
         if terminal is not None:
             if terminal in [1, 0]:
-                params['WHERE'] += " and is_terminal='{}'".format(terminal)
+                params['WHERE'] += f" and is_terminal='{terminal}'"
 
         try:
             rjson = self.sds.query("ip_subnet_list",
@@ -402,7 +401,7 @@ class Network(ClassParams):
             rjson = self.sds.query("ip_subnet_info",
                                    params=params)
         except SDSError as err_descr:
-            msg = "cannot get network info on id={}".format(subnet_id)
+            msg = f"cannot get network info on id={subnet_id}"
             msg += " / " + str(err_descr)
             raise SDSNetworkError(msg) from err_descr
 
@@ -430,7 +429,7 @@ class Network(ClassParams):
 
         for label in labels:
             if label not in rjson:  # pragma: no cover
-                msg = "parameter {} not found in network".format(label)
+                msg = f"parameter {label} not found in network"
                 raise SDSNetworkError(msg)
             self.params[label] = rjson[label]
 
@@ -462,10 +461,10 @@ class Network(ClassParams):
     def __str__(self):  # pragma: no cover
         """return the string notation of the network object"""
 
-        return_val = "*network* name={}".format(self.name)
+        return_val = f"*network* name={self.name}"
 
         if self.description is not None:
-            return_val += " \"{}\"".format(self.description)
+            return_val += f" \"{self.description}\""
 
         if self.is_block:
             return_val += " [block]"
@@ -479,7 +478,7 @@ class Network(ClassParams):
                                                'subnet_name'])
 
         if self.parent_network:
-            return_val += " parent={}".format(self.parent_network.myid)
+            return_val += f" parent={self.parent_network.myid}"
 
         return_val += str(super().__str__())
 

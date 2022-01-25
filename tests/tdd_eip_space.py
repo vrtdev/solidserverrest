@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-03-04 17:15:02 alex>
+# Time-stamp: <2022-01-14 11:57:50 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -103,8 +103,6 @@ def test_space_create_new():
     except SDSSpaceError:
         assert None, "this space should not exists"
     
-    # logging.info(space)
-
     space.delete()
 
 # -------------------------------------------------------

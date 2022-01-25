@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-04 11:00:41 alex>
+# Time-stamp: <2022-01-14 13:42:15 alex>
 #
 
 """
@@ -36,7 +36,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
         if sds and not isinstance(sds, SDS):
             raise SDSInitError(message="sds param is not of type SDS")
 
-        super(DNS_record, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         self.zone = None
         self.ttl = 3600
@@ -101,8 +101,9 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
             # check v1 is an ip address
             try:
                 ipaddress.IPv4Address(avalues[0])
-            except ipaddress.AddressValueError:
-                raise SDSInitError(message="record A requires an IP address")
+            except ipaddress.AddressValueError as err:
+                raise SDSInitError(message="record A requires"
+                                   + " an IP address") from err
 
             self.values = {
                 '1': avalues[0]
@@ -112,8 +113,9 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
             # check v1 is an ip address
             try:
                 ipaddress.IPv6Address(avalues[0])
-            except ipaddress.AddressValueError:
-                raise SDSInitError(message="record A requires an IP address")
+            except ipaddress.AddressValueError as err:
+                raise SDSInitError(message="record A "
+                                   + "requires an IP address") from err
 
             self.values = {
                 '1': avalues[0]
@@ -142,15 +144,13 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
 
         else:
             raise SDSDNSError(message="unknown type"
-                              " of record {}".format(self.rr_type))
+                              f" of record {self.rr_type}")
 
     # -------------------------------------
     def set_ttl(self, ttl):
         """ set the ttl for this record """
 
-        self.ttl = int(ttl)
-        if self.ttl < 5:
-            self.ttl = 5
+        self.ttl = max(int(ttl), 5)
 
     # -------------------------------------
     def create(self, sync=True):
@@ -166,7 +166,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
 
         if '1' not in self.values:
             raise SDSDNSError(
-                message="no values set for record {}".format(self.rr_type))
+                message=f"no values set for record {self.rr_type}")
 
         params = {
             'rr_name': self.name,
@@ -180,20 +180,20 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
 
         for _v in ['2', '3', '4', '5', '6', '7']:
             if _v in self.values:
-                params['value{}'.format(_v)] = self.values[_v]
+                params[f'value{_v}'] = self.values[_v]
 
         self.prepare_class_params('rr', params)
 
         try:
             rjson = self.sds.query("dns_rr_create",
                                    params=params)
-        except SDSError:   # pragma: no cover
-            raise SDSDNSError(message="create DNS record")
+        except SDSError as err:   # pragma: no cover
+            raise SDSDNSError(message="create DNS record") from err
 
         # logging.info(rjson)
         if 'errno' in rjson and int(rjson['errno']) > 0:
             raise SDSDNSError(message="record:"
-                              " {}".format(rjson['errmsg']))
+                              f" {rjson['errmsg']}")
 
         rjson = rjson[0]
         if 'ret_oid' in rjson:
@@ -220,7 +220,6 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
                 if delete:
                     return None
 
-                _wait_delay *= 2
                 time.sleep(_wait_delay)
                 continue
             except SDSError:
@@ -299,7 +298,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
         ]:
             if label not in rjson:   # pragma: no cover
                 raise SDSDNSError("parameter"
-                                  + " {}".format(label)
+                                  + f" {label}"
                                   + " not found in DNS zone")
             self.params[label] = rjson[label]
 
@@ -333,8 +332,8 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSDNSError(message="DNS record delete, "
                                   + rjson['errmsg'])
-        except SDSError:
-            raise SDSDNSError(message="DNS record delete error")
+        except SDSError as err:
+            raise SDSDNSError(message="DNS record delete error") from err
 
         if sync:
             time.sleep(0.1)
@@ -367,7 +366,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
 
         for _v in ['2', '3', '4', '5', '6', '7']:
             if _v in self.values:
-                params['value{}'.format(_v)] = self.values[_v]
+                params[f'value{_v}'] = self.values[_v]
 
         self.prepare_class_params('rr', params)
 
@@ -385,26 +384,26 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
     # -------------------------------------
     def __str__(self):
         """return the string notation of the DNS record object"""
-        return_val = "*RR* name={}".format(self.name)
+        return_val = f"*RR* name={self.name}"
 
         if self.myid and self.myid != -1:
-            return_val += " [#{}]".format(self.myid)
+            return_val += f" [#{self.myid}]"
 
         if self.zone:
-            return_val += " server={}".format(self.zone.dns_server.name)
-            return_val += " zone={}".format(self.zone.name)
+            return_val += f" server={self.zone.dns_server.name}"
+            return_val += f" zone={self.zone.name}"
 
         if self.rr_type:
-            return_val += " {}".format(self.rr_type)
+            return_val += f" {self.rr_type}"
             if self.rr_type == 'A':
                 if '1' in self.values:
-                    return_val += "={}".format(self.values['1'])
+                    return_val += f"={self.values['1']}"
 
-            return_val += " ttl={}".format(self.ttl)
+            return_val += f" ttl={self.ttl}"
 
             if 'rr_glue' in self.params:
-                return_val += " glue={}".format(self.params['rr_glue'])
+                return_val += f" glue={self.params['rr_glue']}"
 
-        return_val += str(super(DNS_record, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val

@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-08-25 15:17:23 alex>
+# Time-stamp: <2022-01-14 12:42:36 alex>
 #
 # only for python v3
 
@@ -79,14 +79,14 @@ class Base:
     # ---------------------------
     def __str__(self):
         """return the string notation of the base object"""
-        return " sync: {}".format(self.in_sync)
+        return f" sync: {self.in_sync}"
 
     # -------------------------------------
     def _get_id_by_name(self, query, key, name, key_id=None):
         """get the ID from its name, return None if non existant"""
 
         params = {
-            "WHERE": "{}_name='{}'".format(key, name),
+            "WHERE": f"{key}_name='{name}'",
             "limit": 1,
             **self.additional_params
         }
@@ -94,30 +94,30 @@ class Base:
         # logging.info(self.additional_where_params)
         for _key, _value in self.additional_where_params.items():
             if isinstance(_value, str):
-                params['WHERE'] += " and {}='{}'".format(_key, _value)
+                params['WHERE'] += f" and {_key}='{_value}'"
             elif isinstance(_value, int):
-                params['WHERE'] += " and {}={}".format(_key, _value)
+                params['WHERE'] += f" and {_key}={_value}"
 
         # pylint: disable=E1101
         if hasattr(self, 'space'):
             if self.space:
-                params['WHERE'] += " and site_id={}".format(self.space.myid)
+                params['WHERE'] += f" and site_id={self.space.myid}"
 
         # specific for networks
         if hasattr(self, 'subnet_addr'):
             if self.subnet_addr:
                 params['WHERE'] += " and start_hostaddr="
-                params['WHERE'] += "'{}'".format(self.subnet_addr)
+                params['WHERE'] += f"'{self.subnet_addr}'"
 
         if hasattr(self, 'parent_network'):
             if self.parent_network:
                 params['WHERE'] += " and parent_subnet_id="
-                params['WHERE'] += "'{}'".format(self.parent_network.myid)
+                params['WHERE'] += f"'{self.parent_network.myid}'"
             elif 'parent_subnet_id' in self.params:
                 if self.params['parent_subnet_id']:
                     _psid = self.params['parent_subnet_id']
                     params['WHERE'] += " and parent_subnet_id="
-                    params['WHERE'] += "'{}'".format(_psid)
+                    params['WHERE'] += f"'{_psid}'"
 
         # logging.info(query)
         # logging.info(params)
@@ -126,7 +126,7 @@ class Base:
             rjson = self.sds.query(query,
                                    params=params)
         except SDSError as err_descr:
-            msg = "cannot found object by name {}_name={}".format(key, name)
+            msg = f"cannot found object by name {key}_name={name}"
             msg += " / "+str(err_descr)
             raise SDSError(msg) from err_descr
 
@@ -134,9 +134,9 @@ class Base:
             raise SDSError("errno raised on get id by name")
 
         if key_id:
-            return rjson[0]['{}_id'.format(key_id)]
+            return rjson[0][f'{key_id}_id']
 
-        return rjson[0]['{}_id'.format(key)]
+        return rjson[0][f'{key}_id']
 
     # -------------------------------------
     def _get_id(self, query, key):
@@ -147,7 +147,7 @@ class Base:
         if self.myid >= 0:
             return self.myid
 
-        if self.params['{}_id'.format(key)] is None:
+        if self.params[f'{key}_id'] is None:
             _id = self._get_id_by_name(query=query,
                                        key=key,
                                        name=self.name)
@@ -186,7 +186,8 @@ class Base:
     # -------------------------------------
     def set_additional_params(self, **kwargs):
         """set any kind of additionnal parameter, may need to filter entries"""
-        if self.additional_params == {}:
+        # if self.additional_params == {}:
+        if not self.additional_params:
             self.additional_params = kwargs
         else:
             self.additional_params.update(kwargs)
@@ -199,7 +200,8 @@ class Base:
     # -------------------------------------
     def set_additional_where_params(self, **kwargs):
         """set any kind of additionnal parameter for where queries"""
-        if self.additional_where_params == {}:
+        # if self.additional_where_params == {}:
+        if not self.additional_where_params:
             self.additional_where_params = kwargs
         else:
             self.additional_where_params.update(kwargs)
@@ -217,7 +219,7 @@ class Base:
     def str_params(self, exclude=None):
         """ add params value to str"""
 
-        return_val = " id={}".format(self.myid)
+        return_val = f" id={self.myid}"
 
         sep = " "
         for key, value in self.params.items():
@@ -228,7 +230,7 @@ class Base:
             if value == "":
                 continue
 
-            return_val += "{}{}={}".format(sep, key, value)
+            return_val += f"{sep}{key}={value}"
             sep = ", "
 
         return return_val

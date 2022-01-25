@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2020-04-13 16:10:32 alex>
+# Time-stamp: <2022-01-14 12:23:05 alex>
 #
 # only for python v3
 
@@ -113,7 +113,7 @@ class ClassParams(Base):
             return None
 
         if self.class_name:
-            key = "{}_class_name".format(keyprefix)
+            key = f"{keyprefix}_class_name"
             params[key] = self.class_name
 
         if params is None:
@@ -125,7 +125,7 @@ class ClassParams(Base):
         if self.__class_params == {}:
             return None
 
-        key = "{}_class_parameters".format(keyprefix)
+        key = f"{keyprefix}_class_parameters"
         params[key] = self.encode_class_params(self.__class_params)
 
         # logging.info(params)
@@ -166,7 +166,7 @@ class ClassParams(Base):
 
         sep = ""
         for key, value in sorted(self.__class_params.items()):
-            return_val += "{}{}={}".format(sep, key, value)
+            return_val += f"{sep}{key}={value}"
             sep = ", "
 
         return_val += "]"

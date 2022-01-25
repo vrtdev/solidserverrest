@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-09-21 13:42:01 alex>
+# Time-stamp: <2022-01-14 13:37:30 alex>
 #
 
 """
@@ -58,7 +58,7 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
         if sds and not isinstance(sds, SDS):
             raise SDSInitError(message="sds param is not of type SDS")
 
-        super(DNS_zone, self).__init__(sds, name)
+        super().__init__(sds, name)
 
         self.zone_type = None
         self.dns_server = None
@@ -124,12 +124,12 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
         try:
             rjson = self.sds.query("dns_zone_create",
                                    params=params)
-        except SDSError:   # pragma: no cover
-            raise SDSDNSError(message="create DNS zone")
+        except SDSError as err:   # pragma: no cover
+            raise SDSDNSError(message="create DNS zone") from err
 
         if 'errno' in rjson:
             raise SDSDNSError(message="create DNS zone"
-                              " {}".format(rjson['errmsg']))
+                              f" {rjson['errmsg']}")
 
         rjson = rjson[0]
         if 'ret_oid' in rjson:
@@ -193,8 +193,8 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
             if 'errmsg' in rjson:  # pragma: no cover
                 raise SDSDNSError(message="DNS zone delete error, "
                                   + rjson['errmsg'])
-        except SDSError:
-            raise SDSDNSError(message="DNS zone delete error")
+        except SDSError as err:
+            raise SDSDNSError(message="DNS zone delete error") from err
 
         if sync:
             time.sleep(2)
@@ -257,7 +257,7 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
         ]:
             if label not in rjson:   # pragma: no cover
                 raise SDSDNSError("parameter"
-                                  + " {}".format(label)
+                                  + f" {label}"
                                   + " not found in DNS zone")
             self.params[label] = rjson[label]
 
@@ -269,13 +269,13 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
     # -------------------------------------
     def __str__(self):
         """return the string notation of the DNS zone object"""
-        return_val = "*ZONE* name={}".format(self.name)
+        return_val = f"*ZONE* name={self.name}"
 
         if self.myid and self.myid != -1:
-            return_val += " [#{}]".format(self.myid)
+            return_val += f" [#{self.myid}]"
 
         if self.dns_server:
-            return_val += " server={}".format(self.dns_server.name)
+            return_val += f" server={self.dns_server.name}"
 
         if 'dnszone_is_reverse' in self.params:
             if self.params['dnszone_is_reverse'] == '1':
@@ -285,6 +285,6 @@ class DNS_zone(ClassParams):  # pylint: disable=C0103
         else:
             return_val += " not refreshed"
 
-        return_val += str(super(DNS_zone, self).__str__())
+        return_val += str(super().__str__())
 
         return return_val
