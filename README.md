@@ -21,7 +21,7 @@ Install 'SOLIDserverRest' using pip in your virtualenv:
 
 # Usage
 
-## Using the SOLIDserverRest advanced object
+## Using the SOLIDserverRest advanced object (recommended)
 
 All commands and object manipulation are going through a SOLIDserver main object, handling the connection to the manager and pushing API calls. The creation of a SOLIDserver object is done like that:
 ```
