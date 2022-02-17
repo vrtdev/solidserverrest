@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 14:17:15 alex>
+# Time-stamp: <2022-02-17 19:35:01 alex>
 #
 
 """
@@ -442,7 +442,7 @@ class DNS(ClassParams):
 
         if self.params['dns_class_name'] != '':    # pragma: no cover
             return_val += " class="
-            return_val += "{self.params['dns_class_name']}"
+            return_val += f"{self.params['dns_class_name']}"
 
         return_val += str(super().__str__())
 
