@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-02-17 19:21:53 alex>
+# Time-stamp: <2022-02-17 19:28:27 alex>
 #
 # only for python v3
 
@@ -94,7 +94,7 @@ class SDS(ClassParams):
             raise SDSInitError(message=msg)
         self.user = user
         self.pwd = pwd
-        
+
     # ---------------------------
     def set_check_cert(self, check=True):
         """whether we have to check the certificate, even if not provided"""
