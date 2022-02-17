@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 14:23:12 alex>
+# Time-stamp: <2022-02-17 19:21:53 alex>
 #
 # only for python v3
 
@@ -94,6 +94,11 @@ class SDS(ClassParams):
             raise SDSInitError(message=msg)
         self.user = user
         self.pwd = pwd
+        
+    # ---------------------------
+    def set_check_cert(self, check=True):
+        """whether we have to check the certificate, even if not provided"""
+        self.check_certificate = check
 
     # ---------------------------
     def connect(self, method="basicauth", cert_file_path=None, timeout=1):
@@ -123,8 +128,8 @@ class SDS(ClassParams):
         if cert_file_path is not None:
             self.sds.set_certificate_file(cert_file_path)
             self.check_certificate = True
-        else:
-            self.sds.set_ssl_verify(False)
+
+        self.sds.set_ssl_verify(self.check_certificate)
 
         if timeout != self.timeout:
             self.timeout = timeout
@@ -247,4 +252,4 @@ class SDS(ClassParams):
             proxy = f" socks5h://{self.proxy_socks}"
 
         return (f"sds ip={self.sds_ip}{proxy}"
-                " cred={self.user} {connected} [{self.sds}]")
+                f" cred={self.user} {connected} [{self.sds}]")
