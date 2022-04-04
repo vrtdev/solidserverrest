@@ -284,7 +284,7 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
                 'dns_comment',
                 'dns_type',
                 'dns_version',
-                'rr_class_name',
+                # 'rr_class_name',
                 'rr_full_name_utf',
                 'rr_glue',
                 'ttl',
