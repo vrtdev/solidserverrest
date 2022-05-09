@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 12:25:58 alex>
+# Time-stamp: <2022-05-09 13:26:07 alex>
 #
 
 """test file for the device manager
