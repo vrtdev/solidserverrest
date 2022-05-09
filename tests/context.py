@@ -23,13 +23,13 @@ def _connect_to_sds():
 
     try:
         sds.connect(method="basicauth", cert_file_path="ca.crt", timeout=10)
+        return sds
     except SDSError as e:
         logging.debug("certificate error, fallback to no TLS validation")
 
     try:
         sds.connect(method="basicauth", timeout=10)
+        return sds
     except SDSError as e:
         logging.debug(e)
         assert None, "connection error"
-
-    return sds

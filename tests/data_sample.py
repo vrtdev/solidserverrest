@@ -2,8 +2,8 @@
 # -*-coding:Utf-8 -*
 ##########################################################
 
-SERVER = '192.168.24.253'
-SERVER_NAME = 'lab02.efficientip.demo'
+SERVER = '192.168.24.230'
+SERVER_NAME = 'sds01.home'
 USER = 'alex'
 PWD = 'admin'
 PARAMETERS = {

@@ -10,7 +10,7 @@ with open(os.path.join(here, 'README.md')) as f:
 
 setup(
     name='SOLIDserverRest',
-    version='2.3.4',
+    version='2.3.5',
     author='Gregory CUGAT / Alex Chauvin',
     url='https://gitlab.com/efficientip/solidserverrest',
     description='The SOLIDserverRest is a library to drive EfficientIP API',
@@ -29,7 +29,7 @@ setup(
                       'urllib3~=1.26',
                       'idna~=3.3',
                       'chardet~=4.0',
-                      'pyopenssl~=21.0',
+                      'pyopenssl~=22.0',
                       'packaging~=21.3'],
     license='BSD 2',
     packages=['SOLIDserverRest', 'SOLIDserverRest.adv'],

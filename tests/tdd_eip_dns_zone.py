@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2021-06-07 18:26:55 alex>
+# Time-stamp: <2022-05-09 13:41:57 alex>
 #
 
 """test file for DNS zones
@@ -119,6 +119,7 @@ def test_simple_create_zone():
     # logging.info(dns_zone)
 
     dns_zone.delete()
+    dns.delete()
 
 # -------------------------------------------------------
 def test_class_params():
@@ -145,6 +146,7 @@ def test_class_params():
         assert None, "2 zones are different vs class params"
     
     dns_zone.delete()
+    dns.delete()
 
 # -------------------------------------------------------
 def test_refresh_existing_zone():
@@ -170,6 +172,7 @@ def test_refresh_existing_zone():
         assert None, "refresh on existant zone should not fail"
 
     dns_zone.delete()
+    dns.delete()
 
 # -------------------------------------------------------
 def test_refresh_nonexisting_zone():
@@ -185,6 +188,8 @@ def test_refresh_nonexisting_zone():
         assert None, "refresh on nonexistant zone should not fail"        
     except SDSError:
         None
+
+    dns.delete()
 
 # -------------------------------------------------------
 def test_create_multi_zone_async():
@@ -210,8 +215,11 @@ def test_create_multi_zone_async():
         zone.refresh()
         # logging.info(zone)
 
-    for zone in azones:
+    for zone in azones[:-1]:
         zone.delete(sync=False)
+    azones[-1].delete(sync=True)
+
+    dns.delete()
         
 # -------------------------------------------------------
 def test_create_zone_reverse():
@@ -232,3 +240,4 @@ def test_create_zone_reverse():
     # logging.info(dns_zone)
 
     dns_zone.delete()
+    dns.delete()
