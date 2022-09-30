@@ -210,7 +210,8 @@ class Network(ClassParams):
                         offset=0,
                         page=25,
                         limit=50,
-                        collected=0):
+                        collected=0,
+                        only_under_block=True):
         """return the list of subnet in the parent subnet"""
         params = {
             'limit': page,
@@ -230,8 +231,9 @@ class Network(ClassParams):
 
         params['WHERE'] += f"site_id='{self.space.params['site_id']}'"
 
-        # look only under the block
-        params['WHERE'] += f" and subnet_path like '%#{self.myid}#%'"
+        if only_under_block:
+            # look only under the block
+            params['WHERE'] += f" and subnet_path like '%#{self.myid}#%'"
 
         if depth == 1:
             params['WHERE'] += f"and parent_subnet_id='{self.myid}'"
