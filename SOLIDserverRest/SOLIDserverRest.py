@@ -1,7 +1,7 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 # -*-coding:Utf-8 -*
 #
-# Time-stamp: <2022-01-14 12:08:34 alex>
+# Time-stamp: <2023-02-24 13:33:52 alex>
 #
 # disable naming convention issue
 # pylint: disable=C0103
@@ -161,7 +161,7 @@ class SOLIDserverRest:
             raise SDSInitError(f"invalid CA file {file_path}") from error
 
         self.session.verify = file_path
-        self.ssl_verify = True
+        self.ssl_verify = file_path
 
     # -------------------------------------
     def set_ssl_verify(self, value):
@@ -169,7 +169,9 @@ class SOLIDserverRest:
         if isinstance(value, bool):
             self.ssl_verify = value
         else:
-            logging.warning("bad type when calling set_ssl_verify")
+            logging.warning("bad type when calling set_ssl_verify"
+                            " if you want to set a cert, please use"
+                            " set_certificate_file")
             raise SDSError("requested bool on set_ssl_verify")
 
     # -------------------------------------
@@ -301,8 +303,7 @@ class SOLIDserverRest:
     # -------------------------------------
     def __str__(self):   # pragma: no cover
         _s = "SOLIDserverRest: API={}, user={}"
-        return(_s.format(self.prefix_url,
-                         self.user))
+        return _s.format(self.prefix_url, self.user)
 
     # deprecated method to be suppressed
 
