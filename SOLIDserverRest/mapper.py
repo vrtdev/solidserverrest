@@ -225,6 +225,17 @@ SERVICE_MAPPER.update({
 })
 
 SERVICE_MAPPER.update({
+    # dhcp leases
+    'dhcp_range_lease_info': 'dhcp_range_lease_info',
+    'dhcp_range_lease_count': 'dhcp_range_lease_count',
+    'dhcp_range_lease_list': 'dhcp_range_lease_list',
+
+    'dhcp_lease_log_list': 'dhcp_lease_log_list',
+    'dhcp_lease_log_count': 'dhcp_lease_log_count',
+    'dhcp_lease_manual_delete': 'dhcp_lease_manual_delete'
+})
+
+SERVICE_MAPPER.update({
     # dhcp6
     'dhcp_server6_create': 'dhcp6_add',
     'dhcp_server6_update': 'dhcp6_add',

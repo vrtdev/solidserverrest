@@ -1,9 +1,9 @@
-pytest~=6.2
-pycodestyle~=2.8
+pytest~=7.2
+pycodestyle~=2.10
 codecov~=2.1
 pylint
-pytest-cov~=2.12
+pytest-cov~=4.0
 six~=1.16
-py~=1.9
+py~=1.11
 names
-dnspython
+dnspython~=2.3
