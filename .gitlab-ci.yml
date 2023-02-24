@@ -1,48 +1,30 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test36
-- test37
-- test38
+- test310
 - test39
+- test38
+- test37
 - coverage
 - test
+
 cache:
   paths:
-  - ".coverage-py36"
   - ".coverage-py37"
   - ".coverage-py38"
   - ".coverage-py39"
+  - ".coverage-py310"
+
 before_script:
 - ls -la
 - apk add --no-cache --virtual .build-deps gcc linux-headers libc-dev libffi-dev openssl-dev
   git rust cargo
 - python -m pip install -U pip
 - pip install -r requirements.txt
-test-36:
-  stage: test36
-  image: python:3.6-alpine
-  script:
-  - pip install -r requirements-tests.txt
-  - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
-  - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
-  - cp .coverage .coverage-py36
-  only:
-  - master
-  - dev
-  - advanced-lib
-  - "/^adv-.*/"
-  - "/^fix.*/"
-  - "/^\\d+-.*/"
+
 test-37:
   stage: test37
   image: python:3.7-alpine
   dependencies:
-  - test-36
+  - test-38
   script:
   - pip install -r requirements-tests.txt
   - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
@@ -51,11 +33,12 @@ test-37:
   only:
   - master
   - dev
+
 test-38:
   stage: test38
   image: python:3.8-alpine
   dependencies:
-  - test-36
+  - test-39
   script:
   - pip install -r requirements-tests.txt
   - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
@@ -64,11 +47,12 @@ test-38:
   only:
   - master
   - dev
+
 test-39:
   stage: test39
   image: python:3.9-alpine
   dependencies:
-  - test-36
+  - test-310
   script:
   - pip install -r requirements-tests.txt
   - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
@@ -80,25 +64,43 @@ test-39:
   - "/^adv-.*/"
   - "/^fix.*/"
   - "/^\\d+-.*/"
+
+test-310:
+  stage: test310
+  image: python:3.10-alpine
+  script:
+  - pip install -r requirements-tests.txt
+  - pycodestyle ./SOLIDserverRest/*.py ./SOLIDserverRest/adv/*.py
+  - pytest -x --cov=./SOLIDserverRest --cov-config=tests/gitlab-coverage.rc tests/test*py
+  - cp .coverage .coverage-py310
+  only:
+  - master
+  - dev
+  - "/^adv-.*/"
+  - "/^fix.*/"
+  - "/^\\d+-.*/"
+
 coverage:
   stage: coverage
-  image: python:3.8-alpine
+  image: python:3.9-alpine
   dependencies:
+  - test-310
   - test-39
   - test-38
   - test-37
-  - test-36
   script:
   - pip install -r requirements-tests.txt
-  - coverage combine .coverage-py36 .coverage-py37 .coverage-py38 .coverage-py39
+  - coverage combine .coverage-py310 .coverage-py37 .coverage-py38 .coverage-py39
   - coverage report -m
   - codecov
   only:
   - master
   - dev
+
 sast:
   variables:
     SAST_EXCLUDED_PATHS: tests, examples, cli, docs
   stage: test
+
 include:
 - template: Security/SAST.gitlab-ci.yml

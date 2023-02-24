@@ -1,6 +1,6 @@
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-04 10:47:37 alex>
+# Time-stamp: <2023-02-24 13:12:46 alex>
 #
 
 """test file for the eip advance suite package, require an SDS to be available
@@ -205,6 +205,21 @@ def test_basic_auth_with_cert():
 
     logging.debug(sds)
 
+def test_basic_auth_with_badcert():
+    """create a connection to a SOLIDserver with basic auth and wrong server certificate"""
+    sds = sdsadv.SDS()
+    sds.set_server_ip(SERVER)
+    sds.set_credentials(user=USER, pwd=PWD)
+    try:
+        sds.connect(method="basicauth", cert_file_path="ca-invalid.crt")
+        assert None, "wrong certifiate validation error"
+    except SDSRequestError as e:
+        pass
+    except SDSInitError as e:
+        pass
+
+    logging.debug(sds)
+    
 
 def test_native_auth():
     """create a connection to a SOLIDserver with native auth"""
