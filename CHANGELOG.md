@@ -1,10 +1,13 @@
+# 2.3.8
+  * fix dhcp mapping for leases was not in the pip package
+
 # 2.3.7
   * fix dhcp mapping for leases
   * fix certificate internal file in requests was broken
   * add test for bad cert request
 
 # 2.3.5
-  * update ssl lib	
+  * update ssl lib
 
 # 2.3.0
   * add update to DNS record object (for ttl and values)
