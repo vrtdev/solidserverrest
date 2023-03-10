@@ -39,7 +39,7 @@ try:
     sds.connect(method="native")
 except SDSError as e:
     logging.error(e)
-    exit()
+    exit(1)
 
 print(adv)
 
