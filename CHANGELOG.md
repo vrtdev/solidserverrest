@@ -1,3 +1,6 @@
+# 2.3.9
+  * fix dns record refresh with rr type
+
 # 2.3.8
   * fix dhcp mapping for leases was not in the pip package
 
