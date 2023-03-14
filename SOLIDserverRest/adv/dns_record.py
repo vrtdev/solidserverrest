@@ -1,7 +1,7 @@
 #
 # -*- Mode: Python; python-indent-offset: 4 -*-
 #
-# Time-stamp: <2022-01-14 13:42:15 alex>
+# Time-stamp: <2023-03-14 11:15:45 alex>
 #
 
 """
@@ -305,7 +305,12 @@ class DNS_record(ClassParams):  # pylint: disable=C0103
         if 'rr_class_parameters' in rjson:
             self.update_class_params(rjson['rr_class_parameters'])
 
+        # get the TTL
         self.ttl = int(rjson['ttl'])
+
+        # get the record type
+        self.rr_type = rjson['rr_type']
+
         self.set_values([rjson['value1'],
                          rjson['value2'],
                          rjson['value3'],
